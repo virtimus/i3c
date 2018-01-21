@@ -9,4 +9,4 @@ docker run -d --name $cName \
 		-e VIRTUAL_PORT=9000 \
 		-v /var/run/docker.sock:/var/run/docker.sock \
 		-v /tmp/portainer:/data \
-		i3c/$cName
+		i3c/$cName --no-analytics
