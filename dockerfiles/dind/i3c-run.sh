@@ -1,10 +1,10 @@
 #!/bin/bash
 #-v /var/lib/docker:/var/lib/docker 
+#--dns=$(ip i3cp) 
 cName=dind  
 docker run -d --name $cName \
 		-p 9001:9000 \
 		--privileged \
-		--dns=$(ip i3cp) \
 		-v $i3cDataDir/$cName:/data \
 		-v $i3cRoot:$i3cRoot \
 		-v $i3cLogDir/$cName:/log \
