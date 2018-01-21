@@ -11,7 +11,7 @@ if [ ! -f $I3C_HOME/i3c.sh ]; then
     git clone https://github.com/virtimus/i3c.git
     
     cd i3c
-    chmod -R a+x **/*.sh
+    find -name '*.sh' -exec  chmod a+x {} \;
 fi
 
 if [ ! -e /i ]; then  
