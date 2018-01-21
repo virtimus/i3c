@@ -52,13 +52,16 @@ curl -sSL https://raw.githubusercontent.com/virtimus/i3c/main/bootstrap.sh | bas
 tail -f /i3c/log/bootstrap.log
 ```
 
+- at the end You should have containers i3c/i3cp running (docker ps)
+
 - ... and runing backend ui:
 ```bash
-tail -f /i3c/log/grunt-run-dev.log ("Waiting..." line means success)
+/i rebuild portainer
+/i rerun portainer
+tail -f /i3c/log/portainer/grunt-run-dev.log ("Waiting..." line means success)
 ```
 
-- at the end You should have containers i3cd/i3c/i3cp running (docker ps)
-- backend i3c UI available at [hostIp]:9000 (localhost:9000 or 192.168.99.100:9000)
+- backend portainer UI available at [hostIp]:9000 (localhost:9000 or 192.168.99.100:9000)
 
 
 ## Installation as local i3c.Cloud endpoint
