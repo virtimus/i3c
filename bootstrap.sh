@@ -14,7 +14,7 @@ mkdir /i3c
 mkdir /i3c/log
 mkdir /i3c/data
 
-if [ ! -e /log ]; then
+if [ ! -e "/log" ]; then
     ln -s /i3c/log /log
 fi
 
