@@ -42,6 +42,8 @@ ie (for BUOW):
 ```bash
 ln -s /mnt/c/i3cRoot /i3c
 ```
+- make sure docker is connected/runing (ie docker ps)
+
 - Run main bootstrap script:
 ```bash
 curl -sSL https://raw.githubusercontent.com/virtimus/i3c/master/bootstrap.sh | bash
