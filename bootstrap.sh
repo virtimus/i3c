@@ -14,12 +14,16 @@ mkdir /i3c
 mkdir /i3c/log
 mkdir /i3c/data
 
+if [! -e /log ]
+    ln -s /i3c/log /log
+fi
+
 cd /i3c
 git clone https://github.com/virtimus/i3c.git
 cd i3c
 find -name '*.sh' -exec  chmod a+x {} \;
-nohup ./i3c-install/bootstrap.sh > ./../log/bootstrap.log 2>&1 &
+nohup ./i3c-install/bootstrap.sh > /log/bootstrap-install.log 2>&1 &
 
 echo "------------------------------------------------------------------------"
-echo "Started: i3c/bootstrap.sh. Look at /i3c/log/bootstrap.log for results."
+echo "Started: i3c/bootstrap.sh. Look at /i3c/log/bootstrap-install.log for results."
 echo "------------------------------------------------------------------------"
