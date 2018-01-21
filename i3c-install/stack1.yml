@@ -18,5 +18,5 @@ services:
       PWD_HOST_IP: ${PWD_HOST_IP}
       PWD_HOST_FQDN: ${PWD_HOST_FQDN}
     image: franela/dind
-    command: sh -c "curl -sSL https://raw.githubusercontent.com/virtimus/i3c/master/bootstrap.sh | bash >> /i3c/log/bootstrap0.log 2>&1 && tail -f /dev/null"
-    volumes: [ '/var/run/docker.sock:/var/run/docker.sock' ]
+    command: sh -c "curl -sSL https://raw.githubusercontent.com/virtimus/i3c/master/bootstrap.sh | bash >> /i3c/log/bootstrap.log 2>&1 && tail -f /dev/null"
+    volumes: [ '/var/run/docker.sock:/var/run/docker.sock', '/var/log:/log' ]
