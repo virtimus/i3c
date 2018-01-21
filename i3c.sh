@@ -52,19 +52,6 @@ esac
 run(){
 #echo 'run:'$@;	
 case "$1" in
-	i3cd)
-		docker run -d --name i3cd \
-		--dns=$(ip i3cp) \
-		-v $i3cDataDir/i3cd:/data \
-		-v $i3cRoot:$i3cRoot \
-		-v $i3cLogDir/i3cd:/log \
-		-v /var/run/docker.sock:/var/run/docker.sock \
-		-e I3C_HOST=$i3cHost \
-		-e I3C_HOME=$i3cHome \
-		-e I3C_DATA_DIR=/data \
-		-e I3C_LOG_DIR=/log \
-		i3c/i3cd 
-		;;			
 	*)
 		if [ -f $i3cUdfDir/$1/i3c.json ]; then
 			i3cDfDir=$i3cUdfDir 
@@ -77,10 +64,7 @@ esac
 #echo "echo \$(/sbin/ip route|awk '/default/ { print \$3 }')' $i3cHost' >> /etc/hosts"
 
 rm(){
-case "$1" in
-	i3cd)
-		docker rm i3cd
-		;;			
+case "$1" in			
 	*)
 		docker rm $1;
 esac
@@ -95,20 +79,14 @@ rmidangling(){
 }
 
 start(){
-case "$1" in
-	i3cd)
-		docker start i3cd
-		;;		
+case "$1" in	
 	*)
 		docker start $1;
 esac
 }
 
 stop(){
-case "$1" in
-	i3cd)
-		docker stop i3cd
-		;;		
+case "$1" in		
 	*)
 		docker stop $1;
 esac
@@ -127,20 +105,14 @@ logs(){
 }
 
 exec(){
-case "$1" in
-	i3cd)
-		docker exec -it i3cd $2
-		;;		
+case "$1" in	
 	*)
 		docker exec -it $1 ${@:2};
 esac
 }
 
 exe(){
-case "$1" in
-	i3cd)
-		docker exec i3cd $2
-		;;		
+case "$1" in	
 	*)
 		echo "docker exec $1 ${@:2}";
 esac
