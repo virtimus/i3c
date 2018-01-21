@@ -17,7 +17,7 @@ mkdir /i3c/data
 cd /i3c
 git clone https://github.com/virtimus/i3c.git
 cd i3c
-chmod -R a+x **/*.sh
+find -name '*.sh' -exec  chmod a+x {} \;
 nohup ./i3c-install/bootstrap.sh > ./../log/bootstrap.log 2>&1 &
 
 echo "------------------------------------------------------------------------"
