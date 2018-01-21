@@ -44,7 +44,7 @@ ln -s /mnt/c/i3cRoot /i3c
 ```
 - Run main bootstrap script:
 ```bash
-curl -sSL https://raw.githubusercontent.com/virtimus/i3c/develop/bootstrap.sh | bash
+curl -sSL https://raw.githubusercontent.com/virtimus/i3c/main/bootstrap.sh | bash
 ```
 - monitor installation progress:
 
