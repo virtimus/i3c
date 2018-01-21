@@ -1,0 +1,19 @@
+FROM alpine:latest as base
+RUN apk --no-cache --update upgrade && apk --no-cache add ca-certificates
+
+RUN apk update \
+	&& apk upgrade \
+	&& apk add bash git yarn docker
+
+#docker-compose
+#RUN apk add py-pip \
+#	&& pip install docker-compose
+
+VOLUME /i3c
+
+WORKDIR /
+
+COPY run.sh /
+RUN chmod a+x /run.sh
+CMD ["/run.sh"]
+

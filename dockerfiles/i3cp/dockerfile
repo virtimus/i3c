@@ -1,0 +1,9 @@
+FROM jwilder/nginx-proxy:alpine
+#https://github.com/jwilder/nginx-proxy
+
+RUN apk --no-cache add dnsmasq
+EXPOSE 53 53/udp
+
+COPY run.sh /
+RUN chmod a+x /run.sh
+CMD ["/run.sh"]

@@ -1,0 +1,7 @@
+{}
+
+#cd /opt/kafka
+#bin/kafka-topics.sh --create --zookeeper zookeeper.i3c.l --replication-factor 1 --partitions 1 --topic test
+#bin/kafka-topics.sh --list --zookeeper zookeeper.i3c.l
+#bin/kafka-console-producer.sh --broker-list kafka.i3c.l:80 --topic test
+#bin/kafka-console-consumer.sh --bootstrap-server kafka.i3c.l:80 --topic test --from-beginning

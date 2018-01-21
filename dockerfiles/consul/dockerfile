@@ -1,0 +1,6 @@
+FROM consul:1.0.2
+
+#https://github.com/portainer/portainer/issues/1375
+
+RUN apk update \
+	&& apk add bash

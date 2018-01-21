@@ -1,0 +1,30 @@
+FROM ruby:2.5-alpine3.7
+
+#https://www.vagrantup.com/intro/getting-started/install.html
+#https://www.vagrantup.com/docs/installation/source.html
+
+RUN apk update \
+	&& apk add bash git \
+	&& apk add --update alpine-sdk \
+	&& apk add libarchive-tools docker
+
+#apk add --update util-linux //whereis
+
+#todo better method to uninstall bundled version 
+RUN cd / \
+	&& git clone https://github.com/mitchellh/vagrant.git \
+	&& cd /vagrant \
+	&& gem uninstall vagrant vagrant-wrapper \
+	&& bundle install \
+	&& bundle --binstubs exec \
+    && mv /usr/local/bundle/bin/vagrant /usr/local/bundle/bin/vagrant.old \
+	&& ln -sf /vagrant/exec/vagrant  /usr/local/bundle/bin/vagrant
+
+#	&& ln -sf /vagrant/exec/vagrant /usr/local/bin/vagrant \
+
+
+#vagrant up --provider=aws
+	
+COPY run-loop.sh /
+RUN chmod a+x /run-loop.sh
+CMD ["/run-loop.sh"]	
