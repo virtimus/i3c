@@ -16,7 +16,7 @@ RUNNING=$(docker inspect --format="{{.State.Running}}" $CONTAINER 2> /dev/null)
 #  exit 3
 #fi
  
-if [ "$RUNNING" == "true" ]; then
+if [ "$RUNNING" = "true" ]; then
     echo "FINAL - $CONTAINER is already running."
     exit 0
 fi
