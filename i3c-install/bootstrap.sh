@@ -23,7 +23,9 @@ fi
 
 i3cHome='/i3c/i3c';	
 
-ln -s $i3cHome/i3c.sh /i
+if [ ! -e /i ]; then
+   ln -s $i3cHome/i3c.sh /i
+fi   
 
 echo "-------------------------"
 echo "/i rebuild base/alpine ..."
