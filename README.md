@@ -16,9 +16,9 @@ The Principles are:
 
 You can quickly deploy current develop version inside a "play-with-docker" (PWD) playground:
 
-- Browse [PWD/?stack=i3c-install/stack5.yml](http://play-with-docker.com/?stack=https://raw.githubusercontent.com/virtimus/i3c/develop/i3c-install/stack5.yml)
+- Browse [PWD/?stack=i3c-install/stack1.yml](http://play-with-docker.com/?stack=https://raw.githubusercontent.com/virtimus/i3c/master/i3c-install/stack1.yml)
 - Sign in with your [Docker ID](https://docs.docker.com/docker-id)
-- Follow [these](https://raw.githubusercontent.com/virtimus/i3c/develop/i3c-install/stack5.yml) steps inside stack5.yml.
+- Follow [these](https://raw.githubusercontent.com/virtimus/i3c/master/i3c-install/stack1.yml) steps inside stack1.yml.
 
 
 ## Installation "from scratch" as full i3c.Cloud platform master node (local/bootstrap)
