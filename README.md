@@ -44,6 +44,11 @@ ln -s /mnt/c/i3cRoot /i3c
 ```
 - make sure docker is connected/runing (ie docker ps)
 
+- set some optional ENV VARS(export [VARNAME]=[VALUE]):
+
+  - I3C_LOCAL_ENDPOINT - external domain of Your Host (default i3c.h)
+  - I3C_UDF_HOME - additional user i3c dockerfiles Home dir (example i3c-crypto)
+
 - Run main bootstrap script:
 ```bash
 curl -sSL https://raw.githubusercontent.com/virtimus/i3c/master/bootstrap.sh | bash
