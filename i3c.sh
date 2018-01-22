@@ -7,6 +7,9 @@ set -x
 i3cHost=i3c.l
 i3cInHost=i3c.l
 i3cExHost=i3c.h
+if [ "x$I3C_LOCAL_ENDPOINT" != "x" ]; then
+    i3cExHost=$I3C_LOCAL_ENDPOINT
+fi
 #i3cHostIp=$(/sbin/ip route|awk '/default/ { print $3 }');	
 i3cRoot='/i3c'
 i3cDataDir=$i3cRoot'/data'
