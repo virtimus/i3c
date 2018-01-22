@@ -20,7 +20,7 @@ i3cDfFolder=dockerfiles
 i3cDfHome=$i3cHome
 #i3cDfDir=$i3cHome$i3cDfFolder
 if [ "x$I3C_UDF_HOME" = "x" ]; then
-   I3C_UDF_HOME=$i3cDataDir'/i3cd'
+   I3C_UDF_HOME=$i3cDataDir'/i3c.user'
 fi
 i3cUdfHome=$I3C_UDF_HOME
 #i3cUdfDir=$i3cDataDir'/i3cd/i3c-crypto/dockerfiles'
