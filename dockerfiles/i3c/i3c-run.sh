@@ -14,3 +14,5 @@ docker run -d --name $cName \
 		-e I3C_DATA_DIR=/data \
 		-e I3C_LOG_DIR=/log \
 		i3c/$cName
+
+doCommand=false

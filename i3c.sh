@@ -13,18 +13,21 @@ i3cDataDir=$i3cRoot'/data'
 i3cHome=$i3cRoot'/i3c'; #'/i3c'
 i3cLogDir=$i3cRoot'/log'
 i3cVersion=v0
-i3cDfDir=$i3cHome/dockerfiles
-if [ "x$I3C_UDF_DIR" = "x" ]; then
-   I3C_UDF_DIR=$i3cDataDir'/i3cd'
+i3cDfFolder=dockerfiles
+i3cDfHome=$i3cHome
+#i3cDfDir=$i3cHome$i3cDfFolder
+if [ "x$I3C_UDF_HOME" = "x" ]; then
+   I3C_UDF_HOME=$i3cDataDir'/i3cd'
 fi
-i3cUdfDir=$I3C_UDF_DIR'/dockerfiles'
+i3cUdfHome=$I3C_UDF_HOME
 #i3cUdfDir=$i3cDataDir'/i3cd/i3c-crypto/dockerfiles'
-i3cUdiDir=$i3cDataDir'/i3cd/dockerimages'
+i3cUdiFolder=dockerimages
+i3cUdiHome=$i3cDataDir'/i3cd'
 
 load(){
 case "$1" in	
 	*)
-		docker load -i $i3cUdiDir/$1.i3ci
+		docker load -i $i3cUdiHome/$i3cUdiFolder/$1.i3ci
 		docker tag 	i3c-tmp-save i3c/$1
 esac
 }
@@ -33,21 +36,56 @@ save(){
 case "$1" in	
 	*)
 		docker commit $1 i3c-tmp-save		
-		docker save -o $i3cUdiDir/$1.i3ci i3c-tmp-save 
+		docker save -o $i3cUdiHome/$i3cUdiFolder/$1.i3ci i3c-tmp-save 
 esac
 }
 
+_procVars(){
+		if [ -e $i3cDfHome/$i3cDfFolder/$cName/i3c-$sCommand.sh ]; then
+			. $i3cDfHome/$i3cDfFolder/$cName/i3c-$sCommand.sh $@;
+		fi
+		if [ -e $i3cDfHome.local/$i3cDfFolder/$cName/i3c-$sCommand.sh ]; then
+			. $i3cDfHome.local/$i3cDfFolder/$cName/i3c-$sCommand.sh $@;
+		fi		
+		if [ -e $i3cUdfHome/$i3cDfFolder/$cName/i3c-$sCommand.sh ]; then
+			. $i3cUdfHome/$i3cDfFolder/$cName/i3c-$sCommand.sh $@;
+		fi
+		if [ -e $i3cUdfHome.local/$i3cDfFolder/$cName/i3c-$sCommand.sh ]; then
+			. $i3cUdfHome.local/$i3cDfFolder/$cName/i3c-$sCommand.sh $@;
+		fi
+}
+
+
 build(){
 case "$1" in	
-	*)
-	if [ -f $i3cUdfDir/$1/i3c.json ]; then
-		i3cDfDir=$i3cUdfDir 
-	fi
-	if [ -f $i3cDfDir/$1/i3c-build.sh ]; then
-		. $i3cDfDir/$1/i3c-build.sh
-	else	
-		docker build -t i3c/$1:$i3cVersion -t i3c/$1:latest $i3cDfDir/$1/.
+	*)	
+#	if [ -e $i3cUdfHome/$i3cDfFolder/$1/i3c-build.sh ]; then
+#		i3cDfHome=$i3cUdfHome 
+#	fi
+#	if [ -e $i3cDfHome/$i3cDfFolder/$1/i3c-build.sh ]; then
+#		. $i3cDfHome/$i3cDfFolder/$1/i3c-build.sh
+#	else
+		doCommand=true
+		dCommand='docker build'
+		sCommand=build
+		cName=$1
+		
+		_procVars $@;
+		
+		iName=$1
+		cName=$1
+		
+	if [ -e $i3cUdfHome/$i3cDfFolder/$1/i3c-build.sh ]; then
+		i3cDfHome=$i3cUdfHome 
 	fi		
+		
+		if [ "x$i3cImage" = "x" ]; then		
+			i3cImage=i3c/$iName
+		fi
+		if [ $doCommand == true ]; then
+			$dCommand -t $i3cImage:$i3cVersion -t $i3cImage:latest $i3cDfHome/$i3cDfFolder/$iName/.
+		fi
+#	fi		
 esac
 
 }
@@ -56,10 +94,46 @@ run(){
 #echo 'run:'$@;	
 case "$1" in
 	*)
-		if [ -f $i3cUdfDir/$1/i3c.json ]; then
-			i3cDfDir=$i3cUdfDir 
+		doCommand=true
+		cName=$1
+		iName=$1
+		dCommand='docker run'
+		sCommand=run
+		
+		_procVars $@;
+		
+		#check if need to proces base files
+		if [ "$1" == "$iName" ]; then
+			cName=$1;#cName here is readonly
+		else
+			cName=$iName
+			_procVars $@
+			cName=$1
+			_procVars $@;
 		fi
-		. $i3cDfDir/$1/i3c-run.sh $@;
+		if [ "x$i3cParams" = "x" ]; then
+			i3cParams="-v $i3cDataDir/$cName:/data \
+				-v $i3cHome:/i3c \
+				-v $i3cLogDir/$cName:/log \
+				-e I3C_HOST=$i3cHost \
+				-e I3C_HOME=/i3c \
+				-e I3C_DATA_DIR=/data \
+				-e I3C_LOG_DIR=/log"				
+		fi
+		if [ "x$i3cImage" = "x" ]; then		
+			i3cImage=i3c/$iName
+		fi			
+		if [ $doCommand == true ]; then		
+			$dCommand --name $1 \
+			$i3cParams \
+			$dParams \
+			$i3cImage:$i3cVersion \
+			$rCommand 			
+		fi
+		if [ -n "$(type -t i3cAfter)" ] && [ "$(type -t i3cAfter)" = function ]; then
+			i3cAfter $@;
+		fi
+		
 esac
 #docker exec  $1 sh -c "echo \$(/sbin/ip route|awk '/default/ { print \$3 }')' $i3cHost' >> /etc/hosts"
 }

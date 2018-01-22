@@ -10,3 +10,5 @@ docker run -d --name $cName \
 		-v /var/run/docker.sock:/var/run/docker.sock \
 		-v /tmp/portainer:/data \
 		i3c/$cName --no-analytics
+
+doCommand=false

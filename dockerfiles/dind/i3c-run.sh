@@ -16,4 +16,6 @@ docker run -d --name $cName \
 		-e I3C_LOG_DIR=/log \
 		i3c/$cName:$i3cVersion 
 #-s aufs		
-docker exec $cName sh -c "ln -s /i3c/i3c/i3c.sh /i"		
+docker exec $cName sh -c "ln -s /i3c/i3c/i3c.sh /i"	
+
+doCommand=false	

@@ -8,3 +8,5 @@ docker run -d --name vagrant \
 		-e I3C_DATA_DIR=/data \
 		-e I3C_LOG_DIR=/log \
 		i3c/vagrant:$i3cVersion 
+		
+doCommand=false		

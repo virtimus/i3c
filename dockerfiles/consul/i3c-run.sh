@@ -13,3 +13,5 @@ docker run -d --name consul \
 		-e VIRTUAL_PORT=8500 \
 		-e VIRTUAL_PROTO=http \
 		i3c/consul:$i3cVersion 
+		
+doCommand=false		

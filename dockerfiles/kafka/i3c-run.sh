@@ -32,3 +32,5 @@ docker run -d --name $cName \
       	-e KAFKA_ADVERTISED_HOST_NAME=$i3cInHost \
       	-e KAFKA_ZOOKEEPER_CONNECT=zookeeper.$i3cInHost \
 		i3c/$iName:$i3cVersion
+		
+doCommand=false		

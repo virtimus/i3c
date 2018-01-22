@@ -16,3 +16,5 @@ docker run -d --name $cName \
 		-e VIRTUAL_HOST=$cName.$i3cInHost,$cName.$i3cExHost \
 		-e VIRTUAL_PORT=2181 \
 		i3c/$iName:$i3cVersion
+
+doCommand=false
