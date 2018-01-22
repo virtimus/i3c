@@ -47,7 +47,7 @@ ln -s /mnt/c/i3cRoot /i3c
 - set some optional ENV VARS(export [VARNAME]=[VALUE]):
 
   - I3C_LOCAL_ENDPOINT - external domain of Your Host (default i3c.h)
-  - I3C_UDF_HOME - additional user i3c dockerfiles Home dir (example i3c-crypto)
+  - I3C_UDF_HOME - additional user i3c dockerfiles Home dir, default i3cData/i3c.user (example project i3c-crypto)
 
 - Run main bootstrap script:
 ```bash
