@@ -8,6 +8,7 @@ docker run -d --name $cName \
 		-v $i3cLogDir/$cName:/log \
 		-v /var/run/docker.sock:/var/run/docker.sock \
 		-e VIRTUAL_HOST=$cName.$i3cInHost,$cName.$i3cExHost \
+		-e I3C_LOCAL_ENDPOINT=$I3C_LOCAL_ENDPOINT \
 		-e VIRTUAL_PORT=80 \
 		-e I3C_HOST=$i3cHost \
 		-e I3C_HOME=$i3cHome \
