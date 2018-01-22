@@ -78,7 +78,7 @@ case "$1" in
 		iName=$1
 		cName=$1
 		
-	if [ -e $i3cUdfHome/$i3cDfFolder/$1/i3c-build.sh ]; then
+	if [ -e $i3cUdfHome/$i3cDfFolder/$1 ]; then
 		i3cDfHome=$i3cUdfHome 
 	fi		
 		
