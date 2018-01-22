@@ -17,7 +17,7 @@ i3cDfDir=$i3cHome/dockerfiles
 if [ "x$I3C_UDF_DIR" = "x" ]; then
    I3C_UDF_DIR=$i3cDataDir'/i3cd'
 fi
-i3cUdfDir=I3C_UDF_DIR'/dockerfiles'
+i3cUdfDir=$I3C_UDF_DIR'/dockerfiles'
 #i3cUdfDir=$i3cDataDir'/i3cd/i3c-crypto/dockerfiles'
 i3cUdiDir=$i3cDataDir'/i3cd/dockerimages'
 
