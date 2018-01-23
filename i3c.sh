@@ -54,11 +54,11 @@ _procVars(){
 			. $i3cDfHome.local/$i3cDfFolder/$cName/i3c-$sCommand.sh $@;
 		fi		
 		if [ -e $i3cUdfHome/$i3cDfFolder/$cName/i3c-$sCommand.sh ]; then
-			i3cDfcHome$i3cUdfHome
+			i3cDfcHome=$i3cUdfHome
 			. $i3cUdfHome/$i3cDfFolder/$cName/i3c-$sCommand.sh $@;
 		fi
 		if [ -e $i3cUdfHome.local/$i3cDfFolder/$cName/i3c-$sCommand.sh ]; then
-			i3cDfcHome$i3cUdfHome'.local'
+			i3cDfcHome=$i3cUdfHome'.local'
 			. $i3cUdfHome.local/$i3cDfFolder/$cName/i3c-$sCommand.sh $@;
 		fi
 }
