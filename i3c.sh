@@ -62,7 +62,7 @@ _procVars(){
 		fi
 }
 
-_imageClonePull(){
+_imageClonePullForBuild(){
 appName=$2
 dfFolder=basename $i3cDfcHome
 if [ ! -e $i3cDataDir/$dfFolder/$cName/$iName ]; then
