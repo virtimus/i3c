@@ -26,6 +26,7 @@ i3cUdfHome=$I3C_UDF_HOME
 #i3cUdfDir=$i3cDataDir'/i3cd/i3c-crypto/dockerfiles'
 i3cUdiFolder=dockerimages
 i3cUdiHome=$i3cDataDir'/i3cd'
+i3cDfcHome=''
 
 load(){
 case "$1" in	
