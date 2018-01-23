@@ -161,7 +161,10 @@ case "$1" in
 		fi
 		if [ "x$i3cImage" = "x" ]; then		
 			i3cImage=i3c/$iName
-		fi			
+		fi	
+		if [ "x$rCommand" = "x" ]; then
+			rCommand=${@:2};
+		fi
 		if [ $doCommand == true ]; then		
 			$dCommand --name $1 \
 			$i3cParams \
