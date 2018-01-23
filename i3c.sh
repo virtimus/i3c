@@ -66,16 +66,15 @@ _procVars(){
 _imageClonePullForBuild(){
 appName=$2
 dfFolder=$(basename $i3cDfcHome)
-if [ ! -e $i3cDataDir/$dfFolder/$cName/$iName ]; then
+if [ ! -e $i3cDataDir/$dfFolder/$cName/$appName ]; then
 	cd $i3cDataDir
 	mkdir $dfFolder
 	cd $dfFolder
 	mkdir $cName
 	cd $cName
 	git clone $1/$appName.git
-	mv $appName $iName
 else
-	cd $i3cDataDir/$dfFolder/$cName/$iName
+	cd $i3cDataDir/$dfFolder/$cName/$appName
 	git pull
 fi
 i3cDfHome=$i3cDataDir/$dfFolder
