@@ -73,14 +73,16 @@ case "$1" in
 		sCommand=build
 		cName=$1
 		
+	if [ -e $i3cUdfHome/$i3cDfFolder/$1 ]; then
+		i3cDfHome=$i3cUdfHome 
+	fi		
+		
 		_procVars $@;
 		
 		iName=$1
 		cName=$1
 		
-	if [ -e $i3cUdfHome/$i3cDfFolder/$1 ]; then
-		i3cDfHome=$i3cUdfHome 
-	fi		
+		
 		
 		if [ "x$i3cImage" = "x" ]; then		
 			i3cImage=i3c/$iName
