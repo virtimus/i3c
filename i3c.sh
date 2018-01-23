@@ -120,6 +120,7 @@ case "$1" in
 			i3cParams="-v $i3cDataDir/$cName:/data \
 				-v $i3cHome:/i3c \
 				-v $i3cLogDir/$cName:/log \
+				-e VIRTUAL_HOST=$cName.$i3cInHost,$cName.$i3cExHost \
 				-e I3C_LOCAL_ENDPOINT=$I3C_LOCAL_ENDPOINT \
 				-e I3C_HOST=$i3cHost \
 				-e I3C_HOME=/i3c \
