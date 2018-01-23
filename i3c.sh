@@ -111,8 +111,11 @@ case "$1" in
 		if [ "x$i3cImage" = "x" ]; then		
 			i3cImage=i3c/$iName
 		fi
+		if [ "x$iPath" = "x" ]; then		
+			iPath=$iName
+		fi		
 		if [ $doCommand == true ]; then
-			$dCommand -t $i3cImage:$i3cVersion -t $i3cImage:latest $i3cDfHome/$i3cDfFolder/$iName/.
+			$dCommand -t $i3cImage:$i3cVersion -t $i3cImage:latest $i3cDfHome/$i3cDfFolder/$iPath/.
 		fi
 #	fi		
 esac
