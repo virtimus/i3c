@@ -45,17 +45,40 @@ esac
 
 _procVars(){
 		if [ -e $i3cDfHome/$i3cDfFolder/$cName/i3c-$sCommand.sh ]; then
+			i3cDfcHome=$i3cDfHome
 			. $i3cDfHome/$i3cDfFolder/$cName/i3c-$sCommand.sh $@;
 		fi
 		if [ -e $i3cDfHome.local/$i3cDfFolder/$cName/i3c-$sCommand.sh ]; then
+			i3cDfcHome=$i3cDfHome'.local'
 			. $i3cDfHome.local/$i3cDfFolder/$cName/i3c-$sCommand.sh $@;
 		fi		
 		if [ -e $i3cUdfHome/$i3cDfFolder/$cName/i3c-$sCommand.sh ]; then
+			i3cDfcHome$i3cUdfHome
 			. $i3cUdfHome/$i3cDfFolder/$cName/i3c-$sCommand.sh $@;
 		fi
 		if [ -e $i3cUdfHome.local/$i3cDfFolder/$cName/i3c-$sCommand.sh ]; then
+			i3cDfcHome$i3cUdfHome'.local'
 			. $i3cUdfHome.local/$i3cDfFolder/$cName/i3c-$sCommand.sh $@;
 		fi
+}
+
+_imageClonePull(){
+appName=$2
+dfFolder=basename $i3cDfcHome
+if [ ! -e $i3cDataDir/$dfFolder/$cName/$iName ]; then
+	cd $i3cDataDir
+	mkdir $dfFolder
+	cd $dfFolder
+	mkdir $cName
+	cd $cName
+	git clone $1/$appName.git
+	mv $appName $iName
+else
+	cd $i3cDataDir/$dfFolder/$cName/$iName
+	git pull
+fi
+i3cDfHome=$i3cDataDir/$dfFolder
+i3cDfFolder=$cName
 }
 
 
