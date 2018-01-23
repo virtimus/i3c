@@ -72,7 +72,7 @@ if [ ! -e $i3cDataDir/$dfFolder/$cName/$appName ]; then
 	cd $dfFolder
 	mkdir $cName
 	cd $cName
-	git clone $1/$appName.git
+	git clone --depth 1 $1/$appName.git
 else
 	cd $i3cDataDir/$dfFolder/$cName/$appName
 	git pull
