@@ -96,9 +96,15 @@ case "$1" in
 		sCommand=build
 		cName=$1
 		
-	if [ -e $i3cUdfHome/$i3cDfFolder/$1 ]; then
-		i3cDfHome=$i3cUdfHome 
+	if [ -e $i3cDfHome.local/$i3cDfFolder/$1/dockerfile ]; then
+		i3cDfHome=$i3cDfHome'.local' 
 	fi		
+	if [ -e $i3cUdfHome/$i3cDfFolder/$1/dockerfile ]; then
+		i3cDfHome=$i3cUdfHome 
+	fi
+	if [ -e $i3cUdfHome.local/$i3cDfFolder/$1/dockerfile ]; then
+		i3cDfHome=$i3cUdfHome'.local' 
+	fi	
 		
 		_procVars $@;
 		
