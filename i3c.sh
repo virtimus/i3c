@@ -120,7 +120,7 @@ case "$1" in
 			iPath=$iName
 		fi		
 		if [ $doCommand == true ]; then
-			$dCommand -t $i3cImage:$i3cVersion -t $i3cImage:latest $i3cDfHome/$i3cDfFolder/$iPath/.
+			$dCommand $dParams -t $i3cImage:$i3cVersion -t $i3cImage:latest $i3cDfHome/$i3cDfFolder/$iPath/.
 		fi
 #	fi		
 esac
