@@ -1,11 +1,12 @@
-#!/bin/sh
-seconds=30000
+#!/bin/bash
+seconds=30
 if [ "x$1" != "x" ]; then
    seconds=$1
 fi
-while [ ! -e /i && seconds > 0 ] 
+cursecs=0
+while [ ! -e /i ] && [ "$cursecs" -lt "$seconds" ]
 do
-    echo "i3c/waitReady.sh - waiting for /i to appear ..."
-    sleep 1000
-    seconds -= 1000
+    echo "i3c/waitReady.sh - waiting $cursecs/$seconds for /i to appear ..."
+    sleep 5
+    cursecs=$(($cursecs + 5))
 done
