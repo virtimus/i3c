@@ -4,6 +4,8 @@ echo "Runing: i3c-install/bs-loopback-example.sh ..."
 
 curl -sSL https://raw.githubusercontent.com/virtimus/i3c/master/bootstrap.sh | bash
 
+/i exe i3c /waitReady.sh
+
 /i exe i3c "/i cloneUdfAndRun https://github.com/virtimus i3c-loopback lb-example"
 
 #cd /i3c
