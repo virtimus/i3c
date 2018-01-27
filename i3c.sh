@@ -245,6 +245,16 @@ case "$1" in
 esac
 }
 
+rebuild(){
+    	rm $1;
+    	build $1; 
+}
+
+rerun(){
+	stop $1;
+    	rm $1;
+    	run $@;
+}
 
 case "$1" in
 	build)
@@ -272,13 +282,10 @@ case "$1" in
     	rmidangling $2;
     	;;    
     rebuild)
-    	rm $2;
-    	build $2;    
+    	rebuild ${@:2};    
         ;;
     rerun)
-		stop $2;
-    	rm $2;
-    	run ${@:2};    
+	rerun ${@:2};    
         ;;		
 	pid)
 		pid $2;
