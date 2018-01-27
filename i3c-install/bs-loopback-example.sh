@@ -2,7 +2,7 @@
 echo "------------------------------------------------------------------------"
 echo "Runing: i3c-install/bs-loopback-example.sh ..."
 
-curl -sSL https://raw.githubusercontent.com/virtimus/i3c/master/bootstrap.sh | bash >> /log/bootstrap.log 2>&1
+curl -sSL https://raw.githubusercontent.com/virtimus/i3c/master/bootstrap.sh | bash
 
 cd /i3c
 
