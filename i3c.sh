@@ -81,6 +81,14 @@ i3cDfHome=$i3cDataDir/$dfFolder
 i3cDfFolder=$cName
 }
 
+cloneUdfAndRun(){
+	cd $i3cRoot
+	git clone $1/$2
+	export  I3C_UDF_HOME=$i3cRoot/$2
+	rebuild $3
+	rerun $3
+}
+
 
 build(){
 case "$1" in	
@@ -292,9 +300,12 @@ case "$1" in
 		;;								
 	logs)
 		logs $2;
-		;;	
+		;;
+	cloneUdfAndRun)
+		cloneUdfAndRun ${@:2};
+		;;		
 	*)
-			echo "Usage: $0 build|run|runb|start|stop|rm|psa|rmi|rebuild|rerun|pid|ip|exec|exe|save|load|logs|help...";
+			echo "Usage: $0 build|run|runb|start|stop|rm|psa|rmi|rebuild|rerun|pid|ip|exec|exe|save|load|logs|cloneUdfAndRun|help...";
 			echo "Help with command: $0 help [commmand]";
 esac
  	
