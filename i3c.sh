@@ -81,6 +81,14 @@ i3cDfHome=$i3cDataDir/$dfFolder
 i3cDfFolder=$cName
 }
 
+cloneUdfAndRun(){
+	cd $i3cRoot
+	git clone $1/$2
+	i3cUdfHome=$i3cRoot/$2
+	rebuild $3
+	rerun $3
+}
+
 
 build(){
 case "$1" in	
@@ -237,6 +245,16 @@ case "$1" in
 esac
 }
 
+rebuild(){
+    	rm $1;
+    	build $1; 
+}
+
+rerun(){
+	stop $1;
+    	rm $1;
+    	run $@;
+}
 
 case "$1" in
 	build)
@@ -264,13 +282,10 @@ case "$1" in
     	rmidangling $2;
     	;;    
     rebuild)
-    	rm $2;
-    	build $2;    
+    	rebuild ${@:2};    
         ;;
     rerun)
-		stop $2;
-    	rm $2;
-    	run ${@:2};    
+	rerun ${@:2};    
         ;;		
 	pid)
 		pid $2;
@@ -292,9 +307,12 @@ case "$1" in
 		;;								
 	logs)
 		logs $2;
-		;;	
+		;;
+	cloneUdfAndRun)
+		cloneUdfAndRun ${@:2};
+		;;		
 	*)
-			echo "Usage: $0 build|run|runb|start|stop|rm|psa|rmi|rebuild|rerun|pid|ip|exec|exe|save|load|logs|help...";
+			echo "Usage: $0 build|run|runb|start|stop|rm|psa|rmi|rebuild|rerun|pid|ip|exec|exe|save|load|logs|cloneUdfAndRun|help...";
 			echo "Help with command: $0 help [commmand]";
 esac
  	

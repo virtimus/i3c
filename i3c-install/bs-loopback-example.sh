@@ -2,16 +2,18 @@
 echo "------------------------------------------------------------------------"
 echo "Runing: i3c-install/bs-loopback-example.sh ..."
 
-curl -sSL https://raw.githubusercontent.com/virtimus/i3c/master/bootstrap.sh | bash >> /log/bootstrap.log 2>&1
+curl -sSL https://raw.githubusercontent.com/virtimus/i3c/master/bootstrap.sh | bash
 
-cd /i3c
+/i exe i3c "/i cloneUdfAndRun https://github.com/virtimus i3c-loopback lb-example"
 
-git clone https://github.com/virtimus/i3c-loopback
+#cd /i3c
 
-export I3C_UDF_HOME=/i3c/i3c-loopback
+#git clone https://github.com/virtimus/i3c-loopback
 
-/i rebuild lb-example
-/i rerun lb-example
+#export I3C_UDF_HOME=/i3c/i3c-loopback
+
+#/i rebuild lb-example
+#/i rerun lb-example
 
 echo "End: i3c-install/bs-loopback-example.sh ..."
 echo "------------------------------------------------------------------------"

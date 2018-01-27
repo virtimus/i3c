@@ -9,5 +9,5 @@ services:
       PWD_HOST_IP: ${PWD_HOST_IP}
       PWD_HOST_FQDN: ${PWD_HOST_FQDN}
     image: franela/dind
-    command: sh -c "curl -sSL https://raw.githubusercontent.com/virtimus/i3c/master/bs-loopback-example.sh | bash >> /log/bs-loopback-example.log 2>&1 && tail -f /dev/null"
-    volumes: [ '/var/log:/log' ]
+    command: sh -c "curl -sSL https://raw.githubusercontent.com/virtimus/i3c/master/i3c-install/bs-loopback-example.sh | bash >> /log/bs-loopback-example.log 2>&1 && tail -f /dev/null"
+    volumes: [ '/var/run/docker.sock:/var/run/docker.sock', '/var/log:/log' ]
