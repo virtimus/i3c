@@ -25,5 +25,5 @@ find -name '*.sh' -exec  chmod a+x {} \;
 ./i3c-install/bootstrap.sh > /log/bootstrap-install.log 2>&1
 
 echo "------------------------------------------------------------------------"
-echo "Started: i3c/bootstrap.sh. Look at /i3c/log/bootstrap-install.log for results."
+echo "Started: i3c/bootstrap.sh. Look at [/i3c|/var]/log/bootstrap-install.log for results."
 echo "------------------------------------------------------------------------"
