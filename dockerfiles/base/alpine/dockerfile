@@ -5,7 +5,7 @@ FROM node:alpine
 #RUN npm install -g --no-bin-links loopback-cli 
 
 RUN apk update \
-	&& apk add bash 
+	&& apk add bash git
 	
 RUN apk add	python python-dev  
 		
