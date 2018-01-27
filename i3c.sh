@@ -233,7 +233,7 @@ esac
 exe(){
 case "$1" in	
 	*)
-		echo "docker exec $1 ${@:2}";
+		docker exec $1 ${@:2};
 esac
 }
 
