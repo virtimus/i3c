@@ -84,7 +84,7 @@ i3cDfFolder=$cName
 cloneUdfAndRun(){
 	cd $i3cRoot
 	git clone $1/$2
-	I3C_UDF_HOME=$i3cRoot/$2
+	i3cUdfHome=$i3cRoot/$2
 	rebuild $3
 	rerun $3
 }
