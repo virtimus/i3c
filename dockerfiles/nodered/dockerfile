@@ -4,5 +4,5 @@ FROM nodered/node-red-docker:slim
 
 
 RUN cd /usr/src/node-red && npm install passport-github \
-      && npm install string
+      && npm install string \
       && npm install exec-php
