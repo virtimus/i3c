@@ -1,5 +1,6 @@
 #docker run -it -p 1880:1880 --name mynodered nodered/node-red-docker
-FROM nodered/node-red-docker
+#FROM nodered/node-red-docker
+FROM nodered/node-red-docker:slim
 
 
 RUN cd /usr/src/node-red && npm install passport-github \
