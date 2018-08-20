@@ -3,6 +3,7 @@
 cName=i3c
 docker run -d --name $cName \
 		--dns=$(ip i3cp) \
+		-v $i3cDataDir/$cName/periodic:/etc/periodic \
 		-v $i3cDataDir/$cName:/data \
 		-v $i3cRoot:$i3cRoot \
 		-v $i3cLogDir/$cName:/log \
@@ -16,4 +17,6 @@ docker run -d --name $cName \
 		-e I3C_LOG_DIR=/log \
 		i3c/$cName
 
+/i execd i3c crond
+		
 doCommand=false

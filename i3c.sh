@@ -47,19 +47,23 @@ esac
 _procVars(){
 		if [ -e $i3cDfHome/$i3cDfFolder/$cName/i3c-$sCommand.sh ]; then
 			i3cDfcHome=$i3cDfHome
-			. $i3cDfHome/$i3cDfFolder/$cName/i3c-$sCommand.sh $@;
+			i3cScriptDir=$i3cDfHome/$i3cDfFolder/$cName
+			. $i3cScriptDir/i3c-$sCommand.sh $@;
 		fi
 		if [ -e $i3cDfHome.local/$i3cDfFolder/$cName/i3c-$sCommand.sh ]; then
 			i3cDfcHome=$i3cDfHome'.local'
-			. $i3cDfHome.local/$i3cDfFolder/$cName/i3c-$sCommand.sh $@;
+			i3cScriptDir=$i3cDfHome.local/$i3cDfFolder/$cName
+			. $i3cScriptDir/i3c-$sCommand.sh $@;
 		fi		
 		if [ -e $i3cUdfHome/$i3cDfFolder/$cName/i3c-$sCommand.sh ]; then
 			i3cDfcHome=$i3cUdfHome
-			. $i3cUdfHome/$i3cDfFolder/$cName/i3c-$sCommand.sh $@;
+			i3cScriptDir=$i3cUdfHome/$i3cDfFolder/$cName
+			. $i3cScriptDir/i3c-$sCommand.sh $@;
 		fi
 		if [ -e $i3cUdfHome.local/$i3cDfFolder/$cName/i3c-$sCommand.sh ]; then
 			i3cDfcHome=$i3cUdfHome'.local'
-			. $i3cUdfHome.local/$i3cDfFolder/$cName/i3c-$sCommand.sh $@;
+			i3cScriptDir=$i3cUdfHome.local/$i3cDfFolder/$cName
+			. $i3cScriptDir/i3c-$sCommand.sh $@;
 		fi
 }
 
@@ -89,7 +93,46 @@ cloneUdfAndRun(){
 	rerun $3
 }
 
+#up with composer (if file present)
+up(){
+case "$1" in
+	*)
+		doCommand=true
+		dCommand='docker-compose up'
+		sCommand=up
+		cName=$1
+		
+	if [ -e $i3cDfHome.local/$i3cDfFolder/$1/docker-compose.yml ]; then
+		i3cDfHome=$i3cDfHome'.local' 
+	fi		
+	if [ -e $i3cUdfHome/$i3cDfFolder/$1/docker-compose.yml ]; then
+		i3cDfHome=$i3cUdfHome 
+	fi
+	if [ -e $i3cUdfHome.local/$i3cDfFolder/$1/docker-compose.yml ]; then
+		i3cDfHome=$i3cUdfHome'.local' 
+	fi	
+		
+		_procVars $@;
+		
+		iName=$1
+		cName=$1
+		
+		
+		
+		if [ "x$i3cImage" = "x" ]; then		
+			i3cImage=i3c/$iName
+		fi
+		if [ "x$iPath" = "x" ]; then		
+			iPath=$iName
+		fi		
+		if [ $doCommand == true ]; then
+			$dCommand $dParams 
+			#-t $i3cImage:$i3cVersion -t $i3cImage:latest $i3cDfHome/$i3cDfFolder/$iPath/.
+		fi	
+esac
+}
 
+#build with docker
 build(){
 case "$1" in	
 	*)	
@@ -201,6 +244,10 @@ psa(){
 	docker ps -a
 }
 
+ps(){
+	docker ps
+}
+
 rmidangling(){
    docker rmi $(docker images -a -q --filter "dangling=true")
 }
@@ -228,13 +275,20 @@ ip(){
 }
 
 logs(){
-	exec docker logs "$@"
+	docker logs "$1"
 }
 
 exec(){
 case "$1" in	
 	*)
 		docker exec -it $1 ${@:2};
+esac
+}
+
+execd(){
+case "$1" in	
+	*)
+		docker exec $1 ${@:2};
 esac
 }
 
@@ -257,6 +311,9 @@ rerun(){
 }
 
 case "$1" in
+	up)
+		up ${@:2};
+		;;
 	build)
  		build $2;
         ;;	
@@ -274,7 +331,10 @@ case "$1" in
         ;;		
 	rm)
  		rm $2;
-        ;;	
+        ;;
+	ps)
+ 		ps $2;
+        ;;		
 	psa)
  		psa $2;
         ;;	        
@@ -295,7 +355,10 @@ case "$1" in
 		;;
 	exec)
 		exec ${@:2};
-		;;	
+		;;
+	execd)
+		execd ${@:2};
+		;;			
 	exe)
 		exe ${@:2};
 		;;
@@ -312,7 +375,7 @@ case "$1" in
 		cloneUdfAndRun ${@:2};
 		;;		
 	*)
-			echo "Usage: $0 build|run|runb|start|stop|rm|psa|rmi|rebuild|rerun|pid|ip|exec|exe|save|load|logs|cloneUdfAndRun|help...";
+			echo "Usage: $0 up|build|run|runb|start|stop|rm|psa|rmi|rebuild|rerun|pid|ip|exec|exe|save|load|logs|cloneUdfAndRun|help...";
 			echo "Help with command: $0 help [commmand]";
 esac
  	
