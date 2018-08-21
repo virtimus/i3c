@@ -17,6 +17,13 @@ fi
 if [ ! -e /i ]; then  
 	ln -s $I3C_HOME/i3c.sh /i
 fi
+#make dirs for cron 
+mkdir /etc/periodic
+mkdir /etc/periodic/15min
+mkdir /etc/periodic/hourly
+mkdir /etc/periodic/daily
+mkdir /etc/periodic/weekly
+mkdir /etc/periodic/monthly
 
 while ( true )
     do

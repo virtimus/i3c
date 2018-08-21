@@ -181,7 +181,7 @@ esac
 }
 
 _checkRunning(){
-docker inspect -f {{.State.Running}} $1 | grep 'true'
+docker inspect -f {{.State.Running}} $1 | grep 'true' > /dev/null
 if [ $? -eq 0 ]; then
   echo "checkRunning: Process $1 is running."
   return 0;
