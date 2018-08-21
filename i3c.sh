@@ -28,6 +28,8 @@ i3cUdiFolder=dockerimages
 i3cUdiHome=$i3cDataDir'/i3cd'
 i3cDfcHome=''
 
+dockerBin='docker'
+
 load(){
 case "$1" in	
 	*)
@@ -178,6 +180,25 @@ esac
 
 }
 
+_checkRunning(){
+docker inspect -f {{.State.Running}} $1 | grep 'true'
+if [ $? -eq 0 ]; then
+  echo "checkRunning: Process $1 is running."
+  return 0;
+else
+  echo "checkRunning: Process $1 is not running."
+  return 1;
+fi
+}
+
+
+crun(){
+	_checkRunning $1;
+	if [ $? -eq 1 ]; then
+		rerun $@;
+	fi			
+}
+
 run(){
 #echo 'run:'$@;	
 case "$1" in
@@ -244,7 +265,7 @@ psa(){
 	docker ps -a
 }
 
-ps(){
+_ps(){
 	docker ps
 }
 
@@ -333,7 +354,7 @@ case "$1" in
  		rm $2;
         ;;
 	ps)
- 		ps $2;
+ 		_ps $2;
         ;;		
 	psa)
  		psa $2;
@@ -345,8 +366,11 @@ case "$1" in
     	rebuild ${@:2};    
         ;;
     rerun)
-	rerun ${@:2};    
-        ;;		
+		rerun ${@:2};    
+	    ;;	
+    crun)
+    	crun ${@:2};
+    	;;  	
 	pid)
 		pid $2;
 		;;
@@ -375,7 +399,7 @@ case "$1" in
 		cloneUdfAndRun ${@:2};
 		;;		
 	*)
-			echo "Usage: $0 up|build|run|runb|start|stop|rm|psa|rmi|rebuild|rerun|pid|ip|exec|exe|save|load|logs|cloneUdfAndRun|help...";
+			echo "Usage: $0 up|build|run|runb|start|stop|rm|ps|psa|rmi|rebuild|rerun|pid|ip|exec|exe|save|load|logs|cloneUdfAndRun|help...";
 			echo "Help with command: $0 help [commmand]";
 esac
  	
