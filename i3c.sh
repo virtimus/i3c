@@ -24,11 +24,28 @@ if [ "x$I3C_UDF_HOME" = "x" ]; then
 fi
 i3cUdfHome=$I3C_UDF_HOME
 #i3cUdfDir=$i3cDataDir'/i3cd/i3c-crypto/dockerfiles'
-i3cUdiFolder=dockerimages
-i3cUdiHome=$i3cDataDir'/i3cd'
+i3cUdiFolder=.dockerimages
+#i3cUdiHome=$i3cDataDir'/i3cd'
+	
 i3cDfcHome=''
-
 dockerBin='docker'
+
+#asoc array for user configs (run-config.sh)
+declare -A i3cConfig
+if [ -e $i3cHome/i3c-config.sh ]; then
+	. $i3cHome/i3c-config.sh
+fi
+if [ -e $i3cUdfHome/i3c-config.sh ]; then
+	. $i3cUdfHome/i3c-config.sh
+fi	
+if [ -e $PWD/i3c-config.sh ]; then
+	. $PWD/i3c-config.sh
+fi
+
+i3cUdiHome=$i3cRoot
+if [ ! -e $i3cUdiHome/$i3cUdiFolder ]; then
+	mkdir $i3cUdiHome/$i3cUdiFolder
+fi
 
 load(){
 case "$1" in	
@@ -47,26 +64,59 @@ esac
 }
 
 _procVars(){
+doFirstFound=0
+doLastFound=0
+i3cScriptDir=''	
+if [ $sCommand -eq 'run' -o $sCommand -eq 'build']; then
+	doLastFound=1
+fi	
+	
 		if [ -e $i3cDfHome/$i3cDfFolder/$cName/i3c-$sCommand.sh ]; then
 			i3cDfcHome=$i3cDfHome
 			i3cScriptDir=$i3cDfHome/$i3cDfFolder/$cName
-			. $i3cScriptDir/i3c-$sCommand.sh $@;
+			if [ $doLastFound -eq 0 ]; then
+				. $i3cScriptDir/i3c-$sCommand.sh $@;
+			fi
+			if [ $doFirstFound -eq 1 ]; then
+				return 0
+			fi	
 		fi
 		if [ -e $i3cDfHome.local/$i3cDfFolder/$cName/i3c-$sCommand.sh ]; then
 			i3cDfcHome=$i3cDfHome'.local'
 			i3cScriptDir=$i3cDfHome.local/$i3cDfFolder/$cName
-			. $i3cScriptDir/i3c-$sCommand.sh $@;
+			if [ $doLastFound -eq 0 ]; then
+				. $i3cScriptDir/i3c-$sCommand.sh $@;
+			fi
+			if [ $doFirstFound -eq 1 ]; then
+				return 0
+			fi			
 		fi		
 		if [ -e $i3cUdfHome/$i3cDfFolder/$cName/i3c-$sCommand.sh ]; then
 			i3cDfcHome=$i3cUdfHome
 			i3cScriptDir=$i3cUdfHome/$i3cDfFolder/$cName
-			. $i3cScriptDir/i3c-$sCommand.sh $@;
+			if [ $doLastFound -eq 0 ]; then
+				. $i3cScriptDir/i3c-$sCommand.sh $@;
+			fi
+			if [ $doFirstFound -eq 1 ]; then
+				return 0
+			fi			
 		fi
 		if [ -e $i3cUdfHome.local/$i3cDfFolder/$cName/i3c-$sCommand.sh ]; then
 			i3cDfcHome=$i3cUdfHome'.local'
 			i3cScriptDir=$i3cUdfHome.local/$i3cDfFolder/$cName
-			. $i3cScriptDir/i3c-$sCommand.sh $@;
+			if [ $doLastFound -eq 0 ]; then
+				. $i3cScriptDir/i3c-$sCommand.sh $@;
+			fi
+			if [ $doFirstFound -eq 1 ]; then
+				return 0
+			fi			
 		fi
+		if [ $doLastFound -eq 1 ]; then
+			if [ $i3cScriptDir -ne '' ]; then
+				. $i3cScriptDir/i3c-$sCommand.sh $@;
+			fi	
+		fi				
+return 1		
 }
 
 _imageClonePullForBuild(){
@@ -173,7 +223,20 @@ case "$1" in
 			iPath=$iName
 		fi		
 		if [ $doCommand == true ]; then
-			$dCommand $dParams -t $i3cImage:$i3cVersion -t $i3cImage:latest $i3cDfHome/$i3cDfFolder/$iPath/.
+			#check dependencies	
+			if [ -e $i3cDfHome/$i3cDfFolder/$iPath/dockerfile ]; then 
+			fromClause="$(cat  $i3cDfHome/$i3cDfFolder/$iPath/dockerfile | sed  -e '/^FROM i3c/!d')"
+				while read -r line; do
+					if [ -n "$line" ]; then
+						line="${line/FROM i3c\//}"
+    					echo "==================================================="
+    					echo " REBUILDING Base image: $line ..."
+    					echo "==================================================="
+    					/i rebuild $line
+    				fi
+				done <<< "$fromClause"
+				$dCommand $dParams -t $i3cImage:$i3cVersion -t $i3cImage:latest $i3cDfHome/$i3cDfFolder/$iPath/.
+			fi
 		fi
 #	fi		
 esac
@@ -207,8 +270,12 @@ case "$1" in
 		cName=$1
 		iName=$1
 		dCommand='docker run'
-		sCommand=run
 		
+		#configure run
+		sCommand=run-config
+		_procVars $@;
+		
+		sCommand=run
 		_procVars $@;
 		
 		#check if need to proces base files
@@ -299,9 +366,16 @@ logs(){
 	docker logs "$1"
 }
 
+exsh(){
+	quoted_args="$(printf " %q" "${@:2}")"
+	docker exec -it $1 sh -c "${quoted_args}";
+}
+
 exec(){
 case "$1" in	
 	*)
+		//quoted_args="$(printf " %q" "${@:2}")"
+		//docker exec -it $1 "${quoted_args}";
 		docker exec -it $1 ${@:2};
 esac
 }
@@ -377,6 +451,9 @@ case "$1" in
 	ip)
 		ip $2;
 		;;
+	exsh)
+		exsh ${@:2};
+		;;	
 	exec)
 		exec ${@:2};
 		;;
