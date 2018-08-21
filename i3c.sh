@@ -371,6 +371,11 @@ exsh(){
 	docker exec -it $1 sh -c "${quoted_args}";
 }
 
+exshd(){
+	quoted_args="$(printf " %q" "${@:2}")"
+	docker exec $1 sh -c "${quoted_args}";
+}
+
 exec(){
 case "$1" in	
 	*)
@@ -453,7 +458,10 @@ case "$1" in
 		;;
 	exsh)
 		exsh ${@:2};
-		;;	
+		;;
+	exshd)
+		exshd ${@:2};
+		;;		
 	exec)
 		exec ${@:2};
 		;;
