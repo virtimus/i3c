@@ -35,6 +35,9 @@ declare -A i3cConfig
 if [ -e $i3cHome/i3c-config.sh ]; then
 	. $i3cHome/i3c-config.sh
 fi
+if [ -e $i3cHome.local/i3c-config.sh ]; then
+	. $i3cHome.local/i3c-config.sh
+fi
 if [ -e $i3cUdfHome/i3c-config.sh ]; then
 	. $i3cUdfHome/i3c-config.sh
 fi	
