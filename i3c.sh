@@ -74,9 +74,9 @@ if [ $sCommand -eq 'run' -o $sCommand -eq 'build']; then
 	doLastFound=1
 fi	
 	
-		if [ -e $i3cDfHome/$i3cDfFolder/$cName/i3c-$sCommand.sh ]; then
+		if [ -e $i3cDfHome/$i3cDfFolder/$iName/i3c-$sCommand.sh ]; then
 			i3cDfcHome=$i3cDfHome
-			i3cScriptDir=$i3cDfHome/$i3cDfFolder/$cName
+			i3cScriptDir=$i3cDfHome/$i3cDfFolder/$iName
 			if [ $doLastFound -eq 0 ]; then
 				. $i3cScriptDir/i3c-$sCommand.sh $@;
 			fi
@@ -84,9 +84,9 @@ fi
 				return 0
 			fi	
 		fi
-		if [ -e $i3cDfHome.local/$i3cDfFolder/$cName/i3c-$sCommand.sh ]; then
+		if [ -e $i3cDfHome.local/$i3cDfFolder/$iName/i3c-$sCommand.sh ]; then
 			i3cDfcHome=$i3cDfHome'.local'
-			i3cScriptDir=$i3cDfHome.local/$i3cDfFolder/$cName
+			i3cScriptDir=$i3cDfHome.local/$i3cDfFolder/$iName
 			if [ $doLastFound -eq 0 ]; then
 				. $i3cScriptDir/i3c-$sCommand.sh $@;
 			fi
@@ -94,9 +94,9 @@ fi
 				return 0
 			fi			
 		fi		
-		if [ -e $i3cUdfHome/$i3cDfFolder/$cName/i3c-$sCommand.sh ]; then
+		if [ -e $i3cUdfHome/$i3cDfFolder/$iName/i3c-$sCommand.sh ]; then
 			i3cDfcHome=$i3cUdfHome
-			i3cScriptDir=$i3cUdfHome/$i3cDfFolder/$cName
+			i3cScriptDir=$i3cUdfHome/$i3cDfFolder/$iName
 			if [ $doLastFound -eq 0 ]; then
 				. $i3cScriptDir/i3c-$sCommand.sh $@;
 			fi
@@ -104,9 +104,9 @@ fi
 				return 0
 			fi			
 		fi
-		if [ -e $i3cUdfHome.local/$i3cDfFolder/$cName/i3c-$sCommand.sh ]; then
+		if [ -e $i3cUdfHome.local/$i3cDfFolder/$iName/i3c-$sCommand.sh ]; then
 			i3cDfcHome=$i3cUdfHome'.local'
-			i3cScriptDir=$i3cUdfHome.local/$i3cDfFolder/$cName
+			i3cScriptDir=$i3cUdfHome.local/$i3cDfFolder/$iName
 			if [ $doLastFound -eq 0 ]; then
 				. $i3cScriptDir/i3c-$sCommand.sh $@;
 			fi
