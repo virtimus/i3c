@@ -423,6 +423,32 @@ rerun(){
     	run $@;
 }
 
+#get new certificate
+cert(){
+	
+if [ ! -e $i3cDataDir/.certs ]; then
+	mkdir $i3cDataDir/.certs
+fi
+if [ ! -e $i3cDataDir/.certslib ]; then
+	mkdir $i3cDataDir/.certslib
+fi		
+	
+#configure run
+$cnName=$1;
+fullDomain=$cnName.$i3cExHost
+stop i3cp
+
+docker run -it --rm --name certbot -p 80:80 -p 443:443 -v $i3cDataDir/.certs:/etc/letsencrypt -v  $i3cDataDir/.certslib:/var/lib/letsencrypt certbot/certbot certonly --standalone -d $fullDomain
+
+cp $i3cDataDir/.certs/live/$fullDomain/cert.pem $i3cDataDir/i3cp/certs/$fullDomain.crt
+cp $i3cDataDir/.certs/live/$fullDomain/privkey.pem $i3cDataDir/i3cp/certs/$fullDomain.key
+
+#restart i3cp
+
+rerun i3cp
+
+}
+
 case "$1" in
 	up)
 		up ${@:2};
@@ -499,6 +525,9 @@ case "$1" in
 		;;
 	cloneUdfAndRun)
 		cloneUdfAndRun ${@:2};
+		;;	
+	cert)
+		cert $2 $3;
 		;;		
 	*)
 			echo "Usage: $0 up|build|run|runb|start|stop|rm|ps|psa|rmi|rebuild|rerun|pid|ip|exec|exe|save|load|logs|cloneUdfAndRun|help...";
