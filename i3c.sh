@@ -284,11 +284,11 @@ case "$1" in
 		#check if need to proces base files
 		if [ "$1" == "$iName" ]; then
 			cName=$1;#cName here is readonly
-		else
-			cName=$iName
-			_procVars $@
-			cName=$1
-			_procVars $@;
+		#else
+		#	cName=$iName
+		#	_procVars $@
+		#	cName=$1
+		#	_procVars $@;
 		fi
 		if [ "x$i3cParams" = "x" ]; then
 			
