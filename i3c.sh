@@ -434,7 +434,7 @@ if [ ! -e $i3cDataDir/.certslib ]; then
 fi		
 	
 #configure run
-$cnName=$1;
+cnName=$1;
 fullDomain=$cnName.$i3cExHost
 stop i3cp
 
