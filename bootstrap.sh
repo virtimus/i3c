@@ -14,9 +14,9 @@ mkdir /i3c
 mkdir /i3c/log
 mkdir /i3c/data
 
-if [ ! -e "/log" ]; then
-    ln -s /i3c/log /log
-fi
+#if [ ! -e "/log" ]; then
+#    ln -s /i3c/log /log
+#fi
 
 cd /i3c
 git clone https://github.com/virtimus/i3c.git

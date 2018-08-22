@@ -26,7 +26,7 @@ adminAuth: {
 },
 ```
 
-extending globa context by modules:
+extending global context by modules:
 
     functionGlobalContext: {
         // os:require('os'),
@@ -45,3 +45,4 @@ http://noderedguide.com/
 https://www.coursera.org/learn/developer-nodered
 https://www.npmjs.com/package/node-red-auth-github
 https://nodered.org/docs/security#oauthopenid-based-authentication
+https://nodered.org/docs/platforms/android

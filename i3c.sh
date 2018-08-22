@@ -288,16 +288,25 @@ case "$1" in
 			_procVars $@;
 		fi
 		if [ "x$i3cParams" = "x" ]; then
-			i3cParams="-v $i3cDataDir/$cName:/data \
-				-v $i3cHome:/i3c \
-				-v $i3cLogDir/$cName:/log \
-				-e VIRTUAL_HOST=$cName.$i3cInHost,$cName.$i3cExHost \
-				-e I3C_LOCAL_ENDPOINT=$I3C_LOCAL_ENDPOINT \
-				-e I3C_HOST=$i3cHost \
-				-e I3C_HOME=/i3c \
-				-e I3C_DATA_DIR=/data \
-				-e I3C_LOG_DIR=/log"				
+			
+i3cParams="-v $i3cDataDir/$cName:/i3c/data \
+	-v $i3cHome:/i3c/i3c \
+	-v $i3cLogDir/$cName:/i3c/log \
+	-e VIRTUAL_HOST=$cName.$i3cInHost,$cName.$i3cExHost \
+	-e I3C_LOCAL_ENDPOINT=$I3C_LOCAL_ENDPOINT \
+	-e I3C_HOST=$i3cHost \
+	-e I3C_HOME=/i3c/i3c \
+	-e I3C_DATA_DIR=/i3c/data \
+	-e I3C_LOG_DIR=/i3c/log"
+					
 		fi
+		#if choosen - add /i config
+		i3iParams='';
+		if [ $addIParams == true ]; then
+			i3iParams="	-v $i3cUdiHome/$i3cUdiFolder:$i3cUdiHome/$i3cUdiFolder \
+						-v /var/run/docker.sock:/var/run/docker.sock"
+		fi	
+		
 		if [ "x$i3cImage" = "x" ]; then		
 			i3cImage=i3c/$iName
 		fi	
@@ -307,6 +316,7 @@ case "$1" in
 		if [ $doCommand == true ]; then		
 			$dCommand --name $1 \
 			$i3cParams \
+			$i3iParams \
 			$dParams \
 			$i3cImage:$i3cVersion \
 			$rCommand 			
@@ -440,12 +450,16 @@ case "$1" in
         ;;	        
     rmi)
     	rmidangling $2;
-    	;;    
-    rebuild)
+    	;;	    
+    rb|rebuild)
     	rebuild ${@:2};    
         ;;
-    rerun)
+    rr|rerun)
 		rerun ${@:2};    
+	    ;;
+	rbrr)
+	    rebuild ${@:2};
+	    rerun ${@:2};
 	    ;;	
     crun)
     	crun ${@:2};
@@ -485,6 +499,10 @@ case "$1" in
 		;;		
 	*)
 			echo "Usage: $0 up|build|run|runb|start|stop|rm|ps|psa|rmi|rebuild|rerun|pid|ip|exec|exe|save|load|logs|cloneUdfAndRun|help...";
+			echo "cmdAliases:"
+			echo "rb=rebuild"
+			echo "rr=rerun"
+			echo "rbrr=rebuild and rerun"
 			echo "Help with command: $0 help [commmand]";
 esac
  	
