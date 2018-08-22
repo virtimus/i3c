@@ -6,6 +6,7 @@ dCommand='docker run -d'
 dParams="-p 80:80 \
 		-p 443:443 \
 		--cap-add=NET_ADMIN \
+		-v $i3cDataDir/$cName/certs:/etc/nginx/certs \		
 		-v /var/run/docker.sock:/tmp/docker.sock:ro" 
 
 i3cAfter(){
