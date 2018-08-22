@@ -1,7 +1,8 @@
 #!/bin/bash
 
 #-d -p 1880:1880 \
-dParams="-e VIRTUAL_PORT=1880" 
+dParams="-e VIRTUAL_PORT=1880 \
+	-v $i3cDataDir/$cName/nr.data:/data" 
 addIParams=true
 
 #doCommand=false
