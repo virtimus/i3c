@@ -17,6 +17,7 @@ services:
       PWD_SESSION_ID: ${SESSION_ID}
       PWD_HOST_IP: ${PWD_HOST_IP}
       PWD_HOST_FQDN: ${PWD_HOST_FQDN}
+      PWD_ENV:"1"
     image: franela/dind
     command: sh -c "curl -sSL https://raw.githubusercontent.com/virtimus/i3c/master/bootstrap.sh | bash >> /i3c/log/bootstrap.log 2>&1 && tail -f /dev/null"
     volumes: [ '/var/run/docker.sock:/var/run/docker.sock', '/var/log:/i3c/log' ]
