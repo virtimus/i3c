@@ -1,4 +1,4 @@
-FROM alpine:latest
+FROM node:alpine
 #USER root
 #RUN  apt-get update \
 #	&& apt-get install sudo \
