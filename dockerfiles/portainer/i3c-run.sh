@@ -3,7 +3,7 @@
 
 cName=portainer #//block other instances
 portMap=""
-if [ !"x$PWD_ENV" == "x" ]; then 
+if [ ! "x$PWD_ENV" == "x" ]; then 
    portMap="-p 9000:9000"	
 fi
 addIParams=true
