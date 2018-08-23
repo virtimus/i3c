@@ -10,7 +10,8 @@ case "$1" in
 		if [ "x"$2 -eq "x" ]; then 
 			$timeout = "172800"; # 2 days
 		fi	
-		git config credential.helper cache --timeout=$timeoutSec	
+		git config credential.helper cache --timeout=$timeoutSec
+		;;	
 	*)
 	#noop
 esac	
