@@ -1,7 +1,11 @@
 #!/bin/bash
+portMap=""
+if [ ! "x$PWD_ENV" == "x" ]; then 
+   portMap="-p 1880:1880"	
+fi
 
 #-d -p 1880:1880 \
-dParams="-d -e VIRTUAL_PORT=1880 \
+dParams="-d $portMap -e VIRTUAL_PORT=1880 \
 	-v $i3cDataDir/$cName/nr.data:/data" 
 addIParams=true
 
