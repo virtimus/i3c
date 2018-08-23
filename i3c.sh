@@ -328,6 +328,7 @@ i3cParams="-v $i3cDataDir/$cName:/i3c/data \
 	-e I3C_HOST=$i3cHost \
 	-e I3C_HOME=/i3c/i3c \
 	-e I3C_DATA_DIR=/i3c/data \
+	-e PWD_ENV=$PWD_ENV \
 	-e I3C_LOG_DIR=/i3c/log"
 	
 	# make sure shared subfolder is created
