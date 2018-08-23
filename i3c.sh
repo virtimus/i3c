@@ -557,7 +557,7 @@ case "$1" in
 	logs)
 		logs $2;
 		;;
-	cloneUdfAndRun)
+	clur|cloneUdfAndRun)
 		cloneUdfAndRun ${@:2};
 		;;	
 	cert)
