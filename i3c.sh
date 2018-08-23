@@ -1,24 +1,28 @@
 #!/bin/bash
 
+set -x
+	args=("$@")
+	echo "args: ${args[@]:2}"
+
 case "$1" in
 	gstorec)
 		git config credential.helper store
 		exit 0
 		;;
 	gcachec)
-		$timeout = $2
-		if [ "x"$2 -eq "x" ]; then 
-			$timeout = "172800"; # 2 days
+		
+		timeoutSec="172800"; # 2 days
+		if [ ! "x$2" = "x" ]; then 
+			timeoutSec=$2
 		fi	
 		git config credential.helper cache --timeout=$timeoutSec
+		exit 0
 		;;	
 	*)
 	#noop
 esac	
 
-set -x
-	args=("$@")
-	echo "args: ${args[@]:2}"
+
 	
 i3cHost=i3c.l
 i3cInHost=i3c.l
@@ -334,7 +338,7 @@ i3cParams="-v $i3cDataDir/$cName:/i3c/data \
 		fi
 		#if choosen - add /i config
 		i3iParams='';
-		if [ $addIParams == true ]; then
+		if [ $addIParams -eq true ]; then
 			i3iParams="	-v $i3cUdiHome/$i3cUdiFolder:$i3cUdiHome/$i3cUdiFolder \
 						-v /var/run/docker.sock:/var/run/docker.sock"
 		fi	
