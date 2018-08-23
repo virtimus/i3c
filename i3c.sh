@@ -1,5 +1,20 @@
 #!/bin/bash
 
+case "$1" in
+	gstorec)
+		git config credential.helper store
+		exit 0
+		;;
+	gcachec)
+		$timeout = $2
+		if [ "x"$2 -eq "x" ]; then 
+			$timeout = "172800"; # 2 days
+		fi	
+		git config credential.helper cache --timeout=$timeoutSec	
+	*)
+	#noop
+esac	
+
 set -x
 	args=("$@")
 	echo "args: ${args[@]:2}"
@@ -26,6 +41,7 @@ i3cUdfHome=$I3C_UDF_HOME
 #i3cUdfDir=$i3cDataDir'/i3cd/i3c-crypto/dockerfiles'
 i3cUdiFolder=.dockerimages
 #i3cUdiHome=$i3cDataDir'/i3cd'
+i3cSharedFolder=.shared
 	
 i3cDfcHome=''
 dockerBin='docker'
@@ -49,6 +65,12 @@ i3cUdiHome=$i3cRoot
 if [ ! -e $i3cUdiHome/$i3cUdiFolder ]; then
 	mkdir $i3cUdiHome/$i3cUdiFolder
 fi
+
+i3cSharedHome=$i3cRoot
+if [ ! -e $i3cSharedHome/$i3cSharedFolder ]; then
+	mkdir $i3cSharedHome/$i3cSharedFolder
+fi
+
 
 load(){
 case "$1" in	
@@ -295,12 +317,18 @@ case "$1" in
 i3cParams="-v $i3cDataDir/$cName:/i3c/data \
 	-v $i3cHome:/i3c/i3c \
 	-v $i3cLogDir/$cName:/i3c/log \
+	-v $i3cSharedHome/$i3cSharedFolder:/i3c/.shared \
 	-e VIRTUAL_HOST=$cName.$i3cInHost,$cName.$i3cExHost \
 	-e I3C_LOCAL_ENDPOINT=$I3C_LOCAL_ENDPOINT \
 	-e I3C_HOST=$i3cHost \
 	-e I3C_HOME=/i3c/i3c \
 	-e I3C_DATA_DIR=/i3c/data \
 	-e I3C_LOG_DIR=/i3c/log"
+	
+	# make sure shared subfolder is created
+	if [ ! -e $i3cSharedHome/$i3cSharedFolder/$cName ]; then
+		mkdir $i3cSharedHome/$i3cSharedFolder/$cName
+	fi	   
 					
 		fi
 		#if choosen - add /i config
@@ -530,12 +558,15 @@ case "$1" in
 		cert $2 $3;
 		;;		
 	*)
-			echo "Usage: $0 up|build|run|runb|start|stop|rm|ps|psa|rmi|rebuild|rerun|pid|ip|exec|exe|save|load|logs|cloneUdfAndRun|help...";
+			echo "Basic usage: $0 up|build|run|runb|start|stop|rm|ps|psa|rmi|rebuild|rerun|pid|ip|exec|exe|save|load|logs|cloneUdfAndRun|help...";
 			echo "cmdAliases:"
 			echo "rb=rebuild"
 			echo "rr=rerun"
 			echo "rbrr=rebuild and rerun"
 			echo "Help with command: $0 help [commmand]";
+			echo "====================="
+			echo "Some usefull shortcuts:"
+			echo "gstorec - git config credential.helper store"			
 esac
  	
 
