@@ -1,0 +1,23 @@
+# To Deploy i3c demo (demo.i3c.cloud) in a play-with-docker playground
+#
+# - Go to:
+# http://play-with-docker.com/?stack=https://raw.githubusercontent.com/virtimus/i3c/master/i3c-install/stack1.yml
+# - Login and/or Start.
+# - Wait until 'Your session is ready!' and 'Close' modal.
+# - Refresh (if a shell is not shown).
+# - Wait until a link with text '80' is shown. It is the link to the demo.
+# In case of problems check bootstrap logs:
+# - /i3c/log/bootstrap.log - log from install/build
+# reference: https://docs.docker.com/docker-cloud/apps/stack-yaml-reference/
+# export PWD_HOST_IP=$(ip -f inet -o addr show eth1 | awk '{print $4}'|sed 's:/[^/]*$::')
+version: '3'
+services:
+  trigger:
+    environment:
+      PWD_ENV: 1 
+      PWD_SESSION_ID: ${SESSION_ID}
+      PWD_HOST_IP: ${PWD_HOST_IP}
+      PWD_HOST_FQDN: ${PWD_HOST_FQDN}
+    image: franela/dind
+    command: sh -c "curl -sSL https://raw.githubusercontent.com/virtimus/i3c/master/bootstrap.sh | bash >> /i3c/log/bootstrap.log 2>&1 && tail -f /dev/null"
+    volumes: [ '/var/run/docker.sock:/var/run/docker.sock', '/var/log:/i3c/log' ]
