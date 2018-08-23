@@ -11,7 +11,7 @@ RUN apk update \
 #RUN apk add	python python-dev make g++	
 
 #VOLUME /i3c
-RUN adduser node-red docker && adduser node-red users
+RUN adduser node-red docker && adduser node-red users zip
 
 USER node-red
 
