@@ -18,6 +18,34 @@ You can quickly deploy current develop version inside a "play-with-docker" (PWD)
 
 - Browse [PWD/?stack=i3c-install/stack1.yml](http://play-with-docker.com/?stack=https://raw.githubusercontent.com/virtimus/i3c/master/i3c-install/stack1.yml)
 - Sign in with your [Docker ID](https://docs.docker.com/docker-id)
+- to use i3c shell in PWD run this on main shell:
+```bash
+docker exec -it i3c /bin/bash
+```
+- now i3c-cli is accesible.
+
+To run portainer for instance build and run image:
+
+```bash
+/i rebuild portainer
+/i rerun portainer
+```
+
+or shorter one:
+```bash
+/i rbrr portainer
+```
+Portainer will be available on port 9000 (domain resolution is not working on PWD)
+
+Or node-red:
+```bash
+/i rbrr nodered
+```
+
+... etc
+
+On standard environment you can easily setup own apps under '/i3c.local/dockerfiles' folder
+
 - Follow [these](https://raw.githubusercontent.com/virtimus/i3c/master/i3c-install/stack1.yml) steps inside stack1.yml.
 
 
