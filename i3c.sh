@@ -338,7 +338,7 @@ i3cParams="-v $i3cDataDir/$cName:/i3c/data \
 		fi
 		#if choosen - add /i config
 		i3iParams='';
-		if [ $addIParams -eq true ]; then
+		if [ $addIParams == true ]; then
 			i3iParams="	-v $i3cUdiHome/$i3cUdiFolder:$i3cUdiHome/$i3cUdiFolder \
 						-v /var/run/docker.sock:/var/run/docker.sock"
 		fi	
