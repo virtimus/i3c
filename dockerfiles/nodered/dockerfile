@@ -6,12 +6,12 @@ USER root
 RUN apk --no-cache --update upgrade && apk --no-cache add ca-certificates
 RUN apk update \
 	&& apk upgrade \
-	&& apk add bash git docker
+	&& apk add bash git docker  zip
 	
 #RUN apk add	python python-dev make g++	
 
 #VOLUME /i3c
-RUN adduser node-red docker && adduser node-red users zip
+RUN adduser node-red docker && adduser node-red users
 
 USER node-red
 
