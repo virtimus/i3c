@@ -10,7 +10,7 @@
 # - /i3c/log/bootstrap.log - log from install/build
 # reference: https://docs.docker.com/docker-cloud/apps/stack-yaml-reference/
 # export PWD_HOST_IP=$(ip -f inet -o addr show eth1 | awk '{print $4}'|sed 's:/[^/]*$::')
-version: '3'
+version: '2'
 services:
   trigger:
     environment:
