@@ -24,7 +24,7 @@ docker exec -it i3c /bin/bash
 ```
 - now i3c-cli is accesible.
 
-To run portainer for instance build and run image:
+To run [Portainer](https://github.com/portainer/portainer) for instance build and run image:
 
 ```bash
 /i rebuild portainer
