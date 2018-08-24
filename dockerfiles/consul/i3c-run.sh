@@ -2,7 +2,12 @@
 #		-v /var/run/docker.sock:/var/run/docker.sock \
 #		-p 8500:8500 
 
-docker run -d --name consul \
+portMap=""
+if [ ! "x$PWD_ENV" == "x" ]; then 
+   portMap="-p 8300:8300"	
+fi
+
+docker run -d $portMap --name consul \
 		-v $i3cDataDir/consul:/i3c/data \
 		-v $i3cHome:/i3c/i3c \
 		-v $i3cLogDir/consul:/i3c/log \
