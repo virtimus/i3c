@@ -422,21 +422,26 @@ case "$1" in
 		if [ $doCommand == true ]; then
 			#check dependencies	
 			fromClause=""
+			doCommand=false
 			if [ -e $i3cDfHome/$i3cDfFolder/$iPath/dockerfile ]; then 
 				fromClause="$(cat  $i3cDfHome/$i3cDfFolder/$iPath/dockerfile | sed  -e '/^FROM i3c/!d')"
+				doCommand=true;
 			elif [ -e $i3cDfHome/$i3cDfFolder/$iPath/Dockerfile ]; then
 				fromClause="$(cat  $i3cDfHome/$i3cDfFolder/$iPath/Dockerfile | sed  -e '/^FROM i3c/!d')"
+				doCommand=true;
 			fi
-			if [ "x$fromClause" != "x" ]; then 
-				while read -r line; do
-					if [ -n "$line" ]; then
-						line="${line/FROM i3c\//}"
-    					echo "==================================================="
-    					echo " REBUILDING Base image: $line ..."
-    					echo "==================================================="
-    					/i rebuild $line
-    				fi
-				done <<< "$fromClause"
+			if [ $doCommand == true ]; then
+				if [ "x$fromClause" != "x" ]; then 
+					while read -r line; do
+						if [ -n "$line" ]; then
+							line="${line/FROM i3c\//}"
+	    					echo "==================================================="
+	    					echo " REBUILDING Base image: $line ..."
+	    					echo "==================================================="
+	    					/i rebuild $line
+	    				fi
+					done <<< "$fromClause"
+				fi
 				if [ ${i3cOpt[v]} -le 1 ]; then
 					echo "$dCommand $dParams -t $i3cImage:$i3cVersion -t $i3cImage:latest $i3cDfHome/$i3cDfFolder/$iPath/."
 				fi	
@@ -681,7 +686,7 @@ rebuild(){
 		if [ $r2 -ge 0 ]; then
     		r2=$r2"("$e2")"
     	fi    		
-    	_echov "stop=$r1, rm=$r2 ..."
+    	_echov "stoping returned: $r1, remove returned: $r2 ..."
     	build $1; 
 }
 
