@@ -228,6 +228,7 @@ case "$1" in
 		dCommand='docker build'
 		sCommand=build
 		cName=$1
+		iName=$1
 		
 	if [ -e $i3cDfHome.local/$i3cDfFolder/$1/dockerfile ]; then
 		i3cDfHome=$i3cDfHome'.local' 
