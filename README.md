@@ -41,6 +41,10 @@ Or node-red:
 ```bash
 /i rbrr nodered
 ```
+Consul
+```bash
+/i rbrr consul
+```
 
 ... etc
 
