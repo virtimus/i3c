@@ -4,7 +4,7 @@
 
 portMap=""
 if [ ! "x$PWD_ENV" == "x" ]; then 
-   portMap="-p 8300:8300"	
+   portMap="-p 8500:8500"	
 fi
 
 docker run -d $portMap --name consul \
