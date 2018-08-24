@@ -1,6 +1,7 @@
 #!/bin/bash
 portMap=""
 volumeMap="-v $i3cDataDir/$cName/nr.data:/data"
+#are we in PWD?
 if [ ! "x$PWD_ENV" == "x" ]; then 
    portMap="-p 1880:1880"	
    volumeMap=""
