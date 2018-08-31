@@ -227,22 +227,40 @@ fi
 #@desc 
 #load an image stored in imagedef dir into local docker repo 
 load(){
-case "$1" in	
-	*)
+	    doRm=''
+		if [ ! -e $i3cUdiHome/$i3cUdiFolder/$1.i3ci ]; then 
+			if [ -e $i3cUdiHome/$i3cUdiFolder/$1.i3czi ]; then
+				unzip $i3cUdiHome/$i3cUdiFolder/$1.i3czi -d $i3cUdiHome/$i3cUdiFolder
+				doRm=$i3cUdiHome/$i3cUdiFolder/$1.i3ci
+			else
+				echo "Saved image $1 not found."
+			fi	
+		fi	
+	
 		$dockerBin load -i $i3cUdiHome/$i3cUdiFolder/$1.i3ci
 		$dockerBin tag 	i3c-tmp-save i3c/$1
-esac
+		$dockerBin tag 	i3c-tmp-save i3c/$1:v0
+		if [ "x$doRm" != "x" ]; then 
+			rm $doRm
+		fi			
 }
 
 #@desc
 #save an image from local repo into imagedef dir
 save(){
-case "$1" in	
-	*)
 		$dockerBin commit $1 i3c-tmp-save		
 		$dockerBin save -o $i3cUdiHome/$i3cUdiFolder/$1.i3ci i3c-tmp-save 
-esac
 }
+
+savez(){
+	save "$@"
+	cd $i3cUdiHome/$i3cUdiFolder
+	zip $1.i3czi $1.i3ci
+	if [ $? -eq 1 ];then
+		rm $i3cUdiHome/$i3cUdiFolder/$1.i3ci 
+	fi 	
+}
+
 
 #@desc
 #processing different i3c platform config files 
@@ -624,7 +642,7 @@ esac
 #echo "echo \$(/sbin/ip route|awk '/default/ { print \$3 }')' $i3cHost' >> /etc/hosts"
 
 #@desc remove container by name
-rm(){
+_rm(){
 	ret=1;	
 	$dockerBin rm $1;
 	ret=$?;
@@ -749,7 +767,7 @@ rebuild(){
 	    #>/dev/null
 		e1=$(stop $1 2>&1);
 		r1=$?;
-    	e2=$(rm $1 2>&1);
+    	e2=$(_rm $1 2>&1);
     	r2=$?;
     	if [ $r1 -ge 0 ]; then
     		r1=$r1"("$e1")"
@@ -765,7 +783,7 @@ rebuild(){
 rerun(){
 		e1=$(stop $1 2>&1);
 		r1=$?;
-    	e2=$(rm $1 2>&1);
+    	e2=$(_rm $1 2>&1);
     	r2=$?;
 		if [ $r1 -ge 0 ]; then
     		r1=$r1"("$e1")"
@@ -856,7 +874,7 @@ case "$1" in
  		stop "$2";
         ;;		
 	rm)
- 		rm "$2";
+ 		_rm "$2";
         ;;
 	ps)
  		_ps "$2";
@@ -901,6 +919,9 @@ case "$1" in
 	save)
 		save "$2";
 		;;
+	savez)
+		savez "$2";
+		;;		
 	load)
 		load "$2";
 		;;								
