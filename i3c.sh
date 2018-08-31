@@ -861,6 +861,7 @@ function images(){
 case "$1" in
 	images)
 		images "${@:2}";
+		;;
 	up)
 		up "${@:2}";
 		;;
