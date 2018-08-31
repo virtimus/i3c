@@ -1,4 +1,5 @@
 FROM jwilder/nginx-proxy:alpine
+#FROM i3c/i3cp/nginx-proxy
 #https://github.com/jwilder/nginx-proxy
 
 RUN apk --no-cache add dnsmasq

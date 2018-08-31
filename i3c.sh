@@ -18,6 +18,10 @@ _echo(){
 	echo "$@"	
 }
 
+_setverbose(){
+	set -x	
+}
+
 #
 # echo filtered in verbose mode
 #
@@ -85,7 +89,7 @@ done
 fi
 
 if [ $i3cVerbose -ge 2 ]; then
-	set -x
+	_setverbose
 fi
 
 case "$1" in
@@ -135,10 +139,10 @@ i3cHome=$i3cRoot'/i3c'; #'/i3c'
 i3cLogDir=$i3cRoot'/log'
 
 #platform version
-declare -r i3cVersion=v0
+i3cVersion=v0
 
 #folder name for imagedef collections
-declare -r i3cDfFolder=dockerfiles
+i3cDfFolder=dockerfiles
 
 #default home uset for priority in path search
 i3cDfHome=$i3cHome
@@ -201,9 +205,23 @@ fi
 #autoconfigure i3c user home dir
 #(currently only if imagedef folder exists
 _autoconf(){
-if [ -e $1/$i3cDfFolder ] && [ ! -e $1/.i3c ]; then 
-	echo "i3cUdfHome=$1" > $1/.i3c
-fi		
+if [ -e $1 ]; then
+	if [ ! -e $1/.i3c ]; then 
+		echo "i3cVersion=$i3cVersion" > $1/.i3c
+		echo "i3cRoot=$i3cRoot" > $1/.i3c
+		echo "i3cUdfHome=$1" > $1/.i3c
+		mkdir $1/$i3cDfFolder
+		if [ "x$2" != "x" ]; then
+			mkdir $1/$i3cDfFolder/$2 
+		fi	
+		return 0;
+	else
+		return 99;
+	fi
+else
+	return 98;		
+fi
+
 }
 
 #@desc 
@@ -315,8 +333,46 @@ i3cDfHome=$i3cDataDir/$dfFolder
 i3cDfFolder=$cName
 }
 
+#@desc clone given 3d party repo
+
+#@arg $1 repo path
+#@arg $2 dockerfile folder inside this repo (the path will be available in container under /i3c/data)
+#@arg $3 image/container name to buil
+#@arg $4 optional arg for image name if different than appName 
+
+#@alias cldb
+cloneDfAndBuild(){
+	doCommand=true
+	dCommand=$dockerBin' build'
+	sCommand=cldb
+	imP=$3
+	IFS='/' read -r -a arrIN <<< "$3"
+	appName=${arrIN[0]};
+	cName=$appName
+	iName=$3
+
+    folderWithDockerF=$i3cDataDir/$appName/$2
+    
+    if [ ! -e $i3cDataDir/$appName/$2 ]; then
+    	if [ ! -e $i3cDataDir/$appName ]; then
+    		mkdir $i3cDataDir/$appName
+    	fi
+    	cd $i3cDataDir/$appName
+    	git clone $1
+	else
+		cd 	$folderWithDockerF
+		git pull	
+	fi	
+	
+	i3cDfHome=$i3cDataDir	
+	i3cDfFolder=$appName
+	iPath=$2
+	
+	_build $iName	
+}
+
 #@desc
-#clone from git, build and run given git repo and imagedef(and also container to run) name
+#clone a workspace from git, build and run given git repo, imagedef/app name and also name of container to run
 #@alias clur
 
 #@arg $1 repo path (ie https://github.com/virtimus 
@@ -341,6 +397,9 @@ cloneUdfAndRun(){
 	rerun $3
 }
 
+
+
+
 #up with composer (if file present)
 up(){
 case "$1" in
@@ -360,7 +419,7 @@ case "$1" in
 		i3cDfHome=$i3cUdfHome'.local' 
 	fi	
 		
-		_procVars $@;
+		_procVars "$@";
 		
 		iName=$1
 		cName=$1
@@ -380,10 +439,10 @@ case "$1" in
 esac
 }
 
+
+
 #desc build with docker
 build(){
-case "$1" in	
-	*)	
 #	if [ -e $i3cUdfHome/$i3cDfFolder/$1/i3c-build.sh ]; then
 #		i3cDfHome=$i3cUdfHome 
 #	fi
@@ -408,6 +467,15 @@ case "$1" in
 		
 		_procVars $@;
 		
+		_build $1
+
+#	fi		
+}
+
+
+#@ internal build part
+_build(){
+	
 		iName=$1
 		cName=$1
 		
@@ -448,9 +516,7 @@ case "$1" in
 				$dCommand $dParams -t $i3cImage:$i3cVersion -t $i3cImage:latest $i3cDfHome/$i3cDfFolder/$iPath/.
 			fi
 		fi
-#	fi		
-esac
-
+	
 }
 
 #check if running
@@ -482,6 +548,8 @@ case "$1" in
 		cName=$1
 		iName=$1
 		dCommand=$dockerBin' run'
+		# for config convenience
+		uData=$i3cDataDir/$cName;
 		
 		#configure run
 		sCommand=run-config
@@ -492,12 +560,8 @@ case "$1" in
 		
 		#check if need to proces base files
 		if [ "$1" == "$iName" ]; then
-			cName=$1;#cName here is readonly
-		#else
-		#	cName=$iName
-		#	_procVars $@
-		#	cName=$1
-		#	_procVars $@;
+			#cName here is readonly
+			cName=$1;
 		fi
 		if [ "x$i3cParams" = "x" ]; then
 			
@@ -657,6 +721,13 @@ execd(){
 	return $ret;	
 }
 
+tag(){
+	ret=1;	
+	$dockerBin tag $1 "${@:2}";
+	ret=$?;	
+	return $ret;	
+}
+
 #@desc list images !todo
 images(){
 
@@ -733,6 +804,38 @@ rerun i3cp
 
 }
 
+#@desc initialize new user workspace in current folder, no args needed
+winit(){
+p=$(pwd)
+_autoconf $p	
+ret=$?;
+if [ $ret -eq 0 ]; then 
+	_echo "i3c.Cloud workspace initialized properly ..."
+elif [ $ret -eq 99 ]; then
+	_echo "i3c.Cloud workspace already initialized."	
+else
+	_echo "Init problem:"$ret;
+fi		
+}
+
+#@ add appdef in current workspace
+wadd(){	
+	if [ "x$1" == "x" ]; then
+		echo "Must provide name of appdef to create"	
+	fi
+	
+	if [ ! -e $i3cUdfHome/$i3cDfFolder/$1 ]; then 
+		mkdir $i3cUdfHome/$i3cDfFolder/$1
+	fi
+}
+
+_cp(){
+	ret=1;	
+	$dockerBin cp "$@";
+	ret=$?;	
+	return $ret;	
+	}
+
 case "$1" in
 	up)
 		up "${@:2}";
@@ -804,12 +907,26 @@ case "$1" in
 	logs)
 		logs "$2";
 		;;
+	tag)
+		tag "${@:2}";
+		;;	
 	clur|cloneUdfAndRun)
 		cloneUdfAndRun "${@:2}";
-		;;	
+		;;
+	cldb|cloneDfAndBuild)
+		cloneDfAndBuild "${@:2}";
+		;;
 	cert)
-		cert "$2" "$3";
-		;;		
+		cert "${@:2}";
+		;;
+	cp) _cp "${@:2}";
+		;;	
+	wi|winit)
+		winit "${@:2}";
+		;;
+	wa|wadd)
+		wadd "${@:2}";
+		;;					
 	*)
 			echo "Basic usage: $0 up|build|run|runb|start|stop|rm|ps|psa|rmi|rebuild|rerun|pid|ip|exec|exe|save|load|logs|cloneUdfAndRun|help...";
 			echo "cmdAliases:"

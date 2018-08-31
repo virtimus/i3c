@@ -1,12 +1,15 @@
 #!/bin/bash
 #-v /var/run/docker.sock:/var/run/docker.sock:ro \
 #
+#		-v $uData/log:/var/log \
 
+#-v $uData/vhost.d:/etc/nginx/vhost.d \
 dCommand='docker run -d'
 dParams="-p 80:80 \
 		-p 443:443 \
 		--cap-add=NET_ADMIN \
 		-v $i3cDataDir/$cName/certs:/etc/nginx/certs \
+		-v $uData/log:/var/log \
 		-v /var/run/docker.sock:/tmp/docker.sock:ro" 
 
 i3cAfter(){
