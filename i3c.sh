@@ -853,8 +853,14 @@ _cp(){
 	ret=$?;	
 	return $ret;	
 	}
+	
+function images(){
+	$dockerBin images "$@";
+}	
 
 case "$1" in
+	images)
+		images "${@:2}";
 	up)
 		up "${@:2}";
 		;;
