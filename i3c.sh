@@ -33,7 +33,7 @@ fi
 
 #get options
 # A POSIX variable
-OPTIND=1         # Reset in case getopts has been used previously in the shell.
+
 #cho "input: '$@'"
 # Initialize our own variables:
 i3cOutputFile=""
@@ -43,12 +43,18 @@ declare -A i3cOpt
 i3cOpt[v]=0
 i3cOpt[h]=0
 i3cOpt[f]=""
+declare -A i3cOptO
 #process options
+doOpt=true;
+while $doOpt; do
+doOpt=false
+OPTIND=1         # Reset in case getopts has been used previously in the shell.
 ind=0
-while getopts "h?vf:" opt; do
+while getopts "h?vof:" opt; do
     case "$opt" in
     h)  i3cShowHelp=1
     	i3cOpt[h]=1 
+    	doOpt=false;
         ;;
     v)  i3cVerbose=1
     	i3cOpt[v]=1
@@ -61,15 +67,27 @@ while getopts "h?vf:" opt; do
           	 i3cOpt[v]=$1; 
           	 shift 
 		     ((ind++))
+		     doOpt=true;
 		     ;;
         esac          
         ;;
     f)  i3cOutputFile=$OPTARG
     	i3cOpt[f]=1
+    	doOpt=false;
         ;;
+    o)  shift
+        ((ind++))
+        doOpt=true;
+        echo 'argsgromo:'"$@"
+        IFS=':' read -ra ADDR <<< "$1"
+        oname=${ADDR[0]}
+        oval=${ADDR[1]}
+    	i3cOptO[${oname}]=$oval;
+    	;;          
     *)
     	#_echo "Unknown option:"$opt  
-    	i3cOpt[$opt]=1  
+    	i3cOpt[$opt]=1 
+    	doOpt=false; 
     esac
 done
 if [ $((OPTIND-1-$ind)) -ge 0 ]; then
@@ -87,6 +105,8 @@ do
     echo "$var"
 done
 fi
+
+done
 
 if [ $i3cVerbose -ge 2 ]; then
 	_setverbose
@@ -596,6 +616,12 @@ i3cParams="-v $i3cDataDir/$cName:/i3c/data \
 	-e PWD_ENV=$PWD_ENV \
 	-e I3C_LOG_DIR=/i3c/log"
 	
+oParams="";
+if [ "x${i3cOptO[restart]}" != "x" ]; then
+	oParams=$oParams' --restart '${i3cOptO[restart]}
+fi		
+	
+	
 	# make sure shared subfolder is created
 	if [ ! -e $i3cSharedHome/$i3cSharedFolder/$cName ]; then
 		mkdir $i3cSharedHome/$i3cSharedFolder/$cName
@@ -613,11 +639,12 @@ i3cParams="-v $i3cDataDir/$cName:/i3c/data \
 			i3cImage=i3c/$iName
 		fi	
 		if [ "x$rCommand" = "x" ]; then
-			rCommand=${@:2};
+			rCommand="${@:2}";
 		fi
 		if [ "$doCommand" == true ]; then
 			if [ ${i3cOpt[v]} -le 1 ]; then
 				echo $dCommand --name $1 \
+					 $oParams \
 					 $i3cParams \
 					 $i3iParams \
 					 $dParams \
@@ -626,6 +653,7 @@ i3cParams="-v $i3cDataDir/$cName:/i3c/data \
 			fi	
 						
 					 $dCommand --name $1 \
+					 $oParams \
 					 $i3cParams \
 					 $i3iParams \
 					 $dParams \
