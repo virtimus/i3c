@@ -82,6 +82,8 @@ while getopts "h?vof:" opt; do
         IFS=':' read -ra ADDR <<< "$1"
         oname=${ADDR[0]}
         oval=${ADDR[1]}
+		shift 
+		((ind++))        
     	i3cOptO[${oname}]=$oval;
     	;;          
     *)
