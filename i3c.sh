@@ -568,6 +568,7 @@ case "$1" in
 		dCommand=$dockerBin' run'
 		# for config convenience
 		uData=$i3cDataDir/$cName;
+		uLog=$i3cLogDir/$cName;
 		
 		#configure run
 		sCommand=run-config
