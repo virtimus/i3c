@@ -46,68 +46,69 @@ i3cOpt[f]=""
 declare -A i3cOptO
 #process options
 doOpt=true;
+#repeat until we have options with optional o required assiciated arguments
 while $doOpt; do
-doOpt=false
-OPTIND=1         # Reset in case getopts has been used previously in the shell.
-ind=0
-while getopts "h?vof:" opt; do
-    case "$opt" in
-    h)  i3cShowHelp=1
-    	i3cOpt[h]=1 
-    	doOpt=false;
-        ;;
-    v)  i3cVerbose=1
-    	i3cOpt[v]=1
-        shift
-        ((ind++))
-        case $1 in
-          *[!0-2]* | "") ;;
-          *) 
-          	 i3cVerbose=$1;
-          	 i3cOpt[v]=$1; 
-          	 shift 
-		     ((ind++))
-		     doOpt=true;
-		     ;;
-        esac          
-        ;;
-    f)  i3cOutputFile=$OPTARG
-    	i3cOpt[f]=1
-    	doOpt=false;
-        ;;
-    o)  shift
-        ((ind++))
-        doOpt=true;
-        echo 'argsgromo:'"$@"
-        IFS=':' read -ra ADDR <<< "$1"
-        oname=${ADDR[0]}
-        oval=${ADDR[1]}
-		shift 
-		((ind++))        
-    	i3cOptO[${oname}]=$oval;
-    	;;          
-    *)
-    	#_echo "Unknown option:"$opt  
-    	i3cOpt[$opt]=1 
-    	doOpt=false; 
-    esac
-done
-if [ $((OPTIND-1-$ind)) -ge 0 ]; then
-	shift $((OPTIND-1-$ind))
-fi
-[ "${1:-}" = "--" ] && shift
-
-#xit 0
-
-#args=("$@")
-_echov "args:" "$@"
-if [ $i3cVerbose -ge 2 ]; then
-for var in "$@"
-do
-    echo "$var"
-done
-fi
-
+	doOpt=false;
+	OPTIND=1         # Reset in case getopts has been used previously in the shell.
+	ind=0
+	while getopts "h?vof:" opt; do
+		doOpt=false
+	    case "$opt" in
+	    h)  i3cShowHelp=1
+	    	i3cOpt[h]=1 
+	    	doOpt=false;
+	        ;;
+	    v)  i3cVerbose=1
+	    	i3cOpt[v]=1
+	        shift
+	        ((ind++))
+	        case $1 in
+	          *[!0-2]* | "") ;;
+	          *) 
+	          	 i3cVerbose=$1;
+	          	 i3cOpt[v]=$1; 
+	          	 shift 
+			     ((ind++))
+			     doOpt=true;
+			     ;;
+	        esac          
+	        ;;
+	    f)  i3cOutputFile=$OPTARG
+	    	i3cOpt[f]=1
+	    	doOpt=false;
+	        ;;
+	    o)  shift
+	        ((ind++))
+	        doOpt=true;
+	        echo 'argsgromo:'"$@"
+	        IFS=':' read -ra ADDR <<< "$1"
+	        oname=${ADDR[0]}
+	        oval=${ADDR[1]}
+			shift 
+			((ind++))        
+	    	i3cOptO[${oname}]=$oval;
+	    	;;          
+	    *)
+	    	#_echo "Unknown option:"$opt  
+	    	i3cOpt[$opt]=1 
+	    	doOpt=false; 
+	    esac
+	done
+	if [ $((OPTIND-1-$ind)) -ge 0 ]; then
+		shift $((OPTIND-1-$ind))
+	fi
+	[ "${1:-}" = "--" ] && shift
+	
+	#xit 0
+	
+	#args=("$@")
+	_echov "args:" "$@"
+	if [ $i3cVerbose -ge 2 ]; then
+	for var in "$@"
+	do
+	    echo "$var"
+	done
+	fi
 done
 
 if [ $i3cVerbose -ge 2 ]; then
@@ -175,11 +176,64 @@ if [ "x$I3C_UDF_HOME" = "x" ]; then
    I3C_UDF_HOME=$i3cDataDir'/i3c.user'
 fi
 i3cUdfHome=$I3C_UDF_HOME
-currDir=$(pwd) 
-if [ -e $currDir'/.i3c' ]; then
-	#. $currDir/.i3c
-	i3cUdfHome=$currDir
-fi
+
+declare -A i3cDFHomes
+
+#autoconfigure i3c user home dir
+#(currently only if imagedef folder exists
+_autoconf(){
+case "$1" in
+	create)
+		if [ -e $2 ]; then
+			if [ ! -e $2/.i3c ]; then 
+				echo "i3cVersionAD=$i3cVersion" > $2/.i3c
+				echo "i3cRootAD=$i3cRoot" >> $2/.i3c
+				#cho "i3cUdfHome=$2" > $2/.i3c
+				mkdir $2/$i3cDfFolder
+				if [ "x$3" != "x" ]; then
+					mkdir $2/$i3cDfFolder/$3 
+				fi	
+				return 0;
+			else
+				return 99;
+			fi
+		else
+			return 98;		
+		fi
+		;;
+	readUHome)
+		currDir=$2;
+		if [ -e $currDir'/.i3c' ]; then
+			#. $currDir/.i3c
+			i3cUdfHome=$currDir
+		fi
+		;;
+	read)
+		currDir=$2;
+		if [ -e $currDir'/.i3c' ]; then
+			. $currDir/.i3c
+			#i3cUdfHome=$currDir
+		fi
+		;;
+	#TODO: real update	
+	store)
+		echo "#stored by i3c.sh version:"$i3cVersion > $i3cHome/.i3c
+		for K in "${!i3cDFHomes[@]}"; do
+			#echo $K; 
+			#echo 	${i3cDFHomes[$K]}
+			echo "i3cDFHomes["$K"]="${i3cDFHomes[$K]} >> $i3cHome/.i3c
+		done		
+		;;						
+	*)
+		echo "Unknown autoconf operation:"$1;	
+esac
+}
+
+
+currDir=$(pwd)
+_autoconf readUHome $currDir 
+_autoconf read $i3cHome
+
 
 #user folder to for saving/loading images (can grow big)	
 #i3cUdfDir=$i3cDataDir'/i3cd/i3c-crypto/dockerfiles'
@@ -224,27 +278,7 @@ if [ ! -e $i3cSharedHome/$i3cSharedFolder ]; then
 	mkdir $i3cSharedHome/$i3cSharedFolder
 fi
 
-#autoconfigure i3c user home dir
-#(currently only if imagedef folder exists
-_autoconf(){
-if [ -e $1 ]; then
-	if [ ! -e $1/.i3c ]; then 
-		echo "i3cVersion=$i3cVersion" > $1/.i3c
-		echo "i3cRoot=$i3cRoot" > $1/.i3c
-		echo "i3cUdfHome=$1" > $1/.i3c
-		mkdir $1/$i3cDfFolder
-		if [ "x$2" != "x" ]; then
-			mkdir $1/$i3cDfFolder/$2 
-		fi	
-		return 0;
-	else
-		return 99;
-	fi
-else
-	return 98;		
-fi
-
-}
+	
 
 #@desc 
 #load an image stored in imagedef dir into local docker repo 
@@ -432,7 +466,7 @@ cloneUdfAndRun(){
 	fi	 	
 	i3cUdfHome=$i3cRoot/$2
 	#create local i3c autoconf
-	_autoconf $i3cUdfHome
+	_autoconf create $i3cUdfHome
 	rebuild $3
 	rerun $3
 }
@@ -494,20 +528,33 @@ build(){
 		sCommand=build
 		cName=$1
 		iName=$1
+	
+	#for use in .i3c file	
+	dfHome=''	
+	if [ -e $i3cDfHome/$i3cDfFolder/$1/dockerfile ] || [ -e $i3cDfHome/$i3cDfFolder/$1/Dockerfile ] || [ -e $i3cDfHome/$i3cDfFolder/$1/i3c-build.sh ]; then
+		dfHome=$i3cDfHome 
+	fi		
 		
 	if [ -e $i3cDfHome.local/$i3cDfFolder/$1/dockerfile ] || [ -e $i3cDfHome.local/$i3cDfFolder/$1/Dockerfile ] || [ -e $i3cDfHome.local/$i3cDfFolder/$1/i3c-build.sh ]; then
 		i3cDfHome=$i3cDfHome'.local' 
+		dfHome=$i3cDfHome
 	fi		
 	if [ -e $i3cUdfHome/$i3cDfFolder/$1/dockerfile ] || [ -e $i3cUdfHome/$i3cDfFolder/$1/Dockerfile ] || [ -e $i3cUdfHome/$i3cDfFolder/$1/i3c-build.sh ]; then
-		i3cDfHome=$i3cUdfHome 
+		i3cDfHome=$i3cUdfHome
+		dfHome=$i3cDfHome 
 	fi
 	if [ -e $i3cUdfHome.local/$i3cDfFolder/$1/dockerfile ] || [ -e $i3cUdfHome.local/$i3cDfFolder/$1/Dockerfile ] || [ -e $i3cUdfHome.local/$i3cDfFolder/$1/i3c-build.sh ]; then
-		i3cDfHome=$i3cUdfHome'.local' 
-	fi	
+		i3cDfHome=$i3cUdfHome'.local'
+		dfHome=$i3cDfHome 
+	fi
+	if [ "x$dfHome" != "x" ]; then		
+		i3cDFHomes[$1]=$dfHome
+		_autoconf store
+	fi 	
+	
+	_procVars $@;
 		
-		_procVars $@;
-		
-		_build $1
+	_build $1
 
 #	fi		
 }
@@ -554,6 +601,8 @@ _build(){
 					echo "$dCommand $dParams -t $i3cImage:$i3cVersion -t $i3cImage:latest $i3cDfHome/$i3cDfFolder/$iPath/."
 				fi	
 				$dCommand $dParams -t $i3cImage:$i3cVersion -t $i3cImage:latest $i3cDfHome/$i3cDfFolder/$iPath/.
+			else
+				echo "appDef "$iPath" not found."					
 			fi
 		fi
 	
@@ -584,6 +633,16 @@ run(){
 #echo 'run:'$@;	
 case "$1" in
 	*)
+
+#check home folder & cd if needed
+if [ ${i3cDFHomes[$1]+_} ]; then 
+	echo 'changing current dir to:'${i3cDFHomes[$1]}'...'
+	cd ${i3cDFHomes[$1]}
+	currDir=$(pwd)
+	_autoconf readUHome $currDir	
+fi	
+	
+	
 		doCommand=true
 		cName=$1
 		iName=$1
@@ -856,7 +915,7 @@ rerun i3cp
 #@desc initialize new user workspace in current folder, no args needed
 winit(){
 p=$(pwd)
-_autoconf $p	
+_autoconf create $p	
 ret=$?;
 if [ $ret -eq 0 ]; then 
 	_echo "i3c.Cloud workspace initialized properly ..."
