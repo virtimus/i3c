@@ -13,7 +13,7 @@
 
 # @description echo encapsulation
 # @arg noarg
-function _ech-o(){
+function _echo(){
 	echo "$@"	
 }
 

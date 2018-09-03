@@ -1,5 +1,5 @@
 
-* [_ech-o()](#_ech-o)
+* [_echo()](#_echo)
 * [_setverbose()](#_setverbose)
 * [_autoconf()](#_autoconf)
 * [load()](#load)
@@ -38,7 +38,7 @@
 * [images()](#images)
 
 
-## _ech-o()
+## _echo()
 
 echo encapsulation
 ### Arguments
