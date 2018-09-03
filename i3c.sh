@@ -11,14 +11,15 @@
 #
 ########################################################################################################
 
-#@desc
-# echo encapsulation
-#
-_echo(){
+# @description echo encapsulation
+# @arg noarg
+function _ech-o(){
 	echo "$@"	
 }
 
-_setverbose(){
+#@desc set -x  encapsulation
+# @arg noarg
+_setverbose() {
 	set -x	
 }
 
@@ -128,7 +129,11 @@ case "$1" in
 		fi	
 		git config credential.helper cache --timeout=$timeoutSec
 		exit 0
-		;;	
+		;;
+	gapi)
+		cat /i | ./../i3c-dev-shdoc/shdoc > ./../i3c/i3c-cli-api.md
+		exit 0
+		;;		
 	*)
 	#noop
 esac	
@@ -179,8 +184,12 @@ i3cUdfHome=$I3C_UDF_HOME
 
 declare -A i3cDFHomes
 
-#autoconfigure i3c user home dir
-#(currently only if imagedef folder exists
+#@description autoconfigure i3c user home dir
+#  (currently only if imagedef folder exists
+#
+#@arg $1 - operation (create/readUHome/read/store)
+#@arg $2 - folder
+#@arg $3 - [optional] subfolder
 _autoconf(){
 case "$1" in
 	create)
@@ -280,8 +289,8 @@ fi
 
 	
 
-#@desc 
-#load an image stored in imagedef dir into local docker repo 
+#@desc load an image stored in imagedef dir into local docker repo 
+#@arg $1 - image to load (appName)
 load(){
 	    doRm=''
 		if [ ! -e $i3cUdiHome/$i3cUdiFolder/$1.i3ci ]; then 
@@ -301,13 +310,15 @@ load(){
 		fi			
 }
 
-#@desc
-#save an image from local repo into imagedef dir
+#@desc save an image from local repo into imagedef dir (.i3ci)
+#@arg $1 - appdef to save
 save(){
 		$dockerBin commit $1 i3c-tmp-save		
 		$dockerBin save -o $i3cUdiHome/$i3cUdiFolder/$1.i3ci i3c-tmp-save 
 }
 
+#@desc save an image from local repo into imagedef dir as zipped (.i3czi)
+#@arg $1 - appdef to save
 savez(){
 	save "$@"
 	cd $i3cUdiHome/$i3cUdiFolder
@@ -318,9 +329,9 @@ savez(){
 }
 
 
-#@desc
-#processing different i3c platform config files 
-#(normally process 'i3c-[command].sh' files according to current priorities
+#@desc processing different i3c platform config files 
+# (normally process 'i3c-[command].sh' files according to current priorities
+#@arg $@ -some args for taget script
 _procVars(){
 doFirsFound=0
 doLastFound=0
@@ -379,16 +390,15 @@ fi
 return 1		
 }
 
-#@desc
-#given an git repo and folder take docker imagedef for later build and pull to local repo
-# !to do - option -b for automatic build and use from /i level (requires extractind _buildint from build)
+#@desc given an git repo and folder take docker imagedef for later build and pull to local repo
+# !todo - option -b for automatic build and use from /i level (requires extractind _buildint from build)
 
 #@arg $1 repo url (ie https://github.com/swagger-api)
 #@arg $2 folder name inside the repo
 
-#@example
-#used ie in i3c-build.sh scripts:
-#i3c-openapi/swagger-editor
+#@example 1
+#   used ie in i3c-build.sh scripts:
+#   i3c-openapi/swagger-editor
 _imageClonePullForBuild(){
 appName=$2
 dfFolder=$(basename $i3cDfcHome)
@@ -445,16 +455,15 @@ cloneDfAndBuild(){
 	_build $iName	
 }
 
-#@desc
-#clone a workspace from git, build and run given git repo, imagedef/app name and also name of container to run
+#@desc clone a workspace from git, build and run given git repo, imagedef/app name and also name of container to run
 #@alias clur
 
 #@arg $1 repo path (ie https://github.com/virtimus 
 #@arg $2 repo name (ie i3c-openapi)
 #@arg $3 imagedef/containder name (ie swagger-editor)
 
-#@example
-# /i clur https://github.com/virtimus i3c-openapi swagger-editor
+#@example 1
+#    /i clur https://github.com/virtimus i3c-openapi swagger-editor
 cloneUdfAndRun(){
 	cd $i3cRoot
 	if [ -e $i3cRoot/$2 ]; then
@@ -474,7 +483,8 @@ cloneUdfAndRun(){
 
 
 
-#up with composer (if file present)
+#@desc up with composer (if file present)
+#@arg $1 appDef
 up(){
 case "$1" in
 	*)
@@ -515,7 +525,8 @@ esac
 
 
 
-#desc build with docker
+#@desc build with docker
+#@arg $1 - appDef
 build(){
 #	if [ -e $i3cUdfHome/$i3cDfFolder/$1/i3c-build.sh ]; then
 #		i3cDfHome=$i3cUdfHome 
@@ -560,7 +571,8 @@ build(){
 }
 
 
-#@ internal build part
+#@desc internal build part
+#@arg $1 - appDef
 _build(){
 	
 		iName=$1
@@ -608,7 +620,8 @@ _build(){
 	
 }
 
-#check if running
+#@desc scheck if running
+#@arg $1 - appDef
 _checkRunning(){
 docker inspect -f {{.State.Running}} $1 | grep 'true' > /dev/null
 if [ $? -eq 0 ]; then
@@ -621,6 +634,7 @@ fi
 }
 
 #@desc check if runing and run
+#@arg $1 - appDef
 crun(){
 	_checkRunning $1;
 	if [ $? -eq 1 ]; then
@@ -628,13 +642,14 @@ crun(){
 	fi			
 }
 
-#@desc run given container by name 
+#@desc run given container by name
+#@arg $1 - appDef 
 run(){
 #echo 'run:'$@;	
 case "$1" in
 	*)
 
-#check home folder & cd if needed
+# check home folder & cd if needed
 if [ ${i3cDFHomes[$1]+_} ]; then 
 	echo 'changing current dir to:'${i3cDFHomes[$1]}'...'
 	cd ${i3cDFHomes[$1]}
@@ -732,6 +747,7 @@ esac
 #echo "echo \$(/sbin/ip route|awk '/default/ { print \$3 }')' $i3cHost' >> /etc/hosts"
 
 #@desc remove container by name
+#@arg $1 - appDef
 _rm(){
 	ret=1;	
 	$dockerBin rm $1;
@@ -740,6 +756,7 @@ _rm(){
 }
 
 #@desc list runing containers
+#@na
 psa(){
 	ret=1;	
 	$dockerBin ps -a
@@ -748,6 +765,7 @@ psa(){
 }
 
 #@desc list all containers
+#@na
 _ps(){
 	ret=1;	
 	$dockerBin ps
@@ -756,6 +774,7 @@ _ps(){
 }
 
 #@desc remove all dangling images
+#@na
 rmidangling(){
 	ret=1;	
 	$dockerBin rmi $(docker images -a -q --filter "dangling=true")
@@ -764,6 +783,7 @@ rmidangling(){
 }
 
 #@desc start stopped container
+#@arg $1 - appDef
 start(){
 	ret=1;	
 	$dockerBin start $1;
@@ -772,6 +792,7 @@ start(){
 }
 
 #@desc stop runing container
+#@arg $1 - appDef
 stop(){
 	ret=1;	
 	$dockerBin stop $1;
@@ -780,6 +801,7 @@ stop(){
 }
 
 #@desc pid
+#@arg $1 - appDef
 pid(){
 	ret=1;	
 	$dockerBin inspect --format '{{ .State.Pid }}' "$@"
@@ -787,6 +809,8 @@ pid(){
 	return $ret;	
 }
 
+#@desc ip
+#@arg $1 - appDef
 ip(){
 	ret=1;	
 	$dockerBin inspect --format '{{ .NetworkSettings.IPAddress }}' "$@"
@@ -794,6 +818,8 @@ ip(){
 	return $ret;		
 }
 
+#@desc logs
+#@arg $1 - appDef
 logs(){
 	ret=1;	
 	$dockerBin logs "$1"
@@ -801,6 +827,9 @@ logs(){
 	return $ret;	
 }
 
+#@desc run command on container using sh -it
+#@arg $1 - appDef
+#@arg ${@:2} - command(s)
 exsh(){
 	ret=1;	
 	$dockerBin exec -it $1 sh -c "${@:2}";
@@ -808,6 +837,9 @@ exsh(){
 	return $ret;	
 }
 
+#@desc run command on container using sh non-interactive
+#@arg $1 - appDef
+#@arg ${@:2} - command(s)
 exshd(){
 	ret=1;	
 	$dockerBin exec $1 sh -c "${@:2}";
@@ -815,6 +847,9 @@ exshd(){
 	return $ret;	
 }
 
+#@desc run command on container -it
+#@arg $1 - appDef
+#@arg ${@:2} - command(s)
 exec(){
 	ret=1;	
 	$dockerBin exec -it $1 "${@:2}";
@@ -822,6 +857,9 @@ exec(){
 	return $ret;
 }
 
+#@desc run command on container non-interactive
+#@arg $1 - appDef
+#@arg ${@:2} - command(s)
 execd(){
 	ret=1;	
 	$dockerBin exec $1 "${@:2}";
@@ -829,6 +867,9 @@ execd(){
 	return $ret;	
 }
 
+#@desc tag a container
+#@arg $1 - appDef
+#@arg ${@:2} - rest of args
 tag(){
 	ret=1;	
 	$dockerBin tag $1 "${@:2}";
@@ -837,6 +878,7 @@ tag(){
 }
 
 #@desc list images !todo
+#@na	
 images(){
 
 #result=$( sudo docker images -q nginx )
@@ -853,6 +895,7 @@ echo ""
 }
 
 #@desc stop, remove and build container by name
+#@arg $1 - appDef
 rebuild(){
 	    #>/dev/null
 		e1=$(stop $1 2>&1);
@@ -870,6 +913,7 @@ rebuild(){
 }
 
 #@desc stop, remove and run container by name
+#@arg $1 - appDef
 rerun(){
 		e1=$(stop $1 2>&1);
 		r1=$?;
@@ -887,6 +931,7 @@ rerun(){
 
 #@desc get new certificate for given subdomain(ie container name)
 # currently using certbot/letsgetencrypt
+#@arg $1 - appDef
 cert(){
 	
 if [ ! -e $i3cDataDir/.certs ]; then
@@ -913,6 +958,7 @@ rerun i3cp
 }
 
 #@desc initialize new user workspace in current folder, no args needed
+#@na
 winit(){
 p=$(pwd)
 _autoconf create $p	
@@ -927,6 +973,7 @@ fi
 }
 
 #@ add appdef in current workspace
+#@arg $1 - appDef
 wadd(){	
 	if [ "x$1" == "x" ]; then
 		echo "Must provide name of appdef to create"	
@@ -937,6 +984,8 @@ wadd(){
 	fi
 }
 
+#@desc cp into or from container
+#@arg $@ - same as docker cp
 _cp(){
 	ret=1;	
 	$dockerBin cp "$@";
@@ -944,6 +993,8 @@ _cp(){
 	return $ret;	
 	}
 	
+#@desc list images
+#@arg $@ - same as docker images	
 function images(){
 	$dockerBin images "$@";
 }	
