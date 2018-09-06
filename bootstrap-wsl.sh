@@ -8,7 +8,6 @@ if [ ! -e /i3c ]; then
 	echo " Press 'q' to quit installation, any other key to continue. $secs timeout.  "
 	echo "###################################################################################";
 	read -n 1 =t $secs -p "Input Selection:" mainmenuinput
-	switch ($mainmenuinput)
 	case "$mainmenuinput" in
 		q)
 		exit 0;
