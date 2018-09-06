@@ -1,3 +1,4 @@
+@echo off
 REM tODO: dockerToolBox install
 
 REM info if You have any mounter drives on win - should pin them to bash also
