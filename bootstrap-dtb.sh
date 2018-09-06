@@ -48,12 +48,10 @@ echo 'DOCKER_TLS_VERIFY: '$DOCKER_TLS_VERIFY;
 echo 'WINUSERNAME: '$WINUSERNAME;
 echo 'LUSERNAME: '$LUSERNAME;
 
-STEP="Merging environment paths into .bashrc ..."
-rPath=/c/Users/$WINUSERNAME/AppData/Local/lxss/$LUSERNAME;
-echo 'Bash profile path: '$rPath;
-tPath=$rPath/.i3cbashrc
-tPath2=/c/Users/$WINUSERNAME/AppData/Local/lxss/$LUSERNAME/.i3cbashrc.tmp
-	
+
+STEP="Creating i3cRoot/bootstrap ..."
+
+tPath=/c/i3cRoot/bootstrap.sh
 	echo "export DOCKER_HOST='$DOCKER_HOST'" > $tPath
 	echo "export DOCKER_MACHINE_NAME='$DOCKER_MACHINE_NAME'" >> $tPath
 	echo "export DOCKER_TLS_VERIFY=$DOCKER_TLS_VERIFY" >> $tPath
@@ -62,6 +60,15 @@ tPath2=/c/Users/$WINUSERNAME/AppData/Local/lxss/$LUSERNAME/.i3cbashrc.tmp
 	echo "export DOCKER_TOOLBOX_INSTALL_PATH='/mnt$DOCKER_TOOLBOX_INSTALL_PATH'" >> $tPath
 	echo "export WINUSERNAME='$WINUSERNAME'" >> $tPath
 	printf "if [ ! -e /i3c ]; then\n curl -sSL https://raw.githubusercontent.com/virtimus/i3c/master/bootstrap-wsl.sh | bash -i;\n fi\n" >> $tPath
+	
+exit 0;
+STEP="Merging environment paths into .bashrc ..."
+rPath=/c/Users/$WINUSERNAME/AppData/Local/lxss/$LUSERNAME;
+echo 'Bash profile path: '$rPath;
+tPath=$rPath/.i3cbashrc
+tPath2=/c/Users/$WINUSERNAME/AppData/Local/lxss/$LUSERNAME/.i3cbashrc.tmp
+	
+
 	
 
 tPathT=/c/Users/$WINUSERNAME/AppData/Local/lxss/$LUSERNAME/.bashrc
