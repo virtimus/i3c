@@ -28,7 +28,7 @@ if [ ! -e /i3c/i3c ]; then
 	git clone https://github.com/virtimus/i3c.git
 	cd i3c
 else
-	cd /i3/i3c
+	cd /i3c/i3c
 	git pull
 fi	
 find -name '*.sh' -exec  chmod a+x {} \;
