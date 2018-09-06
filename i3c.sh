@@ -340,9 +340,9 @@ if [ "$sCommand" == 'run' ] || [ "$sCommand" == 'build' ]; then
 	doLastFound=1
 fi	
 	
-		if [ -e $i3cDfHome/$i3cDfFolder/$iName/i3c-$sCommand.sh ]; then
+		if [ -e $i3cDfHome/$i3cDfFolder/$cName/i3c-$sCommand.sh ]; then
 			i3cDfcHome=$i3cDfHome
-			i3cScriptDir=$i3cDfHome/$i3cDfFolder/$iName
+			i3cScriptDir=$i3cDfHome/$i3cDfFolder/$cName
 			if [ $doLastFound -eq 0 ]; then
 				. $i3cScriptDir/i3c-$sCommand.sh $@;
 			fi
@@ -350,9 +350,9 @@ fi
 				return 0
 			fi	
 		fi
-		if [ -e $i3cDfHome.local/$i3cDfFolder/$iName/i3c-$sCommand.sh ]; then
+		if [ -e $i3cDfHome.local/$i3cDfFolder/$cName/i3c-$sCommand.sh ]; then
 			i3cDfcHome=$i3cDfHome'.local'
-			i3cScriptDir=$i3cDfHome.local/$i3cDfFolder/$iName
+			i3cScriptDir=$i3cDfHome.local/$i3cDfFolder/$cName
 			if [ $doLastFound -eq 0 ]; then
 				. $i3cScriptDir/i3c-$sCommand.sh $@;
 			fi
@@ -360,9 +360,9 @@ fi
 				return 0
 			fi			
 		fi		
-		if [ -e $i3cUdfHome/$i3cDfFolder/$iName/i3c-$sCommand.sh ]; then
+		if [ -e $i3cUdfHome/$i3cDfFolder/$cName/i3c-$sCommand.sh ]; then
 			i3cDfcHome=$i3cUdfHome
-			i3cScriptDir=$i3cUdfHome/$i3cDfFolder/$iName
+			i3cScriptDir=$i3cUdfHome/$i3cDfFolder/$cName
 			if [ $doLastFound -eq 0 ]; then
 				. $i3cScriptDir/i3c-$sCommand.sh $@;
 			fi
@@ -370,9 +370,9 @@ fi
 				return 0
 			fi			
 		fi
-		if [ -e $i3cUdfHome.local/$i3cDfFolder/$iName/i3c-$sCommand.sh ]; then
+		if [ -e $i3cUdfHome.local/$i3cDfFolder/$cName/i3c-$sCommand.sh ]; then
 			i3cDfcHome=$i3cUdfHome'.local'
-			i3cScriptDir=$i3cUdfHome.local/$i3cDfFolder/$iName
+			i3cScriptDir=$i3cUdfHome.local/$i3cDfFolder/$cName
 			if [ $doLastFound -eq 0 ]; then
 				. $i3cScriptDir/i3c-$sCommand.sh $@;
 			fi
@@ -537,7 +537,7 @@ build(){
 		doCommand=true
 		dCommand=$dockerBin' build'
 		sCommand=build
-		cName=$1
+		readonly cName=$1
 		iName=$1
 	
 	#for use in .i3c file	
@@ -665,6 +665,7 @@ fi
 		# for config convenience
 		uData=$i3cDataDir/$cName;
 		uLog=$i3cLogDir/$cName;
+		addVHost='';
 		
 		#configure run
 		sCommand=run-config
@@ -684,7 +685,7 @@ i3cParams="-v $i3cDataDir/$cName:/i3c/data \
 	-v $i3cHome:/i3c/i3c \
 	-v $i3cLogDir/$cName:/i3c/log \
 	-v $i3cSharedHome/$i3cSharedFolder:/i3c/.shared \
-	-e VIRTUAL_HOST=$cName.$i3cInHost,$cName.$i3cExHost \
+	-e VIRTUAL_HOST=$cName.$i3cInHost,$cName.$i3cExHost$addVHost \
 	-e I3C_LOCAL_ENDPOINT=$I3C_LOCAL_ENDPOINT \
 	-e I3C_HOST=$i3cHost \
 	-e I3C_HOME=/i3c/i3c \
@@ -749,10 +750,17 @@ esac
 #@desc remove container by name
 #@arg $1 - appDef
 _rm(){
-	ret=1;	
-	$dockerBin rm $1;
-	ret=$?;
-	return $ret;
+	sCommand='rm';
+	doCommand=true;
+	readonly cName=$1
+	_procVars "$@"
+	if [ "$doCommand" == true ]; then
+		ret=1;		
+		$dockerBin rm $1;
+		ret=$?;
+		return $ret;
+	fi
+	return 0;
 }
 
 #@desc list runing containers

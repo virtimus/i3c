@@ -9,18 +9,28 @@ if [ "$RUNNING" == "true" ]; then
     echo "I3C_FINAL - $CONTAINER is running."
     exit 0
 fi
-
-mkdir /i3c
-mkdir /i3c/log
-mkdir /i3c/data
+if [ ! -e /i3c ]; then
+	mkdir /i3c
+fi
+if [ ! -e /i3c/log ]; then
+	mkdir /i3c/log
+fi
+if [ ! -e /i3c/data ]; then	
+	mkdir /i3c/data
+fi	
 
 #if [ ! -e "/log" ]; then
 #    ln -s /i3c/log /log
 #fi
 
-cd /i3c
-git clone https://github.com/virtimus/i3c.git
-cd i3c
+if [ ! -e /i3c/i3c ]; then	
+	cd /i3c
+	git clone https://github.com/virtimus/i3c.git
+	cd i3c
+else
+	cd /i3/i3c
+	git pull
+fi	
 find -name '*.sh' -exec  chmod a+x {} \;
 ./i3c-install/bootstrap.sh 
 #> /log/bootstrap-install.log 2>&1
