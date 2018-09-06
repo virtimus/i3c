@@ -12,7 +12,7 @@ The Principles are:
 - distribute elements as loosly coupled microservices
 - easy deploy, sharing & presentation of working solution prototypes
 
-## To quickly get started:
+## Quick start:
 
 ### Windows
 
@@ -22,7 +22,7 @@ The Principles are:
 ```bash
 curl -sSL https://raw.githubusercontent.com/virtimus/i3c/master/bootstrap.bat | cmd
 ```
-This will install Bash shelll for windows.
+This will install Bash shell for Windows.
 
 - run "Bash on Ubuntu on Windows" console and watch installation progress
 
