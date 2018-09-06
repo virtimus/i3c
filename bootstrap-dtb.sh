@@ -52,7 +52,8 @@ echo 'LUSERNAME: '$LUSERNAME;
 STEP="Creating i3cRoot/bootstrap ..."
 
 tPath=/c/i3cRoot/env.sh
-	echo "export DOCKER_HOST='$DOCKER_HOST'" > $tPath
+	echo "#!/bin/bash" > $tPath
+	echo "export DOCKER_HOST='$DOCKER_HOST'" >> $tPath
 	echo "export DOCKER_MACHINE_NAME='$DOCKER_MACHINE_NAME'" >> $tPath
 	echo "export DOCKER_TLS_VERIFY=$DOCKER_TLS_VERIFY" >> $tPath
 	echo "export VBOX_INSTALL_PATH='/mnt$VBOX_INSTALL_PATH'" >> $tPath
