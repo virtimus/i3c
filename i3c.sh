@@ -576,7 +576,7 @@ build(){
 _build(){
 	
 		iName=$1
-		cName=$1
+		#cName=$1
 		
 		
 		
