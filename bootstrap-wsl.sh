@@ -1,6 +1,7 @@
 #!/bin/bash
 
 if [ ! -e /i3c ]; then
+
 	secs=10;
 	echo "###################################################################################";
 	echo "";
@@ -30,6 +31,11 @@ if [ ! -e /i3c ]; then
 	echo "";
 	echo "Making root i3c folder (/i3c) ..."
 	ln -s /mnt/c/i3cRoot /i3c
+	echo "###################################################################################";
+	echo "";
+	echo "Installing /i3c/env.sh script ..."	
+	#. /i3c/env.sh
+	echo ". /i3c/env.sh" >> ~/.bashrc
 	echo "###################################################################################";
 	echo "";
 	echo "Runing main i3c/bootstrap.sh script ..."	

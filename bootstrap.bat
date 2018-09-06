@@ -24,9 +24,10 @@ if NOT "%VBOX_MSI_INSTALL_PATH%" == "" (
 )
 
 set mypath=%cd%
+set RND=%RANDOM%
 D:
 cd D:\tools\DockerToolbox
-call "C:\Program Files\Git\bin\bash.exe" --login -i "%DOCKER_TOOLBOX_INSTALL_PATH%\start.sh" "curl -sSL https://raw.githubusercontent.com/virtimus/i3c/master/bootstrap-dtb.sh | bash -l -c \"WINUSERNAME='%USERNAME%' LUSERNAME='%LUSERNAME%' exec -l bash\""
+call "C:\Program Files\Git\bin\bash.exe" --login -i "%DOCKER_TOOLBOX_INSTALL_PATH%\start.sh" "curl -sSL https://raw.githubusercontent.com/virtimus/i3c/master/bootstrap-dtb.sh?d=%RND% | bash -l -c \"WINUSERNAME='%USERNAME%' LUSERNAME='%LUSERNAME%' exec -l bash\""
 
 Rem "/c/i3cRoot/i3c/bootstrap-wsl.sh"
 

@@ -51,7 +51,7 @@ echo 'LUSERNAME: '$LUSERNAME;
 
 STEP="Creating i3cRoot/bootstrap ..."
 
-tPath=/c/i3cRoot/bootstrap.sh
+tPath=/c/i3cRoot/env.sh
 	echo "export DOCKER_HOST='$DOCKER_HOST'" > $tPath
 	echo "export DOCKER_MACHINE_NAME='$DOCKER_MACHINE_NAME'" >> $tPath
 	echo "export DOCKER_TLS_VERIFY=$DOCKER_TLS_VERIFY" >> $tPath
@@ -60,12 +60,12 @@ tPath=/c/i3cRoot/bootstrap.sh
 	echo "export DOCKER_TOOLBOX_INSTALL_PATH='/mnt$DOCKER_TOOLBOX_INSTALL_PATH'" >> $tPath
 	echo "export WINUSERNAME='$WINUSERNAME'" >> $tPath
 	printf "if [ ! -e /i3c ]; then\n curl -sSL https://raw.githubusercontent.com/virtimus/i3c/master/bootstrap-wsl.sh | bash -i;\n fi\n" >> $tPath
-	
+echo "end0."	
 exit 0;
 STEP="Merging environment paths into .bashrc ..."
 rPath=/c/Users/$WINUSERNAME/AppData/Local/lxss/$LUSERNAME;
 echo 'Bash profile path: '$rPath;
-tPath=$rPath/.i3cbashrc
+#tPath=$rPath/.i3cbashrc
 tPath2=/c/Users/$WINUSERNAME/AppData/Local/lxss/$LUSERNAME/.i3cbashrc.tmp
 	
 
@@ -86,7 +86,7 @@ lead='^### BEGIN I3C AUTOCONF ###$'
 tail='^### END I3C AUTOCONF ###$'
 sed -e "/$lead/,/$tail/{ /$lead/{p; r $tPath
         }; /$tail/p; d }" $tPathT > $tPath2
-dtnow=(date +%Y%m%d%H%M%S);
+dtnow=$(date +%Y%m%d%H%M%S);
 cp 	$tPathT $tPathT.$dtnow.bak
 cat $tPath2 > $tPathT
 rm $tPath2
