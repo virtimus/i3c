@@ -12,6 +12,28 @@ The Principles are:
 - distribute elements as loosly coupled microservices
 - easy deploy, sharing & presentation of working solution prototypes
 
+## To quickly get started:
+
+### Windows
+
+- install dockerToolbox
+- run bootstrap for dockerToolbox from system console: 
+
+```bash
+curl -sSL https://raw.githubusercontent.com/virtimus/i3c/master/bootstrap.bat | cmd
+```
+This will install Bash shelll for windows.
+
+- run "Bash on Ubuntu on Windows" console and watch installation progress
+
+### Linux
+
+- install Docker
+- run main bootstrap script:
+```bash
+curl -sSL https://raw.githubusercontent.com/virtimus/i3c/master/bootstrap.sh | bash
+```
+
 ## Demo
 
 You can quickly deploy current develop version inside a "play-with-docker" (PWD) playground:
@@ -53,7 +75,7 @@ On standard environment you can easily setup own apps under '/i3c.local/dockerfi
 - Follow [these](https://raw.githubusercontent.com/virtimus/i3c/master/i3c-install/stack1.yml) steps inside stack1.yml.
 
 
-## Installation "from scratch" as full i3c.Cloud platform master node (local/bootstrap)
+## Manual installation "from scratch" as full i3c.Cloud platform master node (local/bootstrap)
 - For Windows you need first to build a Linux/Docker/Bash environment: 
     - install "Docker Toolbox" and "Bash on Ubuntu on Windows" (lxrun /install /yLinux) 
     - add host connection to bash profile (replacing "virtimus" with Your username and ip of docker host if needed):

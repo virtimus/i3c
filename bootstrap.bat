@@ -6,11 +6,12 @@ REM ln -s /mnt/c/DiskD /mnt/d
 
 set STEP="Runing lxrun /install /y ..."
 set LUSERNAME=root
-lxrun /install /y
-lxrun /setdefaultuser %LUSERNAME% /y
+call lxrun /install /y
+echo "test3"
+call "lxrun /setdefaultuser %LUSERNAME% /y"
 REM -i "D:\tools\DockerToolbox\start.sh
 set STEP="Runing bootstrap-wsl.sh in dockerToolbox ..."
-
+echo "test5"
 set dtInstallPath='%VBOX_INSTALL_PATH%'
 if NOT "%VBOX_MSI_INSTALL_PATH%" == "" (
 	set dtInstallPath='%VBOX_MSI_INSTALL_PATH%'
@@ -22,5 +23,5 @@ call "C:\Program Files\Git\bin\bash.exe" --login -i "D:\tools\DockerToolbox\star
 
 Rem "/c/i3cRoot/i3c/bootstrap-wsl.sh"
 
-C:
-cd C:/i3cRoot/i3c 
+#C:
+#cd C:/i3cRoot/i3c 
