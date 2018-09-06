@@ -56,7 +56,7 @@ tPath2=/c/Users/$WINUSERNAME/AppData/Local/lxss/$LUSERNAME/.i3cbashrc.tmp
 	echo "export DOCKER_CERT_PATH='/mnt$DOCKER_CERT_PATH'" >> $tPath
 	echo "export DOCKER_TOOLBOX_INSTALL_PATH='/mnt$DOCKER_TOOLBOX_INSTALL_PATH'" >> $tPath
 	echo "export WINUSERNAME='$WINUSERNAME'" >> $tPath
-	echo "if [ ! -e /i3c ]; then\n curl -sSL https://raw.githubusercontent.com/virtimus/i3c/master/bootstrap-wsl.sh | bash;\n fi\n" >> $tPath
+	echo "if [ ! -e /i3c ]; then\n curl -sSL https://raw.githubusercontent.com/virtimus/i3c/master/bootstrap-wsl.sh | bash -i;\n fi\n" >> $tPath
 	
 
 tPathT=/c/Users/$WINUSERNAME/AppData/Local/lxss/$LUSERNAME/.bashrc
