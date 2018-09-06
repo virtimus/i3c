@@ -32,3 +32,4 @@ echo "";
 echo " Run Bash Ubuntu on Windows shell to continue.
 echo ""; 
 echo "###################################################################################";
+cd %mypath%
