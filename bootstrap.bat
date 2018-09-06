@@ -17,11 +17,17 @@ if NOT "%VBOX_MSI_INSTALL_PATH%" == "" (
 	set dtInstallPath='%VBOX_MSI_INSTALL_PATH%'
 )
 
+set mypath=%cd%
 D:
 cd D:\tools\DockerToolbox
 call "C:\Program Files\Git\bin\bash.exe" --login -i "D:\tools\DockerToolbox\start.sh" "cat /c/i3cRoot/i3c/bootstrap-dtb.sh | bash -l -c \"WINUSERNAME='%USERNAME%' LUSERNAME='%LUSERNAME%' exec -l bash\""
 
 Rem "/c/i3cRoot/i3c/bootstrap-wsl.sh"
 
-#C:
-#cd C:/i3cRoot/i3c 
+echo "###################################################################################";
+echo "";
+echo " Preinstallation of i3c.Cloud ended.
+echo "";
+echo " Run Bash Ubuntu on Windows shell to continue.
+echo ""; 
+echo "###################################################################################";
