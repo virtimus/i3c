@@ -763,11 +763,13 @@ _rm(){
 	return 0;
 }
 
+psFormat="table {{.Names}}\t{{.Image}}\t{{.Size}}\t{{.Ports}}\t{{.Status}}"
+
 #@desc list runing containers
 #@na
 psa(){
 	ret=1;	
-	$dockerBin ps -a
+	$dockerBin ps -a --format "$psFormat"
 	ret=$?;
 	return $ret;	
 }
@@ -776,7 +778,7 @@ psa(){
 #@na
 _ps(){
 	ret=1;	
-	$dockerBin ps
+	$dockerBin ps --format "$psFormat"
 	ret=$?;
 	return $ret;	
 }
