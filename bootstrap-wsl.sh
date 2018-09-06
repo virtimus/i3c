@@ -1,9 +1,6 @@
 #!/bin/bash
 
-set
-
-VBOX_INSTALL_PATH=${VBOXWINHOME/\\/\/}
-
-VBOX_INSTALL_PATH=${VBOX_INSTALL_PATH/([A-Z])[:]/\L$1}
-
-echo 'VBOX_INSTALL_PATH'$VBOX_INSTALL_PATH
+if [ ! -e /i3c ]; then
+echo "ln -s /mnt/c/i3cRoot /i3c"
+	#ln -s /mnt/c/i3cRoot /i3c
+fi
