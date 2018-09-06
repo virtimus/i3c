@@ -39,14 +39,19 @@ echo 'DOCKER_TOOLBOX_INSTALL_PATH: '$DOCKER_TOOLBOX_INSTALL_PATH;
 _fixWinPath 'DOCKER_CERT_PATH' $DOCKER_CERT_PATH 1;
 echo 'DOCKER_CERT_PATH: '$DOCKER_CERT_PATH;
 #_fixWinPath 'DOCKER_HOST' $WINDHOST;
-#echo 'DOCKER_HOST: '$DOCKER_HOST;
+echo 'DOCKER_HOST: '$DOCKER_HOST;
 #_fixWinPath 'DOCKER_MACHINE_NAME' $WINDMNAME;
-#echo 'DOCKER_MACHINE_NAME: '$DOCKER_MACHINE_NAME;
+echo 'DOCKER_MACHINE_NAME: '$DOCKER_MACHINE_NAME;
 #_fixWinPath 'DOCKER_TLS_VERIFY' $WINDTVERIFY;
-#echo 'DOCKER_TLS_VERIFY: '$DOCKER_TLS_VERIFY; 
+echo 'DOCKER_TLS_VERIFY: '$DOCKER_TLS_VERIFY; 
+
+echo 'WINUSERNAME: '$WINUSERNAME;
+echo 'LUSERNAME: '$LUSERNAME;
 
 STEP="Merging environment paths into .bashrc ..."
-tPath=/c/Users/$WINUSERNAME/AppData/Local/lxss/$LUSERNAME/.i3cbashrc
+rPath=/c/Users/$WINUSERNAME/AppData/Local/lxss/$LUSERNAME;
+echo 'Bash profile path: '$rPath;
+tPath=$rPath/.i3cbashrc
 tPath2=/c/Users/$WINUSERNAME/AppData/Local/lxss/$LUSERNAME/.i3cbashrc.tmp
 	
 	echo "export DOCKER_HOST='$DOCKER_HOST'" > $tPath
