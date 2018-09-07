@@ -1,4 +1,4 @@
-ReM @echo off
+@echo off
 set STEP="Runing lxrun /install /y ..."
 set LUSERNAME=root
 set wslBash=C:/Windows/System32/bash.exe
@@ -9,8 +9,25 @@ call lxrun /install /y
 
 call "lxrun /setdefaultuser %LUSERNAME% /y"
 REM -i "D:\tools\DockerToolbox\start.sh
-if DOCKER_TOOLBOX_INSTALL_PATH == "" (
-	rem echo "Set DOCKER_TOOLBOX_INSTALL_PATH env variable."
+
+REM do we have docker installed?
+
+set dpath=
+for /f "tokens=*" %%a in ('where docker ^| findstr /R /C:"docker"') do @set dpath=%%a
+if "%DOCKER_TOOLBOX_INSTALL_PATH%" == "" (
+	if NOT "%dpath%" == "" (
+		for /F %%i in ("%dpath%") do set basename=%%~dpi;		
+		set DOCKER_TOOLBOX_INSTALL_PATH=%basename%
+	)
+)
+
+echo DOCKER_TOOLBOX_INSTALL_PATH: %DOCKER_TOOLBOX_INSTALL_PATH%
+
+if "%DOCKER_TOOLBOX_INSTALL_PATH%" == "" (
+	echo ###################################################################################
+	echo.
+	echo   Installing dockerToolbox ...
+	echo.
 	rem exit 1;
 
 	set STEP="Installing dockerToolbox ..."
@@ -26,9 +43,10 @@ REM info if You have any mounter drives on win - should pin them to bash also
 ReM ie D:// => /mnt/d/
 REM ln -s /mnt/c/DiskD /mnt/d
 
-if DOCKER_TOOLBOX_INSTALL_PATH == "" (
-	echo "Set DOCKER_TOOLBOX_INSTALL_PATH env variable."
-	exit 1;
+if "%DOCKER_TOOLBOX_INSTALL_PATH%" == "" (
+	echo Docker not installed
+	echo Set DOCKER_TOOLBOX_INSTALL_PATH env variable.
+	exit /B 1;
 )
 
 
@@ -40,6 +58,7 @@ if NOT "%VBOX_MSI_INSTALL_PATH%" == "" (
 )
 
 set mypath=%cd%
+set mydrive=%CD:~0,2%
 set RND=%RANDOM%
 D:
 cd D:\tools\DockerToolbox
@@ -49,11 +68,12 @@ call "%wslBash%" -c ". /mnt/c/i3cRoot/env.sh"
 
 Rem "/c/i3cRoot/i3c/bootstrap-wsl.sh"
 
-echo "###################################################################################";
-echo "";
-echo " Preinstallation of i3c.Cloud ended.
-echo "";
-echo " Run Bash Ubuntu on Windows shell to continue.
-echo ""; 
-echo "###################################################################################";
+echo ###################################################################################
+echo.
+echo   Preinstallation of i3c.Cloud ended.
+echo.
+echo   Run Bash Ubuntu on Windows shell to continue.
+echo.   
+echo ###################################################################################
+%mydrive%
 cd %mypath%

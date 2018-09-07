@@ -537,7 +537,7 @@ build(){
 		doCommand=true
 		dCommand=$dockerBin' build'
 		sCommand=build
-		readonly cName=$1
+		cName=$1
 		iName=$1
 	
 	#for use in .i3c file	
@@ -659,7 +659,7 @@ fi
 	
 	
 		doCommand=true
-		#cName=$1
+		cName=$1
 		iName=$1
 		dCommand=$dockerBin' run'
 		# for config convenience
@@ -677,7 +677,7 @@ fi
 		#check if need to proces base files
 		if [ "$1" == "$iName" ]; then
 			#cName here is readonly
-			#cName=$1;
+			cName=$1;
 			echo ""
 		fi
 		if [ "x$i3cParams" = "x" ]; then
@@ -753,7 +753,7 @@ esac
 _rm(){
 	sCommand='rm';
 	doCommand=true;
-	readonly cName=$1
+	cName=$1
 	_procVars "$@"
 	if [ "$doCommand" == true ]; then
 		ret=1;		
@@ -1010,6 +1010,7 @@ function images(){
 	$dockerBin images "$@";
 }	
 
+_fromCase=1
 case "$1" in
 	images)
 		images "${@:2}";
