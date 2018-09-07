@@ -31,7 +31,7 @@ if "%DOCKER_TOOLBOX_INSTALL_PATH%" == "" (
 	rem exit 1;
 
 	set STEP="Installing dockerToolbox ..."
-	rem call %wslBash% -c "curl -L https://download.docker.com/win/stable/DockerToolbox.exe --output %i3cRootDir%/DockerToolbox.exe"
+	call %wslBash% -c "curl -L https://download.docker.com/win/stable/DockerToolbox.exe --output %i3cRootDir%/DockerToolbox.exe"
 	call "%i3cRootDirWin%/DockerToolbox.exe"
 )
 
