@@ -659,7 +659,7 @@ fi
 	
 	
 		doCommand=true
-		cName=$1
+		#cName=$1
 		iName=$1
 		dCommand=$dockerBin' run'
 		# for config convenience
@@ -677,7 +677,8 @@ fi
 		#check if need to proces base files
 		if [ "$1" == "$iName" ]; then
 			#cName here is readonly
-			cName=$1;
+			#cName=$1;
+			echo ""
 		fi
 		if [ "x$i3cParams" = "x" ]; then
 			
