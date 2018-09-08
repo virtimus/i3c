@@ -7,7 +7,7 @@ echo "##########################################################################
 
 dtnow=$(date +%Y%m%d%H%M%S);
 if [ -L /i ] || [ -e /i ]; then	
-	fto1="/i.$dtnow.bak";
+	fto1="/i3c.i$dtnow.bak";
 	echo "/i exists - moving to $fto1";
  	mv /i "$fto1"
 fi
