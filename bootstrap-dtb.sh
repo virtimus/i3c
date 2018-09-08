@@ -1,4 +1,8 @@
 #!/bin/bash
+echo "###################################################################################";
+echo "";
+echo "   BOOTSTRAP-DTB.SH - Start ...";
+echo "###################################################################################";
 
 #set
 
@@ -33,6 +37,7 @@ fi
 
 STEP="Processing environment paths ..."
 _fixWinPath 'I3C_ROOT_PATH' $I3C_ROOT_WIN 1;
+echo 'I3C_ROOT_WIN: '$I3C_ROOT_WIN;
 echo 'I3C_ROOT_PATH: '$I3C_ROOT_PATH;
 _fixWinPath 'VBOX_INSTALL_PATH' $dtInstallPath 1;
 echo 'VBOX_INSTALL_PATH: '$VBOX_INSTALL_PATH;
