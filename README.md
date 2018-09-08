@@ -16,18 +16,21 @@ The Principles are:
 
 ### Windows
 
-- install dockerToolbox
-- run bootstrap for dockerToolbox from system console: 
+- run bootstrap for dockerToolbox & WSL from system console: 
 
 ```bash
 curl -sSL https://raw.githubusercontent.com/virtimus/i3c/master/bootstrap.bat | cmd
 ```
-or
+or if do not have curl:
+
 ```bash
 PowerShell Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux
-PowerShell Start-BitsTransfer -source https://raw.githubusercontent.com/virtimus/i3c/master/bootstrap.bat -destination c:/i3cRoot/bootstrap.bat
+```
+(restart maybe needed)
+```bash
+PowerShell Start-BitsTransfer -source https://raw.githubusercontent.com/virtimus/i3c/master/bootstrap.bat -destination bootstrap.bat
 
-c:/i3cRoot/bootstrap.bat
+bootstrap.bat
 ```
 
 This will install Bash shell for Windows.
