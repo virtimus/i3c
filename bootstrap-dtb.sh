@@ -32,8 +32,8 @@ if [ "x$dtInstallPath" == "x" ]; then
 fi
 
 STEP="Processing environment paths ..."
-_fixWinPath 'I3C_ROOT' $I3C_ROOT_WIN 1;
-echo 'I3C_ROOT: '$I3C_ROOT;
+_fixWinPath 'I3C_ROOT_PATH' $I3C_ROOT_WIN 1;
+echo 'I3C_ROOT_PATH: '$I3C_ROOT_PATH;
 _fixWinPath 'VBOX_INSTALL_PATH' $dtInstallPath 1;
 echo 'VBOX_INSTALL_PATH: '$VBOX_INSTALL_PATH;
 _fixWinPath 'DOCKER_TOOLBOX_INSTALL_PATH' $DOCKER_TOOLBOX_INSTALL_PATH 1;
@@ -55,7 +55,7 @@ STEP="Creating i3cRoot/bootstrap ..."
 
 tPath=/c/i3cRoot/env.sh
 	echo "#!/bin/bash" > $tPath
-	echo "export I3C_ROOT_PATH='/mnt$I3C_ROOT'" >> $tPath
+	echo "export I3C_ROOT_PATH='/mnt$I3C_ROOT_PATH'" >> $tPath
 	echo "export DOCKER_HOST='$DOCKER_HOST'" >> $tPath
 	echo "export DOCKER_MACHINE_NAME='$DOCKER_MACHINE_NAME'" >> $tPath
 	echo "export DOCKER_TLS_VERIFY=$DOCKER_TLS_VERIFY" >> $tPath
