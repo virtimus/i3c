@@ -54,8 +54,10 @@ echo 'DOCKER_TLS_VERIFY: '$DOCKER_TLS_VERIFY;
 
 echo 'WINUSERNAME: '$WINUSERNAME;
 echo 'LUSERNAME: '$LUSERNAME;
-
-
+STEP="Adding shared folder to docker machine"
+docker-machine stop
+$VBOX_INSTALL_PATH\VBoxManage.exe sharedfolder add i3c --name srv --hostpath  "$I3C_ROOT_WIN"
+docker-machine start
 STEP="Creating i3cRoot/bootstrap ..."
 
 tPath=/c/i3cRoot/env.sh
