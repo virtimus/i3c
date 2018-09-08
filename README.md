@@ -22,6 +22,13 @@ The Principles are:
 ```bash
 curl -sSL https://raw.githubusercontent.com/virtimus/i3c/master/bootstrap.bat | cmd
 ```
+or
+```bash
+PowerShell Start-BitsTransfer -source https://raw.githubusercontent.com/virtimus/i3c/master/bootstrap.bat -destination c:/i3cRoot/bootstrap.bat
+
+c:/i3cRoot/bootstrap.bat
+```
+
 This will install Bash shell for Windows.
 
 - run "Bash on Ubuntu on Windows" console and watch installation progress
