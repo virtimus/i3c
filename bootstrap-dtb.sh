@@ -16,7 +16,7 @@ _fixWinPath(){
 	valuer='/'$valuer
 	#cho $name': '$valuer
 	if [ "$3" == "1" ]; then
-		if [ ! -e $valuer ]; then
+		if [ ! -e "$valuer" ]; then
 			echo "Problem with $name ($value:$valuer).";
 			echo "Check if folder exists on Your host machine and is properly linked/mounted to bash shell.";
 			exit 1;
