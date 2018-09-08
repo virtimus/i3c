@@ -34,12 +34,12 @@ if "%DOCKER_TOOLBOX_INSTALL_PATH%" == "" (
 	rem exit 1;
 
 	set STEP="Installing dockerToolbox ..."
-	if exist %i3cRootDirWin%/DockerToolbox.exe (
+	if exist DockerToolbox.exe (
 		echo DockerToolbox.exe already downloaded;
 	) else (
-		call %wslBash% -c "curl -L https://download.docker.com/win/stable/DockerToolbox.exe --output %i3cRootDir%/DockerToolbox.exe";
+		call %wslBash% -c "curl -L https://download.docker.com/win/stable/DockerToolbox.exe --output DockerToolbox.exe";
 	)
-	call "%i3cRootDirWin%/DockerToolbox.exe"
+	call  DockerToolbox.exe"
 )
 
 
