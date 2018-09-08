@@ -56,7 +56,7 @@ echo 'WINUSERNAME: '$WINUSERNAME;
 echo 'LUSERNAME: '$LUSERNAME;
 STEP="Adding shared folder to docker machine"
 docker-machine stop
-$VBOX_INSTALL_PATH\VBoxManage.exe sharedfolder add i3c --name srv --hostpath  "$I3C_ROOT_WIN"
+"$VBOX_INSTALL_PATH\VBoxManage" sharedfolder add i3c --name srv --hostpath  "$I3C_ROOT_WIN"
 docker-machine start
 STEP="Creating i3cRoot/bootstrap ..."
 
