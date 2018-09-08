@@ -3,21 +3,32 @@ echo ###########################################################################
 echo.
 echo    BOOTSTRAP.BAT - start ...
 echo ###################################################################################
+set STEP="Setting variables ..."
 
-set STEP="Runing lxrun /install /y ..."
 set LUSERNAME=root
 set wslBash=C:/Windows/System32/bash.exe
 set dtBash=C:/Program Files/Git/bin/bash.exe
-REM set i3cRootDir=/mnt/c/i3cRoot
+set tmpDirWin=C:\tmp
+set tmpDir=/mnt/c/tmp
 set i3cRootDirWin=C:/i3cRoot
 if NOT "%I3C_ROOT%" == "" (
    set i3cRootDirWin=%I3C_ROOT%
 )
+
+set RND=%RANDOM%
+
+set STEP="Runing lxrun /install /y ..."
 call lxrun /install /y
 
 call "lxrun /setdefaultuser %LUSERNAME% /y"
-REM -i "D:\tools\DockerToolbox\start.sh
 
+set STEP="Making i3cRoot & tmp if not exist ..."
+if NOT exist "%i3cRootDirWin%" (
+	mkdir "%i3cRootDirWin%"
+)
+if NOT exist "%tmpDirWin%" (
+	mkdir "%tmpDirWin%"
+)
 REM do we have docker installed?
 
 set dpath=
@@ -39,12 +50,15 @@ if "%DOCKER_TOOLBOX_INSTALL_PATH%" == "" (
 	rem exit 1;
 
 	set STEP="Installing dockerToolbox ..."
-	if exist DockerToolbox.exe (
+	if exist "%tmpDir%/DockerToolbox.exe" (
 		echo DockerToolbox.exe already downloaded;
 	) else (
-		call %wslBash% -c "curl -L https://download.docker.com/win/stable/DockerToolbox.exe --output DockerToolbox.exe";
+		call %wslBash% -c "curl -L https://download.docker.com/win/stable/DockerToolbox.exe --output $tmpDir$/DockerToolbox.exe";
 	)
-	call  DockerToolbox.exe"
+	call  "%tmpDirWin%/DockerToolbox.exe"
+	call %wslBash% -c "curl -L https://raw.githubusercontent.com/virtimus/i3c/master/resetvars.vbs?d=%RND% --output $tmpDir$/resetvars.vbs";
+	call %wslBash% -c "curl -L https://raw.githubusercontent.com/virtimus/i3c/master/resetvars.bat?d=%RND% --output $tmpDir$/resetvars.bat";
+	call "%tmpDirWin%/resetvars.bat"
 )
 
 
@@ -71,7 +85,7 @@ if NOT "%VBOX_MSI_INSTALL_PATH%" == "" (
 
 set mypath=%cd%
 set mydrive=%CD:~0,2%
-set RND=%RANDOM%
+
 REM D:
 REM cd D:\tools\DockerToolbox
 call "%dtBash%" --login -i "%DOCKER_TOOLBOX_INSTALL_PATH%\start.sh" "curl -sSL https://raw.githubusercontent.com/virtimus/i3c/master/bootstrap-dtb.sh?d=%RND% | bash -l -c \"WINUSERNAME='%USERNAME%' LUSERNAME='%LUSERNAME%' I3C_ROOT_WIN='%i3cRootDirWin%' exec -l bash\""
