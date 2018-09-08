@@ -10,13 +10,13 @@ if [ "$RUNNING" == "true" ]; then
     exit 0
 fi
 
-dtnow=$(date +%Y%m%d%H%M%S);
-if [ -e /i ]; then	
- 	mv /i /i.$dtnow.bak	
-fi
-if [ -e /i3c ]; then	
- 	mv /i3c /i3c.$dtnow.bak	
-fi
+#dtnow=$(date +%Y%m%d%H%M%S);
+#if [ -e /i ]; then	
+# 	mv /i /i.$dtnow.bak	
+#fi
+#if [ -e /i3c ]; then	
+# 	mv /i3c /i3c.$dtnow.bak	
+#fi
 
 if [ ! -e /i3c ]; then
 	mkdir /i3c
