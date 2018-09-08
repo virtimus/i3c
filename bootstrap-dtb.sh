@@ -60,7 +60,7 @@ docker-machine stop
 docker-machine start
 STEP="Creating i3cRoot/bootstrap ..."
 
-tPath=/c/i3cRoot/env.sh
+tPath="$I3C_ROOT_PATH/env.sh";
 	echo "#!/bin/bash" > $tPath
 	echo "export I3C_ROOT_PATH='/mnt$I3C_ROOT_PATH'" >> $tPath
 	echo "export DOCKER_HOST='$DOCKER_HOST'" >> $tPath
@@ -70,7 +70,7 @@ tPath=/c/i3cRoot/env.sh
 	echo "export DOCKER_CERT_PATH='/mnt$DOCKER_CERT_PATH'" >> $tPath
 	echo "export DOCKER_TOOLBOX_INSTALL_PATH='/mnt$DOCKER_TOOLBOX_INSTALL_PATH'" >> $tPath
 	echo "export WINUSERNAME='$WINUSERNAME'" >> $tPath
-	printf "if [ ! -e /i3c ] || [ ! -L /i3c ]; then\n curl -sSL https://raw.githubusercontent.com/virtimus/i3c/master/bootstrap-wsl.sh | bash;\n fi\n" >> $tPath
+	printf "if [ ! -e /i ] || [ ! -L /i ]; then\n curl -sSL https://raw.githubusercontent.com/virtimus/i3c/master/bootstrap-wsl.sh | bash;\n fi\n" >> $tPath
 echo "end0."	
 exit 0;
 STEP="Merging environment paths into .bashrc ..."
