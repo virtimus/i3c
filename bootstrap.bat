@@ -53,11 +53,11 @@ if "%DOCKER_TOOLBOX_INSTALL_PATH%" == "" (
 	if exist "%tmpDir%/DockerToolbox.exe" (
 		echo DockerToolbox.exe already downloaded;
 	) else (
-		call %wslBash% -c "curl -L https://download.docker.com/win/stable/DockerToolbox.exe --output $tmpDir$/DockerToolbox.exe";
+		call %wslBash% -c "curl -L https://download.docker.com/win/stable/DockerToolbox.exe --output %tmpDir%/DockerToolbox.exe";
 	)
 	call  "%tmpDirWin%/DockerToolbox.exe"
-	call %wslBash% -c "curl -L https://raw.githubusercontent.com/virtimus/i3c/master/resetvars.vbs?d=%RND% --output $tmpDir$/resetvars.vbs";
-	call %wslBash% -c "curl -L https://raw.githubusercontent.com/virtimus/i3c/master/resetvars.bat?d=%RND% --output $tmpDir$/resetvars.bat";
+	call %wslBash% -c "curl -L https://raw.githubusercontent.com/virtimus/i3c/master/resetvars.vbs?d=%RND% --output %tmpDir%/resetvars.vbs";
+	call %wslBash% -c "curl -L https://raw.githubusercontent.com/virtimus/i3c/master/resetvars.bat?d=%RND% --output %tmpDir%/resetvars.bat";
 	call "%tmpDirWin%/resetvars.bat"
 )
 
