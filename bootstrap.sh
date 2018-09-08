@@ -9,6 +9,11 @@ if [ "$RUNNING" == "true" ]; then
     echo "I3C_FINAL - $CONTAINER is running."
     exit 0
 fi
+if [ -e /i3c ]; then
+	dtnow=$(date +%Y%m%d%H%M%S);
+ 	mv /i3c /i3c.$dtnow.bak	
+fi
+
 if [ ! -e /i3c ]; then
 	mkdir /i3c
 fi
