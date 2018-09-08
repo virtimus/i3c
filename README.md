@@ -33,6 +33,7 @@ PowerShell Start-BitsTransfer -source https://raw.githubusercontent.com/virtimus
 bootstrap.bat
 ```
 This will install Docker Toolbox & Bash shell for Windows.
+When "Setup - Docker Toolbox" window apears - You can just accept defaults.
 
 - run "Bash on Ubuntu on Windows" console - this should check out and install i3c.cloud platform from this github repo.
 
