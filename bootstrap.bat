@@ -1,4 +1,9 @@
 @echo off
+echo ###################################################################################
+echo.
+echo    BOOTSTRAP.BAT - start ...
+echo ###################################################################################
+
 set STEP="Runing lxrun /install /y ..."
 set LUSERNAME=root
 set wslBash=C:/Windows/System32/bash.exe
