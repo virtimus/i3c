@@ -3,8 +3,11 @@ set STEP="Runing lxrun /install /y ..."
 set LUSERNAME=root
 set wslBash=C:/Windows/System32/bash.exe
 set dtBash=C:/Program Files/Git/bin/bash.exe
-set i3cRootDir=/mnt/c/i3cRoot
+REM set i3cRootDir=/mnt/c/i3cRoot
 set i3cRootDirWin=C:/i3cRoot
+if NOT "%I3C_ROOT%" == "" (
+   set i3cRootDirWin=%I3C_ROOT%
+)
 call lxrun /install /y
 
 call "lxrun /setdefaultuser %LUSERNAME% /y"
@@ -64,9 +67,9 @@ if NOT "%VBOX_MSI_INSTALL_PATH%" == "" (
 set mypath=%cd%
 set mydrive=%CD:~0,2%
 set RND=%RANDOM%
-D:
-cd D:\tools\DockerToolbox
-call "%dtBash%" --login -i "%DOCKER_TOOLBOX_INSTALL_PATH%\start.sh" "curl -sSL https://raw.githubusercontent.com/virtimus/i3c/master/bootstrap-dtb.sh?d=%RND% | bash -l -c \"WINUSERNAME='%USERNAME%' LUSERNAME='%LUSERNAME%' exec -l bash\""
+REM D:
+REM cd D:\tools\DockerToolbox
+call "%dtBash%" --login -i "%DOCKER_TOOLBOX_INSTALL_PATH%\start.sh" "curl -sSL https://raw.githubusercontent.com/virtimus/i3c/master/bootstrap-dtb.sh?d=%RND% | bash -l -c \"WINUSERNAME='%USERNAME%' LUSERNAME='%LUSERNAME%' I3C_ROOT_WIN='%i3cRootDirWin%' exec -l bash\""
 
 call "%wslBash%" -c ". /mnt/c/i3cRoot/env.sh"
 
