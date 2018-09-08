@@ -18,7 +18,7 @@ The Principles are:
 
 
 
-- enable WSL (Microsoft Windows Subsystem for Linux) in Your Windows instance:
+- Use PowerShell from system console to enable WSL (Microsoft Windows Subsystem for Linux) on Your Windows instance:
 
 ```bash
 PowerShell Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux
