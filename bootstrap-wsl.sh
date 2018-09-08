@@ -38,7 +38,8 @@ if [ ! -e /i3c ]; then
 	echo "###################################################################################";
 	echo "";
 	echo "Making root i3c folder (/i3c) ..."
-	ln -s I3C_ROOT_PATH /i3c
+	echo "command: ln -s \"$I3C_ROOT_PATH\" /i3c";
+	ln -s "$I3C_ROOT_PATH" /i3c
 	echo "###################################################################################";
 	echo "";
 	echo "Installing /i3c/env.sh script ..."	
