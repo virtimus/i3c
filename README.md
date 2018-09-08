@@ -24,6 +24,7 @@ curl -sSL https://raw.githubusercontent.com/virtimus/i3c/master/bootstrap.bat | 
 ```
 or
 ```bash
+PowerShell Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux
 PowerShell Start-BitsTransfer -source https://raw.githubusercontent.com/virtimus/i3c/master/bootstrap.bat -destination c:/i3cRoot/bootstrap.bat
 
 c:/i3cRoot/bootstrap.bat
