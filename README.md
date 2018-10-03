@@ -39,7 +39,7 @@ When "Setup - Docker Toolbox" window apears - You can just accept defaults.
 
 ### Linux
 
-- install Docker
+- install Docker (instruction for Ubuntu18 in ubuntu18install.txt)
 - run main bootstrap script:
 ```bash
 curl -sSL https://raw.githubusercontent.com/virtimus/i3c/master/bootstrap.sh | bash
