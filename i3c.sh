@@ -973,7 +973,7 @@ fi
 					 $rCommand \
 					 $rParams
 			fi	
-						
+					#cho "dParams:$dParams"	
 					 $dCommand --name $(_sanitCName $1) \
 					 $oParams \
 					 $i3cParams \
@@ -1337,8 +1337,11 @@ case "$1" in
 		rerun "${@:2}";    
 	    ;;
 	rbrr)
-	    rebuild "${@:2}";
-	    rerun "${@:2}";
+	    /i rb "${@:2}";
+	    ret=$?;
+		if [ $ret -eq 0 ]; then
+	    	/i rr "${@:2}";
+		fi	
 	    ;;	
     crun)
     	crun "${@:2}";
