@@ -124,6 +124,31 @@ tail -f /i3c/log/portainer/grunt-run-dev.log ("Waiting..." line means success)
 
 - backend portainer UI available at [hostIp]:9000 (localhost:9000 or 192.168.99.100:9000)
 
+## Installation of docker-compose in wsl
+
+```bash
+export DOCKER_COMPOSE_VERSION=1.22.0
+sudo curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose && sudo chmod +x /usr/local/bin/docker-compose
+```
+
+For some tools one will need corect timezone:
+ssh into dhost
+tce-fetch.sh tzdata.tcz
+sudo mount tzdata.tcz ext -t squashfs -o loop,ro,bs=4096
+export TZ=$(find ext/usr/local/share/zoneinfo -type f -name London | xargs tail -1)
+sudo umount ext
+rm -rf ext tzdata.tcz
+
+(ie export TZ=CET-1CEST,M3.5.0,M10.5.0/3)
+
+sudo apt-get install git-svn
+apt install ant
+apt-get install net-tools openjdk-8-jdk ant ant-optional
+
+PermitRoot yes
+sudo /usr/local/etc/init.d/openssh restart
+ln -s /usr/local/etc/ssh/ssh_host_rsa_key /usr/local/etc/ssh/ssh_host_ed25519_key
+
 
 ## Installation as local i3c.Cloud endpoint
 ... to be done
@@ -134,3 +159,7 @@ tail -f /i3c/log/portainer/grunt-run-dev.log ("Waiting..." line means success)
 ### Android
 ...
 ============================
+
+## TODO
+
+- nicer/smaller appDefs (ie openremote\openremote\proxy\Dockerfile)

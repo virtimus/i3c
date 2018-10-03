@@ -1,1 +1,3 @@
 FROM portainer/portainer
+
+#VOLUME /data

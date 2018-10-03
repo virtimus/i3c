@@ -7,10 +7,11 @@ if [ ! "x$PWD_ENV" == "x" ]; then
    portMap="-p 9000:9000"	
 fi
 addIParams=true
+#-v /tmp/portainer:/data
 dParams="-d \
 	$portMap \
 	-e VIRTUAL_PORT=9000 \
-	-v /tmp/portainer:/data"
+	"
 
 rCommand="--no-analytics"	
 

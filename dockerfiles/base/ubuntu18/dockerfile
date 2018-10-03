@@ -1,0 +1,11 @@
+FROM ubuntu:18.04
+
+RUN apt-get update
+
+
+
+COPY ./run-ubuntu18.sh /
+RUN chmod a+x /run-ubuntu18.sh \
+	&& ln -s /run-ubuntu18.sh /r
+ENTRYPOINT ["/r"]
+CMD ["startup"]

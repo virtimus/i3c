@@ -10,6 +10,10 @@
 #  Copyright (c) 2014-2016 Mark Bisz (virtimus@gmail.com)
 #
 ########################################################################################################
+curl -s http://cbsg.sourceforge.net/cgi-bin/live | grep -Eo '^<li>.*</li>' | sed s,\</\\?li\>,,g | shuf -n 1
+RED='\033[0;31m'
+LRED='\033[1;31m'
+NC='\033[0m' # No Color
 
 # @description echo encapsulation
 # @arg noarg
@@ -32,6 +36,9 @@ if [ $i3cVerbose -ge 1 ]; then
 fi	
 }
 
+_echoe(){
+(>&2 echo -e "${LRED}$@${NC}")
+}
 #get options
 # A POSIX variable
 
@@ -44,7 +51,9 @@ declare -A i3cOpt
 i3cOpt[v]=0
 i3cOpt[h]=0
 i3cOpt[f]=""
+i3cOptStr='';
 declare -A i3cOptO
+declare -A i3cOptStrs
 #process options
 doOpt=true;
 #repeat until we have options with optional o required assiciated arguments
@@ -52,9 +61,17 @@ while $doOpt; do
 	doOpt=false;
 	OPTIND=1         # Reset in case getopts has been used previously in the shell.
 	ind=0
-	while getopts "h?vof:" opt; do
+	while getopts "h?vcof:" opt; do
 		doOpt=false
 	    case "$opt" in
+	    c)	shift
+	        ((ind++))
+	        i3cOpt[c]=$1;
+			shift
+	        ((ind++))
+	        doOpt=true;	    
+	    	#. $1;
+	    	;;	
 	    h)  i3cShowHelp=1
 	    	i3cOpt[h]=1 
 	    	doOpt=false;
@@ -80,6 +97,7 @@ while $doOpt; do
 	        ;;
 	    o)  shift
 	        ((ind++))
+	        i3cOptStr=$i3cOptStr' -o '$1;
 	        doOpt=true;
 	        echo 'argsgromo:'"$@"
 	        IFS=':' read -ra ADDR <<< "$1"
@@ -112,8 +130,14 @@ while $doOpt; do
 	fi
 done
 
+#cho 'i3cOptO[vFrom]'${i3cOptO[vFrom]}
+
 if [ $i3cVerbose -ge 2 ]; then
 	_setverbose
+fi
+
+if [ "x${i3cOpt[c]}" != "x" ]; then
+	. "${i3cOpt[c]}";
 fi
 
 case "$1" in
@@ -155,13 +179,24 @@ fi
 #i3cHostIp=$(/sbin/ip route|awk '/default/ { print $3 }');	
 
 #i3c platform root folder
-i3cRoot='/i3c'
+i3cRoot="${I3C_ROOT}";
+if [ "x${I3C_ROOT}" == "x" ]; then 
+	#_echoe "FATAL ERROR: I3C_ROOT is not set. i3c.Cloud needs this to point to i3c working files ()."	
+	#currently just /i3c as default & working
+	i3cRoot='/i3c'
+fi
 
 #i3c platform data dir (containers have access here)
 i3cDataDir=$i3cRoot'/data'
 
 #i3c platform home dir
-i3cHome=$i3cRoot'/i3c'; #'/i3c'
+i3cHome="${I3C_HOME}";
+if [ "x${I3C_HOME}" == "x" ]; then 
+	#_echoe "FATAL ERROR: I3C_HOME is not set. i3c.Cloud needs this to point to i3c project files (https://github.com/i3c-cloud/i3c)."	
+	#currently just [root]/i3c as default & working
+	i3cHome=$i3cRoot'/i3c'; #'/i3c'
+fi	
+
 
 #log dir (normally containers should log here into subfolders)
 i3cLogDir=$i3cRoot'/log'
@@ -183,6 +218,7 @@ fi
 i3cUdfHome=$I3C_UDF_HOME
 
 declare -A i3cDFHomes
+declare -A i3cDFFroms
 
 #@description autoconfigure i3c user home dir
 #  (currently only if imagedef folder exists
@@ -224,6 +260,25 @@ case "$1" in
 			#i3cUdfHome=$currDir
 		fi
 		;;
+	readOptStrs)
+		#cho '${i3cOptStrs[$2]}'${i3cOptStrs[$2]}
+		if [ "x${i3cOptStrs[$2]}" != "x" ]; then
+			optStr="${i3cOptStrs[$2]}";
+			IFS=' ' read -ra ADDR <<< "$optStr"
+			for K in "${!ADDR[@]}"; do
+				os=${ADDR[$K]};
+				if [ "x$os" != "x" ] && [ "$os" != "-o" ];then
+					IFS=':' read -ra ADDR <<< "$os"
+	        		oname=${ADDR[0]}
+	        		oval=${ADDR[1]}
+	        		if [ "x${i3cOptO[$oname]}" == "x" ]; then
+	        			i3cOptO[$oname]=$oval;
+	        		fi	 
+				fi	
+			done	
+		fi
+		#cho '$i3cOptO[vFrom]'${i3cOptO[vFrom]}
+		;;		
 	#TODO: real update	
 	store)
 		echo "#stored by i3c.sh version:"$i3cVersion > $i3cHome/.i3c
@@ -231,7 +286,17 @@ case "$1" in
 			#echo $K; 
 			#echo 	${i3cDFHomes[$K]}
 			echo "i3cDFHomes["$K"]="${i3cDFHomes[$K]} >> $i3cHome/.i3c
-		done		
+		done	
+		for K in "${!i3cDFFroms[@]}"; do
+			#echo $K; 
+			#echo 	${i3cDFHomes[$K]}
+			echo "i3cDFFroms["$K"]="${i3cDFFroms[$K]} >> $i3cHome/.i3c
+		done
+		for K in "${!i3cOptStrs[@]}"; do
+			#echo $K; 
+			#echo 	${i3cDFHomes[$K]}
+			echo "i3cOptStrs["$K"]='${i3cOptStrs[$K]}'" >> $i3cHome/.i3c
+		done					
 		;;						
 	*)
 		echo "Unknown autoconf operation:"$1;	
@@ -241,7 +306,7 @@ esac
 
 currDir=$(pwd)
 _autoconf readUHome $currDir 
-_autoconf read $i3cHome
+_autoconf read $i3cHome 
 
 
 #user folder to for saving/loading images (can grow big)	
@@ -259,21 +324,26 @@ i3cDfcHome=''
 declare -r dockerBin='docker'
 
 #asoc array for user configs (run-config.sh)
-declare -A i3cConfig
+declare -A i3cConfig;
 
 #processing root config scripts
-if [ -e $i3cHome/i3c-config.sh ]; then
-	. $i3cHome/i3c-config.sh
-fi
-if [ -e $i3cHome.local/i3c-config.sh ]; then
-	. $i3cHome.local/i3c-config.sh
-fi
-if [ -e $i3cUdfHome/i3c-config.sh ]; then
-	. $i3cUdfHome/i3c-config.sh
-fi	
-if [ -e $PWD/i3c-config.sh ]; then
-	. $PWD/i3c-config.sh
-fi
+_procConfig(){
+
+	if [ -e $i3cHome/i3c-config.sh ]; then
+		. $i3cHome/i3c-config.sh	
+	fi
+	if [ -e $i3cHome.local/i3c-config.sh ]; then
+		. $i3cHome.local/i3c-config.sh	
+	fi
+	if [ -e $i3cUdfHome/i3c-config.sh ]; then
+		. $i3cUdfHome/i3c-config.sh		
+	fi	
+	if [ -e $PWD/i3c-config.sh ]; then
+		. $PWD/i3c-config.sh	
+	fi	
+}
+
+_procConfig;
 
 #homedir for saved/loaded images
 i3cUdiHome=$i3cRoot
@@ -329,16 +399,68 @@ savez(){
 }
 
 
+
+_procHomes(){
+#i3cScriptDir='';
+#i3cDfcHome='';	
+line=$1;
+sFile=$2;
+			if [ "x${i3cDFHomes[$line]}" != "x" ]; then
+				if [ -e ${i3cDFHomes[$line]}/$i3cDfFolder/$line/$sFile ]; then
+					i3cDfcHome=${i3cDFHomes[$line]}
+					i3cScriptDir=${i3cDFHomes[$line]}/$i3cDfFolder/$line
+				fi
+			fi
+}
+
+_procFroms(){
+sFile=$1;
+#scho '$cName:'$cName;
+		if [ "x${i3cDFFroms[$cName]}" != "x" ]; then 
+			line="${i3cDFFroms[$cName]}";
+			#//ine="${line/\/i3c\//}"
+			if [ "x${i3cDFHomes[$line]}" != "x" ]; then
+				_procHomes $line $sFile;
+			else
+				echo "[procVars] ERROR: Home dir for inherited ${i3cDFFroms[$cName]} not found."
+			fi	 					
+		fi
+	
+}
+
 #@desc processing different i3c platform config files 
 # (normally process 'i3c-[command].sh' files according to current priorities
 #@arg $@ -some args for taget script
 _procVars(){
-doFirsFound=0
-doLastFound=0
+local sCommand=$1;
+local cName=$2;	
+local doFirsFound=0;
+local doLastFound=0;
 i3cScriptDir=''	
 if [ "$sCommand" == 'run' ] || [ "$sCommand" == 'build' ]; then
 	doLastFound=1
 fi	
+		_procFroms i3c-$sCommand.sh;
+
+		if [ "x$i3cScriptDir" != "x" ]; then
+					if [ $doLastFound -eq 0 ]; then
+						. $i3cScriptDir/i3c-$sCommand.sh $@;
+					fi
+					if [ $doFirsFound -eq 1 ]; then
+						return 0
+					fi
+		fi
+		
+		_procHomes $cName i3c-$sCommand.sh;
+
+		if [ "x$i3cScriptDir" != "x" ]; then
+					if [ $doLastFound -eq 0 ]; then
+						. $i3cScriptDir/i3c-$sCommand.sh $@;
+					fi
+					if [ $doFirsFound -eq 1 ]; then
+						return 0
+					fi
+		fi		
 	
 		if [ -e $i3cDfHome/$i3cDfFolder/$cName/i3c-$sCommand.sh ]; then
 			i3cDfcHome=$i3cDfHome
@@ -417,25 +539,17 @@ i3cDfHome=$i3cDataDir/$dfFolder
 i3cDfFolder=$cName
 }
 
-#@desc clone given 3d party repo
+#not tested
+_exist(){
+$dret="$(docker ps -a | grep bracs_output)";
+return "$?";	
+}
 
-#@arg $1 repo path
-#@arg $2 dockerfile folder inside this repo (the path will be available in container under /i3c/data)
-#@arg $3 image/container name to buil
-#@arg $4 optional arg for image name if different than appName 
 
-#@alias cldb
-cloneDfAndBuild(){
-	doCommand=true
-	dCommand=$dockerBin' build'
-	sCommand=cldb
-	imP=$3
-	IFS='/' read -r -a arrIN <<< "$3"
-	appName=${arrIN[0]};
-	cName=$appName
-	iName=$3
+_cloneOrPull(){
 
-    folderWithDockerF=$i3cDataDir/$appName/$2
+appName=$cName;
+folder=$i3cDataDir/$appName/$2
     
     if [ ! -e $i3cDataDir/$appName/$2 ]; then
     	if [ ! -e $i3cDataDir/$appName ]; then
@@ -446,7 +560,42 @@ cloneDfAndBuild(){
 	else
 		cd 	$folderWithDockerF
 		git pull	
-	fi	
+	fi
+	
+}
+
+#@desc clone given 3d party repo
+
+#@arg $1 repo path
+#@arg $2 dockerfile folder inside this repo (the path will be available in container under /i3c/data)
+#@arg $3 image/container name to build
+#@arg $4 optional arg for image name if different than appName 
+
+
+#@alias cldb
+cloneUDfAndBuild(){
+	doCommand=true
+	dCommand=$dockerBin' build'
+	sCommand=cldb
+	imP=$3
+	IFS='/' read -r -a arrIN <<< "$3"
+	appName=${arrIN[0]};
+	cName=$appName
+	iName=$3
+
+folderWithDockerF=$i3cDataDir/$appName/$2
+    
+    if [ ! -e $i3cDataDir/$appName/$2 ]; then
+    	if [ ! -e $i3cDataDir/$appName ]; then
+    		mkdir $i3cDataDir/$appName
+    	fi
+    	cd $i3cDataDir/$appName
+    	git clone $1
+	else
+		cd 	$folderWithDockerF
+		git pull	
+	fi
+
 	
 	i3cDfHome=$i3cDataDir	
 	i3cDfFolder=$appName
@@ -480,32 +629,49 @@ cloneUdfAndRun(){
 	rerun $3
 }
 
+cloneDfAndBuild(){
+	cloneUDfAndBuild "$@"
+	return "$?";
+}
 
 
-
-#@desc up with composer (if file present)
+#@desc up with composer (if docker-compose.yml file present)
+#or try to rebuild & rerun
 #@arg $1 appDef
 up(){
-case "$1" in
-	*)
+ret=0;	
 		doCommand=true
-		dCommand='docker-compose up'
-		sCommand=up
+		
+		
 		cName=$1
 		
-	if [ -e $i3cDfHome.local/$i3cDfFolder/$1/docker-compose.yml ]; then
-		i3cDfHome=$i3cDfHome'.local' 
+		dCommand='docker-compose -p '$cName' up'
+	
+	#todo! integrate with build version	
+	dfHome=''	
+	if [ -e $i3cDfHome/$i3cDfFolder/$cName/docker-compose.yml ]; then
+		dfHome=$i3cDfHome 
 	fi		
-	if [ -e $i3cUdfHome/$i3cDfFolder/$1/docker-compose.yml ]; then
-		i3cDfHome=$i3cUdfHome 
+	if [ -e $i3cDfHome.local/$i3cDfFolder/$cName/docker-compose.yml ]; then
+		dfHome=$i3cDfHome'.local' 
+	fi		
+	if [ -e $i3cUdfHome/$i3cDfFolder/$cName/docker-compose.yml ]; then
+		dfHome=$i3cUdfHome 
 	fi
-	if [ -e $i3cUdfHome.local/$i3cDfFolder/$1/docker-compose.yml ]; then
-		i3cDfHome=$i3cUdfHome'.local' 
+	if [ -e $i3cUdfHome.local/$i3cDfFolder/$cName/docker-compose.yml ]; then
+		dfHome=$i3cUdfHome'.local' 
 	fi	
+	if [ "x$dfHome" != "x" ]; then
+		uData=$i3cDataDir/$cName;
+		uLog=$i3cLogDir/$cName;
+		iName=$1;
 		
-		_procVars "$@";
-		
-		iName=$1
+		_procConfig;				
+		sCommand='config'
+		_procVars $sCommand $cName;		
+		sCommand=up
+		_procVars $sCommand $cName;
+		#cName readonly here ?
 		cName=$1
 		
 		
@@ -517,13 +683,32 @@ case "$1" in
 			iPath=$iName
 		fi		
 		if [ $doCommand == true ]; then
-			$dCommand $dParams 
+			cd $dfHome/$i3cDfFolder/$cName
+			_echov "$dCommand $dParams"
+			$dCommand $dParams
+			ret=$?; 
 			#-t $i3cImage:$i3cVersion -t $i3cImage:latest $i3cDfHome/$i3cDfFolder/$iPath/.
-		fi	
-esac
+		fi
+	else
+		#try to rebuild/rerun?
+		rebuild "$@";
+		ret=$?;
+			if [ $ret -eq 0 ]; then
+	    		rerun "$@";		
+			fi
+	fi
+	return $ret;		
 }
 
-
+#well, for a complete clear one currently has to use his own i3c-down script
+down(){
+	cName=$1;
+	_procConfig;
+	sCommand='config';
+	_procVars $sCommand $cName;	
+	sCommand=down
+	_procVars $sCommand $cName;	
+}
 
 #@desc build with docker
 #@arg $1 - appDef
@@ -536,37 +721,77 @@ build(){
 #	else
 		doCommand=true
 		dCommand=$dockerBin' build'
-		sCommand=build
+		
 		cName=$1
 		iName=$1
 	
 	#for use in .i3c file	
 	dfHome=''	
-	if [ -e $i3cDfHome/$i3cDfFolder/$1/dockerfile ] || [ -e $i3cDfHome/$i3cDfFolder/$1/Dockerfile ] || [ -e $i3cDfHome/$i3cDfFolder/$1/i3c-build.sh ]; then
+	if [ -e $i3cDfHome/$i3cDfFolder/$cName/dockerfile ] || [ -e $i3cDfHome/$i3cDfFolder/$cName/Dockerfile ] || [ -e $i3cDfHome/$i3cDfFolder/$cName/i3c-build.sh ]; then
 		dfHome=$i3cDfHome 
-	fi		
-		
-	if [ -e $i3cDfHome.local/$i3cDfFolder/$1/dockerfile ] || [ -e $i3cDfHome.local/$i3cDfFolder/$1/Dockerfile ] || [ -e $i3cDfHome.local/$i3cDfFolder/$1/i3c-build.sh ]; then
+	fi				
+	if [ -e $i3cDfHome.local/$i3cDfFolder/$cName/dockerfile ] || [ -e $i3cDfHome.local/$i3cDfFolder/$cName/Dockerfile ] || [ -e $i3cDfHome.local/$i3cDfFolder/$cName/i3c-build.sh ]; then
 		i3cDfHome=$i3cDfHome'.local' 
 		dfHome=$i3cDfHome
 	fi		
-	if [ -e $i3cUdfHome/$i3cDfFolder/$1/dockerfile ] || [ -e $i3cUdfHome/$i3cDfFolder/$1/Dockerfile ] || [ -e $i3cUdfHome/$i3cDfFolder/$1/i3c-build.sh ]; then
+	if [ -e $i3cUdfHome/$i3cDfFolder/$cName/dockerfile ] || [ -e $i3cUdfHome/$i3cDfFolder/$cName/Dockerfile ] || [ -e $i3cUdfHome/$i3cDfFolder/$cName/i3c-build.sh ]; then
 		i3cDfHome=$i3cUdfHome
 		dfHome=$i3cDfHome 
 	fi
-	if [ -e $i3cUdfHome.local/$i3cDfFolder/$1/dockerfile ] || [ -e $i3cUdfHome.local/$i3cDfFolder/$1/Dockerfile ] || [ -e $i3cUdfHome.local/$i3cDfFolder/$1/i3c-build.sh ]; then
+	if [ -e $i3cUdfHome.local/$i3cDfFolder/$cName/dockerfile ] || [ -e $i3cUdfHome.local/$i3cDfFolder/$cName/Dockerfile ] || [ -e $i3cUdfHome.local/$i3cDfFolder/$cName/i3c-build.sh ]; then
 		i3cDfHome=$i3cUdfHome'.local'
 		dfHome=$i3cDfHome 
 	fi
-	if [ "x$dfHome" != "x" ]; then		
-		i3cDFHomes[$1]=$dfHome
-		_autoconf store
-	fi 	
 	
-	_procVars $@;
+	if [ "x$dfHome" != "x" ]; then		
+		i3cDFHomes[$cName]=$dfHome
+		i3cOptStrs[$cName]=$i3cOptStr
+		_autoconf store
+	fi 
+	
+	uData=$i3cDataDir/$cName;
+	uLog=$i3cLogDir/$cName;		
+	
+	_procConfig;
+	sCommand='config';
+	_procVars $sCommand $cName;	
+	sCommand=build
+	_procVars $sCommand $cName;
+	#cho "==========================="
+	if [ "x$dfHome" == "x" ]; then
+		_procHomes $cName i3c-build.sh;
+		if [ "x$i3cDfcHome" != "x" ]; then
+			i3cDfHome=$i3cDfcHome;
+			dfHome=$i3cDfHome 
+		fi	
+	fi
+	if [ "x$dfHome" == "x" ]; then
+		_procHomes $cName dockerfile;
+		if [ "x$i3cDfcHome" != "x" ]; then
+			i3cDfHome=$i3cDfcHome;
+			dfHome=$i3cDfHome 
+		fi	
+	fi
+	if [ "x$dfHome" == "x" ]; then
+		_procHomes $cName Dockerfile;
+		if [ "x$i3cDfcHome" != "x" ]; then
+			i3cDfHome=$i3cDfcHome;
+			dfHome=$i3cDfHome 
+		fi	
+	fi	
 		
 	_build $1
-
+	ret=$?;
+	if [ $ret -ne 0 ]; then
+		return $ret;	 
+	fi	
+	if [ -n "$(type -t i3cAfter)" ] && [ "$(type -t i3cAfter)" = function ]; then
+		i3cAfter $@;
+		unset -f i3cAfter;
+		ret=$?;
+	fi	
+	
+	return $ret;
 #	fi		
 }
 
@@ -577,9 +802,7 @@ _build(){
 	
 		iName=$1
 		#cName=$1
-		
-		
-		
+				
 		if [ "x$i3cImage" = "x" ]; then		
 			i3cImage=i3c/$iName
 		fi
@@ -598,14 +821,18 @@ _build(){
 				doCommand=true;
 			fi
 			if [ $doCommand == true ]; then
-				if [ "x$fromClause" != "x" ]; then 
+				if [ "x${i3cOptO[skipFroms]}" == "x" ] && [ "x$fromClause" != "x" ]; then 
 					while read -r line; do
 						if [ -n "$line" ]; then
-							line="${line/FROM i3c\//}"
+							line="${line/FROM i3c\//}"	
+							i3cDFFroms[$cName]=$line;
+							_autoconf store;
 	    					echo "==================================================="
 	    					echo " REBUILDING Base image: $line ..."
 	    					echo "==================================================="
-	    					/i rebuild $line
+	    					/i $i3cOptStr rebuild $line
+							echo " ENDED REBUILDING Base image: $line ..."
+	    					echo "==================================================="	    					
 	    				fi
 					done <<< "$fromClause"
 				fi
@@ -614,10 +841,11 @@ _build(){
 				fi	
 				$dCommand $dParams -t $i3cImage:$i3cVersion -t $i3cImage:latest $i3cDfHome/$i3cDfFolder/$iPath/.
 			else
-				echo "appDef "$iPath" not found."					
+				_echoe "appDef "$iPath" not found.";
+				return 1;					
 			fi
 		fi
-	
+	return 0;
 }
 
 #@desc scheck if running
@@ -642,12 +870,15 @@ crun(){
 	fi			
 }
 
+_sanitCName(){
+ 	echo "$1" | sed -r 's/[\/]+/_/g'	
+}
+
 #@desc run given container by name
 #@arg $1 - appDef 
 run(){
 #echo 'run:'$@;	
-case "$1" in
-	*)
+
 
 # check home folder & cd if needed
 if [ ${i3cDFHomes[$1]+_} ]; then 
@@ -667,12 +898,18 @@ fi
 		uLog=$i3cLogDir/$cName;
 		addVHost='';
 		
+		_autoconf readOptStrs $cName;
+		
+		_procConfig;
+		sCommand='config';
+		_procVars $sCommand $cName;		
+		
 		#configure run
 		sCommand=run-config
-		_procVars $@;
+		_procVars $sCommand $cName;
 		
 		sCommand=run
-		_procVars $@;
+		_procVars $sCommand $cName;
 		
 		#check if need to proces base files
 		if [ "$1" == "$iName" ]; then
@@ -681,12 +918,18 @@ fi
 			echo ""
 		fi
 		if [ "x$i3cParams" = "x" ]; then
+lOpts='';
+if [ "x${i3cOptO[timeSync]}" != "x" ]; then
+	lOpts="$lOpts -v /etc/localtime:/etc/localtime:ro";
+fi			
 			
-i3cParams="-v $i3cDataDir/$cName:/i3c/data \
+i3cParams=" $lOpts \
+	-v $i3cDataDir/$cName:/i3c/data \
 	-v $i3cHome:/i3c/i3c \
 	-v $i3cLogDir/$cName:/i3c/log \
 	-v $i3cSharedHome/$i3cSharedFolder:/i3c/.shared \
 	-e VIRTUAL_HOST=$cName.$i3cInHost,$cName.$i3cExHost$addVHost \
+	-e I3C_ROOT=/i3c \
 	-e I3C_LOCAL_ENDPOINT=$I3C_LOCAL_ENDPOINT \
 	-e I3C_HOST=$i3cHost \
 	-e I3C_HOME=/i3c/i3c \
@@ -721,28 +964,31 @@ fi
 		fi
 		if [ "$doCommand" == true ]; then
 			if [ ${i3cOpt[v]} -le 1 ]; then
-				echo $dCommand --name $1 \
+				echo $dCommand --name $(_sanitCName $1) \
 					 $oParams \
 					 $i3cParams \
 					 $i3iParams \
 					 $dParams \
 					 $i3cImage:$i3cVersion \
-					 $rCommand
+					 $rCommand \
+					 $rParams
 			fi	
 						
-					 $dCommand --name $1 \
+					 $dCommand --name $(_sanitCName $1) \
 					 $oParams \
 					 $i3cParams \
 					 $i3iParams \
 					 $dParams \
 					 $i3cImage:$i3cVersion \
-					 $rCommand 			
+					 $rCommand \
+					 $rParams 			
 		fi
 		if [ -n "$(type -t i3cAfter)" ] && [ "$(type -t i3cAfter)" = function ]; then
 			i3cAfter $@;
+			unset -f i3cAfter;
 		fi
 		
-esac
+	return $?;
 #docker exec  $1 sh -c "echo \$(/sbin/ip route|awk '/default/ { print \$3 }')' $i3cHost' >> /etc/hosts"
 }
 
@@ -754,17 +1000,17 @@ _rm(){
 	sCommand='rm';
 	doCommand=true;
 	cName=$1
-	_procVars "$@"
+	_procVars $sCommand $cName;
 	if [ "$doCommand" == true ]; then
 		ret=1;		
-		$dockerBin rm $1;
+		$dockerBin rm $(_sanitCName $1);
 		ret=$?;
 		return $ret;
 	fi
 	return 0;
 }
 
-psFormat="table {{.Names}}\t{{.Image}}\t{{.Size}}\t{{.Ports}}\t{{.Status}}"
+psFormat="table {{.Names}}\t{{.Status}}\t{{.Image}}\t{{.Size}}\t{{.Ports}}"
 
 #@desc list runing containers
 #@na
@@ -797,7 +1043,7 @@ rmidangling(){
 #@arg $1 - appDef
 start(){
 	ret=1;	
-	$dockerBin start $1;
+	$dockerBin start $(_sanitCName $1);
 	ret=$?;
 	return $ret;
 }
@@ -806,7 +1052,7 @@ start(){
 #@arg $1 - appDef
 stop(){
 	ret=1;	
-	$dockerBin stop $1;
+	$dockerBin stop $(_sanitCName $1);
 	ret=$?;
 	return $ret;
 }
@@ -833,7 +1079,36 @@ ip(){
 #@arg $1 - appDef
 logs(){
 	ret=1;	
-	$dockerBin logs "$1"
+	$dockerBin logs -f "$(_sanitCName $1)"
+	ret=$?;	
+	return $ret;	
+}
+
+#@desc use midnight commander on container
+_mc(){
+	ret=1;	
+	cNameSanit="$(_sanitCName $1)"
+	cFsPath=/proc/$(docker inspect --format {{.State.Pid}} $cNameSanit)/root/
+	if [ "x${DOCKER_HOST}" == "x" ]; then
+		#local one	
+		mc $PWD $cFsPath
+	else
+		#remote
+		dHost=$(echo $DOCKER_HOST | sed 's/tcp:\/\/\(.*\)[:]\(.*\)/sh:\/\/docker@\1/')
+		echo "dHost:$dHost"
+		mc $PWD $dHost$cFsPath
+	fi		
+	
+	#$dockerBin logs -f "$(_sanitCName $1)"
+	ret=$?;	
+	return $ret;
+}
+
+#@desc stats
+#@arg $1 - appDef
+stats(){
+	ret=1;	
+	$dockerBin stats "$(_sanitCName $1)"
 	ret=$?;	
 	return $ret;	
 }
@@ -843,7 +1118,7 @@ logs(){
 #@arg ${@:2} - command(s)
 exsh(){
 	ret=1;	
-	$dockerBin exec -it $1 sh -c "${@:2}";
+	$dockerBin exec -it $(_sanitCName $1) sh -c "${@:2}";
 	ret=$?;	
 	return $ret;	
 }
@@ -853,7 +1128,7 @@ exsh(){
 #@arg ${@:2} - command(s)
 exshd(){
 	ret=1;	
-	$dockerBin exec $1 sh -c "${@:2}";
+	$dockerBin exec $(_sanitCName $1) sh -c "${@:2}";
 	ret=$?;	
 	return $ret;	
 }
@@ -863,7 +1138,7 @@ exshd(){
 #@arg ${@:2} - command(s)
 exec(){
 	ret=1;	
-	$dockerBin exec -it $1 "${@:2}";
+	$dockerBin exec -it $(_sanitCName $1) "${@:2}";
 	ret=$?;	
 	return $ret;
 }
@@ -873,7 +1148,7 @@ exec(){
 #@arg ${@:2} - command(s)
 execd(){
 	ret=1;	
-	$dockerBin exec $1 "${@:2}";
+	$dockerBin exec $(_sanitCName $1) "${@:2}";
 	ret=$?;	
 	return $ret;	
 }
@@ -883,7 +1158,7 @@ execd(){
 #@arg ${@:2} - rest of args
 tag(){
 	ret=1;	
-	$dockerBin tag $1 "${@:2}";
+	$dockerBin tag $(_sanitCName $1) "${@:2}";
 	ret=$?;	
 	return $ret;	
 }
@@ -908,6 +1183,9 @@ echo ""
 #@desc stop, remove and build container by name
 #@arg $1 - appDef
 rebuild(){
+ret=0;	
+	_echov "--------------------"
+	_echov "rebuild starting ..."
 	    #>/dev/null
 		e1=$(stop $1 2>&1);
 		r1=$?;
@@ -921,6 +1199,9 @@ rebuild(){
     	fi    		
     	_echov "stoping returned: $r1, remove returned: $r2 ..."
     	build $1; 
+    	ret=$?;
+    _echov "rebuild returned:$ret"	
+    	return $ret;
 }
 
 #@desc stop, remove and run container by name
@@ -938,6 +1219,7 @@ rerun(){
     	fi    	
     	_echov "stop=$r1, rm=$r2 ..."
     	run "$@";
+    	return $?;
 }
 
 #@desc get new certificate for given subdomain(ie container name)
@@ -1018,6 +1300,9 @@ case "$1" in
 	up)
 		up "${@:2}";
 		;;
+	down)
+		down "${@:2}";
+		;;
 	build)
  		build "$2";
         ;;	
@@ -1073,6 +1358,9 @@ case "$1" in
 	ex|exec)
 		exec "${@:2}";
 		;;
+	exbb)
+		exec $2 /bin/bash;
+		;;		
 	exe|execd)
 		execd "${@:2}";
 		;;			
@@ -1094,7 +1382,7 @@ case "$1" in
 	clur|cloneUdfAndRun)
 		cloneUdfAndRun "${@:2}";
 		;;
-	cldb|cloneDfAndBuild)
+	cldb|cloneDfAndBuild|cloneUDfAndBuild)
 		cloneDfAndBuild "${@:2}";
 		;;
 	cert)
@@ -1107,7 +1395,13 @@ case "$1" in
 		;;
 	wa|wadd)
 		wadd "${@:2}";
-		;;					
+		;;	
+	stats)
+		stats "${@:2}";
+		;;	
+	mc)	
+		_mc "${@:2}";
+		;;	
 	*)
 			echo "Basic usage: $0 up|build|run|runb|start|stop|rm|ps|psa|rmi|rebuild|rerun|pid|ip|exec|exe|save|load|logs|cloneUdfAndRun|help...";
 			echo "cmdAliases:"
