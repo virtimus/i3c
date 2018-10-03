@@ -16,15 +16,26 @@ The Principles are:
 
 ### Windows
 
-- install dockerToolbox
-- run bootstrap for dockerToolbox from system console: 
+
+
+- Use PowerShell from system console to enable WSL (Microsoft Windows Subsystem for Linux) on Your Windows instance:
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/virtimus/i3c/master/bootstrap.bat | cmd
+PowerShell Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux
 ```
-This will install Bash shell for Windows.
+(restart maybe needed)
 
-- run "Bash on Ubuntu on Windows" console and watch installation progress
+- run bootstrap for dockerToolbox & WSL from system console: 
+
+```bash
+PowerShell Start-BitsTransfer -source https://raw.githubusercontent.com/virtimus/i3c/master/bootstrap.bat -destination bootstrap.bat
+
+bootstrap.bat
+```
+This will install Docker Toolbox & Bash shell for Windows.
+When "Setup - Docker Toolbox" window apears - You can just accept defaults.
+
+- run "Bash on Ubuntu on Windows" console - this should check out and install i3c.cloud platform from this github repo.
 
 ### Linux
 

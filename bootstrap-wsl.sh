@@ -1,5 +1,22 @@
 #!/bin/bash
 
+echo "###################################################################################";
+echo "";
+echo "   BOOTSTRAP-WSL.SH - Start ..."
+echo "###################################################################################";
+
+dtnow=$(date +%Y%m%d%H%M%S);
+if [ -L /i ] || [ -e /i ]; then	
+	fto1="/i3c.i$dtnow.bak";
+	echo "/i exists - moving to $fto1";
+ 	mv /i "$fto1"
+fi
+if [ -L /i3c ] || [ -e /i3c ]; then
+	fto1="/i3c.$dtnow.bak";
+	echo "/i3c exists - moving to $fto1";
+ 	mv /i3c "$fto1"
+fi
+
 if [ ! -e /i3c ]; then
 
 	secs=10;
@@ -30,7 +47,8 @@ if [ ! -e /i3c ]; then
 	echo "###################################################################################";
 	echo "";
 	echo "Making root i3c folder (/i3c) ..."
-	ln -s /mnt/c/i3cRoot /i3c
+	echo "command: ln -s \"$I3C_ROOT_PATH\" /i3c";
+	ln -s "$I3C_ROOT_PATH" /i3c
 	echo "###################################################################################";
 	echo "";
 	echo "Installing /i3c/env.sh script ..."	

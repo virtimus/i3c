@@ -1,4 +1,8 @@
 #!/bin/bash
+echo "###################################################################################";
+echo "";
+echo "   BOOTSTRAP-DTB.SH - Start ...";
+echo "###################################################################################";
 
 #set
 
@@ -12,7 +16,7 @@ _fixWinPath(){
 	valuer='/'$valuer
 	#cho $name': '$valuer
 	if [ "$3" == "1" ]; then
-		if [ ! -e $valuer ]; then
+		if [ ! -e "$valuer" ]; then
 			echo "Problem with $name ($value:$valuer).";
 			echo "Check if folder exists on Your host machine and is properly linked/mounted to bash shell.";
 			exit 1;
@@ -32,11 +36,14 @@ if [ "x$dtInstallPath" == "x" ]; then
 fi
 
 STEP="Processing environment paths ..."
-_fixWinPath 'VBOX_INSTALL_PATH' $dtInstallPath 1;
+_fixWinPath 'I3C_ROOT_PATH' "$I3C_ROOT_WIN" 1;
+echo 'I3C_ROOT_WIN: '$I3C_ROOT_WIN;
+echo 'I3C_ROOT_PATH: '$I3C_ROOT_PATH;
+_fixWinPath 'VBOX_INSTALL_PATH' "$dtInstallPath" 1;
 echo 'VBOX_INSTALL_PATH: '$VBOX_INSTALL_PATH;
-_fixWinPath 'DOCKER_TOOLBOX_INSTALL_PATH' $DOCKER_TOOLBOX_INSTALL_PATH 1;
+_fixWinPath 'DOCKER_TOOLBOX_INSTALL_PATH' "$DOCKER_TOOLBOX_INSTALL_PATH" 1;
 echo 'DOCKER_TOOLBOX_INSTALL_PATH: '$DOCKER_TOOLBOX_INSTALL_PATH;
-_fixWinPath 'DOCKER_CERT_PATH' $DOCKER_CERT_PATH 1;
+_fixWinPath 'DOCKER_CERT_PATH' "$DOCKER_CERT_PATH" 1;
 echo 'DOCKER_CERT_PATH: '$DOCKER_CERT_PATH;
 #_fixWinPath 'DOCKER_HOST' $WINDHOST;
 echo 'DOCKER_HOST: '$DOCKER_HOST;
@@ -47,12 +54,15 @@ echo 'DOCKER_TLS_VERIFY: '$DOCKER_TLS_VERIFY;
 
 echo 'WINUSERNAME: '$WINUSERNAME;
 echo 'LUSERNAME: '$LUSERNAME;
-
-
+STEP="Adding shared folder to docker machine"
+docker-machine stop
+"$VBOX_INSTALL_PATH\VBoxManage" sharedfolder add "$DOCKER_MACHINE_NAME" --name i3c --hostpath  "$I3C_ROOT_WIN" --automount
+docker-machine start
 STEP="Creating i3cRoot/bootstrap ..."
 
-tPath=/c/i3cRoot/env.sh
+tPath="$I3C_ROOT_PATH/env.sh";
 	echo "#!/bin/bash" > $tPath
+	echo "export I3C_ROOT_PATH='/mnt$I3C_ROOT_PATH'" >> $tPath
 	echo "export DOCKER_HOST='$DOCKER_HOST'" >> $tPath
 	echo "export DOCKER_MACHINE_NAME='$DOCKER_MACHINE_NAME'" >> $tPath
 	echo "export DOCKER_TLS_VERIFY=$DOCKER_TLS_VERIFY" >> $tPath
@@ -60,7 +70,7 @@ tPath=/c/i3cRoot/env.sh
 	echo "export DOCKER_CERT_PATH='/mnt$DOCKER_CERT_PATH'" >> $tPath
 	echo "export DOCKER_TOOLBOX_INSTALL_PATH='/mnt$DOCKER_TOOLBOX_INSTALL_PATH'" >> $tPath
 	echo "export WINUSERNAME='$WINUSERNAME'" >> $tPath
-	printf "if [ ! -e /i3c ]; then\n curl -sSL https://raw.githubusercontent.com/virtimus/i3c/master/bootstrap-wsl.sh | bash;\n fi\n" >> $tPath
+	printf "if [ ! -e /i ] || [ ! -L /i ]; then\n curl -sSL https://raw.githubusercontent.com/virtimus/i3c/master/bootstrap-wsl.sh | bash;\n fi\n" >> $tPath
 echo "end0."	
 exit 0;
 STEP="Merging environment paths into .bashrc ..."
