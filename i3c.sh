@@ -1088,15 +1088,20 @@ logs(){
 _mc(){
 	ret=1;	
 	cNameSanit="$(_sanitCName $1)"
-	cFsPath=/proc/$(docker inspect --format {{.State.Pid}} $cNameSanit)/root/
+	subPath=$2
+	cFsPath=/proc/$(docker inspect --format {{.State.Pid}} $cNameSanit)/root$subPath
 	if [ "x${DOCKER_HOST}" == "x" ]; then
 		#local one	
 		mc $PWD $cFsPath
 	else
 		#remote
-		dHost=$(echo $DOCKER_HOST | sed 's/tcp:\/\/\(.*\)[:]\(.*\)/sh:\/\/docker@\1/')
+		exists=$(docker inspect -f {{.State.Running}} ssh)
+		if  [ ! $exists ]; then
+			/i rbrr ssh
+		fi	
+		dHost=$(echo $DOCKER_HOST | sed 's/tcp:\/\/\(.*\)[:]\(.*\)/sh:\/\/'$cNameSanit'@\1/')
 		echo "dHost:$dHost"
-		mc $PWD $dHost$cFsPath
+		mc $PWD "$dHost:2222$subPath"
 	fi		
 	
 	#$dockerBin logs -f "$(_sanitCName $1)"

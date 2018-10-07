@@ -161,6 +161,10 @@ sudo /usr/local/etc/init.d/openssh restart
 ln -s /usr/local/etc/ssh/ssh_host_rsa_key /usr/local/etc/ssh/ssh_host_ed25519_key
 
 
+some tools on dhost
+tce-load -wi coreutils
+
+
 ## Installation as local i3c.Cloud endpoint
 ... to be done
 ### Windows
