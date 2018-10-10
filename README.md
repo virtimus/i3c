@@ -165,6 +165,11 @@ some tools on dhost
 tce-load -wi coreutils
 
 
+secrets dir setup
+cd /i3c
+mkdir secrets
+ln -s secrets .secrets 
+
 ## Installation as local i3c.Cloud endpoint
 ... to be done
 ### Windows

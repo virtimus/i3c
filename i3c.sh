@@ -10,7 +10,7 @@
 #  Copyright (c) 2014-2016 Mark Bisz (virtimus@gmail.com)
 #
 ########################################################################################################
-curl -s http://cbsg.sourceforge.net/cgi-bin/live | grep -Eo '^<li>.*</li>' | sed s,\</\\?li\>,,g | shuf -n 1
+#curl -s http://cbsg.sourceforge.net/cgi-bin/live | grep -Eo '^<li>.*</li>' | sed s,\</\\?li\>,,g | shuf -n 1
 RED='\033[0;31m'
 LRED='\033[1;31m'
 NC='\033[0m' # No Color
@@ -39,6 +39,12 @@ fi
 _echoe(){
 (>&2 echo -e "${LRED}$@${NC}")
 }
+
+_mkdir(){
+mkdir -p $1
+return "$?"	
+}
+
 #get options
 # A POSIX variable
 
@@ -189,6 +195,9 @@ fi
 #i3c platform data dir (containers have access here)
 i3cDataDir=$i3cRoot'/data'
 
+#i3c platform secrets dir (should be unmounted after start)
+i3cSecretsDir=$i3cRoot'/.secrets'
+
 #i3c platform home dir
 i3cHome="${I3C_HOME}";
 if [ "x${I3C_HOME}" == "x" ]; then 
@@ -234,9 +243,9 @@ case "$1" in
 				echo "i3cVersionAD=$i3cVersion" > $2/.i3c
 				echo "i3cRootAD=$i3cRoot" >> $2/.i3c
 				#cho "i3cUdfHome=$2" > $2/.i3c
-				mkdir $2/$i3cDfFolder
+				_mkdir $2/$i3cDfFolder
 				if [ "x$3" != "x" ]; then
-					mkdir $2/$i3cDfFolder/$3 
+					_mkdir $2/$i3cDfFolder/$3 
 				fi	
 				return 0;
 			else
@@ -348,13 +357,13 @@ _procConfig;
 #homedir for saved/loaded images
 i3cUdiHome=$i3cRoot
 if [ ! -e $i3cUdiHome/$i3cUdiFolder ]; then
-	mkdir $i3cUdiHome/$i3cUdiFolder
+	_mkdir $i3cUdiHome/$i3cUdiFolder
 fi
 
 #homedir for .shared folder
 i3cSharedHome=$i3cRoot
 if [ ! -e $i3cSharedHome/$i3cSharedFolder ]; then
-	mkdir $i3cSharedHome/$i3cSharedFolder
+	_mkdir $i3cSharedHome/$i3cSharedFolder
 fi
 
 	
@@ -512,6 +521,46 @@ fi
 return 1		
 }
 
+_procI3cParams(){
+lOpts='';
+if [ "x${i3cOptO[timeSync]}" != "x" ]; then
+	lOpts="$lOpts -v /etc/localtime:/etc/localtime:ro";
+fi			
+			
+i3cParams=" $lOpts \
+	-v $i3cDataDir/$cName:/i3c/data \
+	-v $i3cHome:/i3c/i3c \
+	-v $i3cLogDir/$cName:/i3c/log \
+	-v $i3cSharedHome/$i3cSharedFolder:/i3c/.shared \
+	-v $i3cSecretsDir/$cName:/i3c/.secrets \
+	-e VIRTUAL_HOST=$cName.$i3cInHost,$cName.$i3cExHost$addVHost \
+	-e I3C_ROOT=/i3c \
+	-e I3C_LOCAL_ENDPOINT=$I3C_LOCAL_ENDPOINT \
+	-e I3C_HOST=$i3cHost \
+	-e I3C_CNAME=$cName \
+	-e I3C_HOME=/i3c/i3c \
+	-e I3C_DATA_DIR=/i3c/data \
+	-e PWD_ENV=$PWD_ENV \
+	-e I3C_LOG_DIR=/i3c/log"
+	
+#setup default secrets 
+if [ -e $i3cScriptDir/i3c-secrets.sh ] && [ ! -e $i3cSecretsDir/$cName/i3c-secrets.sh ]; then	
+	if [ ! -e $i3cSecretsDir/$cName ]; then
+		_mkdir $i3cSecretsDir/$cName
+	fi	
+	cp $i3cScriptDir/i3c-secrets.sh $i3cSecretsDir/$cName/i3c-secrets.sh
+fi
+if [ -e $i3cScriptDir/i3c-secrets-clean.sh ] && [ ! -e $i3cSecretsDir/$cName/i3c-secrets-clean.sh ]; then
+	if [ ! -e $i3cSecretsDir/$cName ]; then
+		_mkdir $i3cSecretsDir/$cName
+	fi	
+	cp $i3cScriptDir/i3c-secrets-clean.sh $i3cSecretsDir/$cName/i3c-secrets-clean.sh	
+fi	
+	
+
+			
+}
+
 #@desc given an git repo and folder take docker imagedef for later build and pull to local repo
 # !todo - option -b for automatic build and use from /i level (requires extractind _buildint from build)
 
@@ -526,12 +575,13 @@ appName=$2
 dfFolder=$(basename $i3cDfcHome)
 if [ ! -e $i3cDataDir/$dfFolder/$cName/$appName ]; then
 	cd $i3cDataDir
-	mkdir $dfFolder
+	_mkdir $dfFolder
 	cd $dfFolder
-	mkdir $cName
+	_mkdir $cName
 	cd $cName
 	git clone --depth 1 $1/$appName.git
 else
+	echo "folder $i3cDataDir/$dfFolder/$cName/$appName exists - pulling ..."
 	cd $i3cDataDir/$dfFolder/$cName/$appName
 	git pull
 fi
@@ -553,12 +603,12 @@ folder=$i3cDataDir/$appName/$2
     
     if [ ! -e $i3cDataDir/$appName/$2 ]; then
     	if [ ! -e $i3cDataDir/$appName ]; then
-    		mkdir $i3cDataDir/$appName
+    		_mkdir $i3cDataDir/$appName
     	fi
     	cd $i3cDataDir/$appName
-    	git clone $1
+    	git clone $1 $2
 	else
-		cd 	$folderWithDockerF
+		cd 	$i3cDataDir/$appName/$2
 		git pull	
 	fi
 	
@@ -587,7 +637,7 @@ folderWithDockerF=$i3cDataDir/$appName/$2
     
     if [ ! -e $i3cDataDir/$appName/$2 ]; then
     	if [ ! -e $i3cDataDir/$appName ]; then
-    		mkdir $i3cDataDir/$appName
+    		_mkdir $i3cDataDir/$appName
     	fi
     	cd $i3cDataDir/$appName
     	git clone $1
@@ -635,20 +685,7 @@ cloneDfAndBuild(){
 }
 
 
-#@desc up with composer (if docker-compose.yml file present)
-#or try to rebuild & rerun
-#@arg $1 appDef
-up(){
-ret=0;	
-		doCommand=true
-		
-		
-		cName=$1
-		
-		dCommand='docker-compose -p '$cName' up'
-	
-	#todo! integrate with build version	
-	dfHome=''	
+_procDCPath(){
 	if [ -e $i3cDfHome/$i3cDfFolder/$cName/docker-compose.yml ]; then
 		dfHome=$i3cDfHome 
 	fi		
@@ -661,32 +698,83 @@ ret=0;
 	if [ -e $i3cUdfHome.local/$i3cDfFolder/$cName/docker-compose.yml ]; then
 		dfHome=$i3cUdfHome'.local' 
 	fi	
-	if [ "x$dfHome" != "x" ]; then
-		uData=$i3cDataDir/$cName;
-		uLog=$i3cLogDir/$cName;
-		iName=$1;
+}
+
+
+#@desc up with composer (if docker-compose.yml file present)
+#or try to rebuild & rerun
+#@arg $1 appDef
+up(){
+ret=0;	
+		doCommand=true
 		
-		_procConfig;				
-		sCommand='config'
-		_procVars $sCommand $cName;		
-		sCommand=up
-		_procVars $sCommand $cName;
-		#cName readonly here ?
+		
 		cName=$1
 		
+		dCommandBuild='docker-compose build '
+		dCommandRun='docker-compose run -d --name '$cName' '
+	
+	#todo! integrate with build version	
+	dfHome=''
+	_procDCPath;	
+	
+	
+	uData=$i3cDataDir/$cName;
+	uLog=$i3cLogDir/$cName;
+	iName=$1;
+	
+	_procConfig;				
+	sCommand='config'
+	_procVars $sCommand $cName;		
+	sCommand=up
+	_procVars $sCommand $cName;
+	#cName readonly here ?
+	cName=$1
+
+	if [ "x$i3cImage" = "x" ]; then		
+		i3cImage=i3c/$iName
+	fi
+	if [ "x$iPath" = "x" ]; then		
+		iPath=$iName
+	fi	
 		
-		
-		if [ "x$i3cImage" = "x" ]; then		
-			i3cImage=i3c/$iName
-		fi
-		if [ "x$iPath" = "x" ]; then		
-			iPath=$iName
-		fi		
+	if [ "x$dfHome" != "x" ]; then			
 		if [ $doCommand == true ]; then
-			cd $dfHome/$i3cDfFolder/$cName
-			_echov "$dCommand $dParams"
-			$dCommand $dParams
-			ret=$?; 
+			if [ "x$dfHome" != "x" ]; then
+				cd $dfHome/$i3cDfFolder/$cName
+			fi
+				
+			sCommand=build
+			_procVars $sCommand $cName;
+			#cName readonly here ?
+			cName=$1			
+			
+			if [ ${i3cOpt[v]} -le 1 ]; then
+				echo "$dCommandBuild $i3cParams $dParams $cName"
+			fi
+			$dCommandBuild $i3cParams $dParams $cName
+			ret=$?;
+			if [ $ret -eq 0 ]; then
+				
+				sCommand=run
+				_procVars $sCommand $cName;				
+				
+				if [ "x$i3cParams" = "x" ]; then
+					_procI3cParams;
+				fi				
+				
+				#cName readonly here ?
+				cName=$1			
+				if [ "x$cService" == "x" ]; then
+					cService=$cName;	
+				fi	
+			
+				if [ ${i3cOpt[v]} -le 1 ]; then
+					echo "$dCommandRun $i3cParams $dParams $cService $rParams"
+				fi
+				$dCommandRun $i3cParams $dParams $cService $rParams				
+				
+			fi	
 			#-t $i3cImage:$i3cVersion -t $i3cImage:latest $i3cDfHome/$i3cDfFolder/$iPath/.
 		fi
 	else
@@ -702,12 +790,48 @@ ret=0;
 
 #well, for a complete clear one currently has to use his own i3c-down script
 down(){
+	ret=0;	
+	doCommand=true
+	cName=$1
+	dCommandRm='docker-compose rm -s -f -v '$cName
+	
+	#todo! integrate with build version	
+	dfHome=''
+	_procDCPath;	
+	
+	
+	uData=$i3cDataDir/$cName;
+	uLog=$i3cLogDir/$cName;
+	iName=$1;	
+	
 	cName=$1;
 	_procConfig;
 	sCommand='config';
 	_procVars $sCommand $cName;	
 	sCommand=down
 	_procVars $sCommand $cName;	
+	
+	if [ "x$dfHome" != "x" ]; then			
+		if [ $doCommand == true ]; then
+			if [ "x$dfHome" != "x" ]; then
+				cd $dfHome/$i3cDfFolder/$cName
+			fi
+			sCommand=rm
+			_procVars $sCommand $cName;						
+			if [ ${i3cOpt[v]} -le 1 ]; then
+				echo "$dCommandRm $dParams"
+			fi
+			$dCommandRm $dParams			
+		fi	
+	else
+		e1=$(stop $1 2>&1);
+		r1=$?;						
+		#try to rm?		
+		_rm "$@";
+		ret=$?;
+	fi
+	return $ret;	
+	
 }
 
 #@desc build with docker
@@ -820,6 +944,10 @@ _build(){
 				fromClause="$(cat  $i3cDfHome/$i3cDfFolder/$iPath/Dockerfile | sed  -e '/^FROM i3c/!d')"
 				doCommand=true;
 			fi
+			if [[ $dParams == *"-f "* ]]; then
+			#ok - custom docker file
+				doCommand=true;
+			fi	
 			if [ $doCommand == true ]; then
 				if [ "x${i3cOptO[skipFroms]}" == "x" ] && [ "x$fromClause" != "x" ]; then 
 					while read -r line; do
@@ -917,38 +1045,21 @@ fi
 			cName=$1;
 			echo ""
 		fi
+		
 		if [ "x$i3cParams" = "x" ]; then
-lOpts='';
-if [ "x${i3cOptO[timeSync]}" != "x" ]; then
-	lOpts="$lOpts -v /etc/localtime:/etc/localtime:ro";
-fi			
-			
-i3cParams=" $lOpts \
-	-v $i3cDataDir/$cName:/i3c/data \
-	-v $i3cHome:/i3c/i3c \
-	-v $i3cLogDir/$cName:/i3c/log \
-	-v $i3cSharedHome/$i3cSharedFolder:/i3c/.shared \
-	-e VIRTUAL_HOST=$cName.$i3cInHost,$cName.$i3cExHost$addVHost \
-	-e I3C_ROOT=/i3c \
-	-e I3C_LOCAL_ENDPOINT=$I3C_LOCAL_ENDPOINT \
-	-e I3C_HOST=$i3cHost \
-	-e I3C_HOME=/i3c/i3c \
-	-e I3C_DATA_DIR=/i3c/data \
-	-e PWD_ENV=$PWD_ENV \
-	-e I3C_LOG_DIR=/i3c/log"
-	
-oParams="";
-if [ "x${i3cOptO[restart]}" != "x" ]; then
-	oParams=$oParams' --restart '${i3cOptO[restart]}
-fi		
-	
-	
-	# make sure shared subfolder is created
-	if [ ! -e $i3cSharedHome/$i3cSharedFolder/$cName ]; then
-		mkdir $i3cSharedHome/$i3cSharedFolder/$cName
-	fi	   
-					
+			_procI3cParams;
 		fi
+		
+		oParams="";
+		if [ "x${i3cOptO[restart]}" != "x" ]; then
+			oParams=$oParams' --restart '${i3cOptO[restart]}
+		fi		
+
+		# make sure shared subfolder is created
+		if [ ! -e $i3cSharedHome/$i3cSharedFolder/$cName ]; then
+			_mkdir $i3cSharedHome/$i3cSharedFolder/$cName
+		fi
+		
 		#if choosen - add /i config
 		i3iParams='';
 		if [ "$addIParams" == true ]; then
@@ -1233,10 +1344,10 @@ rerun(){
 cert(){
 	
 if [ ! -e $i3cDataDir/.certs ]; then
-	mkdir $i3cDataDir/.certs
+	_mkdir $i3cDataDir/.certs
 fi
 if [ ! -e $i3cDataDir/.certslib ]; then
-	mkdir $i3cDataDir/.certslib
+	_mkdir $i3cDataDir/.certslib
 fi		
 	
 #configure run
@@ -1278,7 +1389,7 @@ wadd(){
 	fi
 	
 	if [ ! -e $i3cUdfHome/$i3cDfFolder/$1 ]; then 
-		mkdir $i3cUdfHome/$i3cDfFolder/$1
+		_mkdir $i3cUdfHome/$i3cDfFolder/$1
 	fi
 }
 
@@ -1308,6 +1419,13 @@ case "$1" in
 	down)
 		down "${@:2}";
 		;;
+	dup)
+		down "${@:2}";
+		#ret=$?;
+		#if [ $ret -eq 0 ]; then		
+		up "${@:2}";
+		#fi	
+		;;			
 	build)
  		build "$2";
         ;;	

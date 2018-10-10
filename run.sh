@@ -1,8 +1,8 @@
 #!/bin/bash
 
 echo "=================================================================="
-echo " i3c.Cloud $i3cVersion"
-echo " On $(lsb_release -a | grep Description:)"
+echo " i3c.Cloud $i3cVersion  $I3C_CNAME:${I3C_HOME}/run.sh"
+#echo " On $(lsb_release -a | grep Description:)"
 echo "=================================================================="
 
 #one command for all
