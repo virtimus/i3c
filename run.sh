@@ -1,14 +1,32 @@
 #!/bin/bash
 
+if [ "$1" != "secret" ]; then
 echo "=================================================================="
 echo " i3c.Cloud $i3cVersion  $I3C_CNAME:${I3C_HOME}/run.sh"
 #echo " On $(lsb_release -a | grep Description:)"
 echo "=================================================================="
+fi
 
 #one command for all
 alias i-apk='/r install';
 
 case "$1" in
+	secret)
+		cat /run/secrets/$2;
+		;;
+	#install entrypoint in container	
+	entrypoint)
+		if [ -e $2 ]; then
+			chmod a+x $2
+			if [ -e /r ]; then
+				rm -f /r 
+			fi 
+			ln -s $2 /r
+		else
+			echo "ERROR: file not found: $2";
+		fi	 
+		&& 	
+		;;			
 	startup)
 		while true; do
 			sleep 1000

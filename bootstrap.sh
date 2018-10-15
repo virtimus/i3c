@@ -32,10 +32,11 @@ fi
 #    ln -s /i3c/log /log
 #fi
 
-if [ ! -e /i3c/i3c ]; then	
+if [ ! -e /i3c/i3c ]; then
 	cd /i3c
 	git clone https://github.com/virtimus/i3c.git
 	cd i3c
+	echo ". /i3c/i3c/env.sh" >> ~/.bashrc
 else
 	cd /i3c/i3c
 	git pull
@@ -45,5 +46,5 @@ find -name '*.sh' -exec  chmod a+x {} \;
 #> /log/bootstrap-install.log 2>&1
 
 echo "------------------------------------------------------------------------"
-echo "Started: i3c/bootstrap.sh. Look at [/i3c|/var]/log/bootstrap-install.log for results."
+echo "Started: i3c-install/bootstrap.sh. Look at [/i3c|/var]/log/bootstrap-install.log for results."
 echo "------------------------------------------------------------------------"

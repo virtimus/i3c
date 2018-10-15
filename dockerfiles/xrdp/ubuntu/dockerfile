@@ -1,0 +1,135 @@
+FROM i3c/base/ubuntu18 as builder
+
+# Install packages
+
+ENV DEBIAN_FRONTEND noninteractive
+RUN sed -i "s/# deb-src/deb-src/g" /etc/apt/sources.list
+RUN apt-get -y update
+RUN apt-get -yy upgrade
+ENV BUILD_DEPS="git autoconf pkg-config libssl-dev libpam0g-dev \
+    libx11-dev libxfixes-dev libxrandr-dev nasm xsltproc flex \
+    bison libxml2-dev dpkg-dev libcap-dev"
+RUN apt-get -yy install  sudo apt-utils software-properties-common $BUILD_DEPS
+
+
+# Build xrdp
+
+WORKDIR /tmp
+RUN apt-get source pulseaudio
+RUN apt-get build-dep -yy pulseaudio
+WORKDIR /tmp/pulseaudio-11.1
+RUN dpkg-buildpackage -rfakeroot -uc -b
+WORKDIR /tmp
+RUN git clone --branch v0.9.7 --recursive https://github.com/neutrinolabs/xrdp.git
+WORKDIR /tmp/xrdp
+RUN ./bootstrap
+RUN ./configure
+RUN make
+RUN make install
+WORKDIR /tmp/xrdp/sesman/chansrv/pulse
+RUN sed -i "s/\/tmp\/pulseaudio\-10\.0/\/tmp\/pulseaudio\-11\.1/g" Makefile
+RUN make
+RUN mkdir -p /tmp/so
+RUN cp *.so /tmp/so
+
+FROM i3c/base/ubuntu18
+ENV DEBIAN_FRONTEND noninteractive
+
+# Create install script
+RUN touch                                                                 /usr/local/bin/vca-install-package \
+	&& chmod +x                                                              /usr/local/bin/vca-install-package \
+	&& echo '#! /bin/sh'                                                  >> /usr/local/bin/vca-install-package \
+	&& echo 'set -e'                                                      >> /usr/local/bin/vca-install-package \
+	&& echo 'apt-get -q update'                                           >> /usr/local/bin/vca-install-package \
+	&& echo 'apt-get -qy -o Dpkg::Options::="--force-confnew" install $@' >> /usr/local/bin/vca-install-package \
+	&& echo 'apt-get -qy clean'                                           >> /usr/local/bin/vca-install-package
+
+# Create uninstall script
+RUN touch                                   /usr/local/bin/vca-uninstall-package \
+	&& chmod +x                                /usr/local/bin/vca-uninstall-package \
+	&& echo '#! /bin/sh'                    >> /usr/local/bin/vca-uninstall-package \
+	&& echo 'set -e'                        >> /usr/local/bin/vca-uninstall-package \
+	&& echo 'apt-get -qy remove --purge $@' >> /usr/local/bin/vca-uninstall-package \
+	&& echo 'apt-get -qy autoremove'        >> /usr/local/bin/vca-uninstall-package \
+ 	&& echo 'apt-get -qy clean'             >> /usr/local/bin/vca-uninstall-package
+
+# Generate locales
+RUN vca-install-package apt-utils \
+	&& vca-install-package locales language-pack-en \
+	&& echo "LANG=en_US.UTF-8" > /etc/default/locale \
+	&& update-locale LANG=en_US.UTF-8
+	
+ENV LANG=en_US.UTF-8
+
+# Set up the timezone
+RUN vca-install-package tzdata \
+	&& echo "Europe/Warsaw" > /etc/timezone \
+	&& dpkg-reconfigure tzdata
+
+RUN apt-get -y update
+RUN apt install -yy vim wget ca-certificates xorgxrdp pulseaudio xrdp\
+#  xfce4 xfce4-terminal xfce4-screenshooter xfce4-taskmanager \
+#  xfce4-clipman-plugin xfce4-cpugraph-plugin xfce4-netload-plugin \
+#  xfce4-xkb-plugin 
+	xauth supervisor uuid-runtime locales \
+  firefox pepperflashplugin-nonfree openssh-server sudo
+RUN mkdir -p /var/lib/xrdp-pulseaudio-installer
+COPY --from=builder /tmp/so/module-xrdp-source.so /var/lib/xrdp-pulseaudio-installer
+COPY --from=builder /tmp/so/module-xrdp-sink.so /var/lib/xrdp-pulseaudio-installer
+
+
+#cinamon
+#RUN apt-get install -y software-properties-common && add-apt-repository universe \
+#	&& apt-get update 
+RUN	apt-get install -y cinnamon-desktop-environment 
+RUN	apt-get install -y lightdm
+
+#RUN apt-get install -y software-properties-common \
+#	&& sudo add-apt-repository ppa:gwendal-lebihan-dev/cinnamon-nightly \
+#	&& sudo apt-get update \
+#	&& sudo apt-get install -y cinnamon nemo
+
+ADD bin /usr/bin
+ADD etc /etc
+#ADD pulse /usr/lib/pulse-10.0/modules/
+
+# Configure
+RUN mkdir /var/run/dbus
+RUN cp /etc/X11/xrdp/xorg.conf /etc/X11
+RUN sed -i "s/console/anybody/g" /etc/X11/Xwrapper.config
+RUN sed -i "s/xrdp\/xorg/xorg/g" /etc/xrdp/sesman.ini
+RUN locale-gen en_US.UTF-8
+#RUN echo "xfce4-session" > /etc/skel/.Xclients
+RUN cp -r /etc/ssh /ssh_orig
+RUN rm -rf /etc/ssh/*
+RUN rm -rf /etc/xrdp/rsakeys.ini /etc/xrdp/*.pem
+
+
+
+# Add sample user
+
+RUN addgroup ubuntu
+RUN useradd -m -s /bin/bash -g ubuntu ubuntu
+RUN echo "ubuntu:ubuntu" | /usr/sbin/chpasswd
+RUN echo "ubuntu    ALL=(ALL) ALL" >> /etc/sudoers
+
+#some additions
+RUN apt-get install -y mlocate
+#mint-info-cinnamon
+#	Errors were encountered while processing:
+#	 /tmp/apt-dpkg-install-cmvIGq/09-mint-info-cinnamon_2018.02.07_all.deb - 
+#RUN apt-get install -y cinnamon-control-center-dbg cinnamon-dbg  mintlocale mintmenu mintreport
+#RUN apt-get remove -y mint-info-xfce
+#RUN apt-get install -y mint-info-cinnamon
+#RUN apt-get purge nvidia
+
+
+# Docker config
+
+VOLUME ["/etc/ssh","/home"]
+EXPOSE 3389 22 9001
+COPY run-xrdp-ubuntu.sh / 
+RUN chmod a+x /run-xrdp-ubuntu.sh && ln -sf /run-xrdp-ubuntu.sh /r
+
+#ENTRYPOINT ["/usr/bin/docker-entrypoint.sh"]
+#CMD ["supervisord"]

@@ -170,6 +170,16 @@ cd /i3c
 mkdir secrets
 ln -s secrets .secrets 
 
+alias cdil='cd /i3c/i3c.local'
+
+some parts use experimental features
+/etc/default/docker:
+DOCKER_OPTS="--experimental=true"
+
+Restart Docker daemon:
+
+sudo service docker restart
+
 ## Installation as local i3c.Cloud endpoint
 ... to be done
 ### Windows

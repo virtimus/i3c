@@ -236,6 +236,7 @@ declare -A i3cDFFroms
 #@arg $2 - folder
 #@arg $3 - [optional] subfolder
 _autoconf(){
+#cho "_autoconf:$1:"	
 case "$1" in
 	create)
 		if [ -e $2 ]; then
@@ -310,6 +311,7 @@ case "$1" in
 	*)
 		echo "Unknown autoconf operation:"$1;	
 esac
+#scho "_autoconf:end:$1"
 }
 
 
@@ -521,6 +523,16 @@ fi
 return 1		
 }
 
+_procI3cAfter(){
+	ret=0;
+	if [ -n "$(type -t i3cAfter)" ] && [ "$(type -t i3cAfter)" = function ]; then
+		i3cAfter "$@";
+		ret=$?;
+		unset -f i3cAfter;
+	fi	
+	return $ret;
+}
+
 _procI3cParams(){
 lOpts='';
 if [ "x${i3cOptO[timeSync]}" != "x" ]; then
@@ -651,7 +663,14 @@ folderWithDockerF=$i3cDataDir/$appName/$2
 	i3cDfFolder=$appName
 	iPath=$2
 	
-	_build $iName	
+	echo "Storing i3cDFHomes[$iName]=$i3cDfHome ...."
+	i3cDFHomes[$iName]=${i3cDFHomes[$cName]}
+	i3cOptStrs[$iName]=$i3cOptStr' -o fromDir:'$i3cDfHome'/'$i3cDfFolder'/'$iPath
+	_autoconf store	
+	
+	_build $iName
+
+		
 }
 
 #@desc clone a workspace from git, build and run given git repo, imagedef/app name and also name of container to run
@@ -821,7 +840,8 @@ down(){
 			if [ ${i3cOpt[v]} -le 1 ]; then
 				echo "$dCommandRm $dParams"
 			fi
-			$dCommandRm $dParams			
+			$dCommandRm $dParams
+			ret=$?;			
 		fi	
 	else
 		e1=$(stop $1 2>&1);
@@ -830,6 +850,15 @@ down(){
 		_rm "$@";
 		ret=$?;
 	fi
+	
+	ret=$?;
+	if [ $ret -ne 0 ]; then
+		return $ret;	 
+	fi
+	
+	_procI3cAfter "$@"
+	ret=$?;
+	
 	return $ret;	
 	
 }
@@ -874,7 +903,9 @@ build(){
 	fi 
 	
 	uData=$i3cDataDir/$cName;
-	uLog=$i3cLogDir/$cName;		
+	uLog=$i3cLogDir/$cName;	
+	
+	_autoconf readOptStrs $cName;	
 	
 	_procConfig;
 	sCommand='config';
@@ -906,15 +937,6 @@ build(){
 		
 	_build $1
 	ret=$?;
-	if [ $ret -ne 0 ]; then
-		return $ret;	 
-	fi	
-	if [ -n "$(type -t i3cAfter)" ] && [ "$(type -t i3cAfter)" = function ]; then
-		i3cAfter $@;
-		unset -f i3cAfter;
-		ret=$?;
-	fi	
-	
 	return $ret;
 #	fi		
 }
@@ -923,6 +945,7 @@ build(){
 #@desc internal build part
 #@arg $1 - appDef
 _build(){
+	ret=0;
 	
 		iName=$1
 		#cName=$1
@@ -944,6 +967,14 @@ _build(){
 				fromClause="$(cat  $i3cDfHome/$i3cDfFolder/$iPath/Dockerfile | sed  -e '/^FROM i3c/!d')"
 				doCommand=true;
 			fi
+			#cho "i3cOptStr:$i3cOptStr";
+			tFolder=$i3cDfHome/$i3cDfFolder/$iPath/.
+			if [ "x${i3cOptO[fromDir]}" != "x" ]; then
+				#dParams=$dParams' -f '${i3cOptO[fromDir]} 
+				tFolder=${i3cOptO[fromDir]}/.
+				doCommand=true;
+			fi	
+			
 			if [[ $dParams == *"-f "* ]]; then
 			#ok - custom docker file
 				doCommand=true;
@@ -965,15 +996,21 @@ _build(){
 					done <<< "$fromClause"
 				fi
 				if [ ${i3cOpt[v]} -le 1 ]; then
-					echo "$dCommand $dParams -t $i3cImage:$i3cVersion -t $i3cImage:latest $i3cDfHome/$i3cDfFolder/$iPath/."
+					echo "$dCommand $dParams -t $i3cImage:$i3cVersion -t $i3cImage:latest $tFolder"
 				fi	
-				$dCommand $dParams -t $i3cImage:$i3cVersion -t $i3cImage:latest $i3cDfHome/$i3cDfFolder/$iPath/.
+				$dCommand $dParams -t $i3cImage:$i3cVersion -t $i3cImage:latest $tFolder
+				ret=$?;
+				if [ $ret -ne 0 ]; then
+					return $ret;	 
+				fi	
+				_procI3cAfter "$@"
+				ret=$?;				
 			else
 				_echoe "appDef "$iPath" not found.";
 				return 1;					
 			fi
 		fi
-	return 0;
+	return $ret;
 }
 
 #@desc scheck if running
@@ -1000,6 +1037,71 @@ crun(){
 
 _sanitCName(){
  	echo "$1" | sed -r 's/[\/]+/_/g'	
+}
+
+#@desc create secret
+_sc(){
+	name=$1;
+	value=$2;
+	if [[ $name == *"."* ]]; then
+		_echoe "Unallowed chars in secret name";
+		return 1;
+	fi	
+	if [ -e $i3cSecretsDir/.secrets/$name ]; then
+		_echoe "Secret exists. Delete it first with /i sd name"
+		return 2
+	fi	
+	echo $value > $i3cSecretsDir/.secrets/$name;
+	return 0;
+}
+
+#@desc delete secret
+_sd(){
+	name=$1;
+	if [[ $name == *"."* ]]; then
+		_echoe "Unallowed chars in secret name";
+		return 1;
+	fi	
+	if [ ! -e $i3cSecretsDir/.secrets/$name ]; then
+		_echoe "Secret not exists. Create it first with /i sc name value"
+		return 2
+	fi	
+	rm -f $i3cSecretsDir/.secrets/$name
+}	
+
+_procDParams(){
+itParams='';
+#cho "procDPArams:$dParams"
+		if [ "x$dParams" != "x" ]; then
+			IFS=' ' read -ra ADDR <<< "$dParams"
+			irSecret=false;
+			for K in "${!ADDR[@]}"; do
+				#cho "K:$K"
+				irParams=true;
+				os=${ADDR[$K]};
+				#cho "os0:$os"
+				os2=$(echo $os | awk '{$1=$1};1')
+				#cho "os2:$os2"
+				if [ "x$os" != "x" ] && [ "$irSecret" == true ];then
+					if [ ! -e $i3cSecretsDir/.secrets/$os ]; then
+						_echoe "Secret $os not exists. Create with /i sc name value"
+						return 1;
+					fi	
+					os='-v '$i3cSecretsDir/.secrets/$os:/run/secrets/$os:ro
+					#irParams=false;
+					irSecret=false;
+				fi	
+				if [ "x$os2" != "x" ] && [ "$os2" == "--secret" ];then
+					irSecret=true; 
+					irParams=false;
+				fi
+				if [ "$irParams" == true ]; then
+					itParams=$itParams' '$os	
+				fi	
+			done
+			dParams=$itParams	
+		fi
+return 0		
 }
 
 #@desc run given container by name
@@ -1074,6 +1176,14 @@ fi
 			rCommand="${@:2}";
 		fi
 		if [ "$doCommand" == true ]; then
+			#processing dParams
+			_procDParams
+			ret=$?;
+			if [ $ret -ne 0 ]; then
+				return $ret;	 
+			fi			
+			
+			
 			if [ ${i3cOpt[v]} -le 1 ]; then
 				echo $dCommand --name $(_sanitCName $1) \
 					 $oParams \
@@ -1094,10 +1204,14 @@ fi
 					 $rCommand \
 					 $rParams 			
 		fi
-		if [ -n "$(type -t i3cAfter)" ] && [ "$(type -t i3cAfter)" = function ]; then
-			i3cAfter $@;
-			unset -f i3cAfter;
-		fi
+	
+	ret=$?;
+	if [ $ret -ne 0 ]; then
+		return $ret;	 
+	fi			
+		
+	_procI3cAfter "$@"
+	ret=$?;
 		
 	return $?;
 #docker exec  $1 sh -c "echo \$(/sbin/ip route|awk '/default/ { print \$3 }')' $i3cHost' >> /etc/hosts"
@@ -1528,6 +1642,12 @@ case "$1" in
 	mc)	
 		_mc "${@:2}";
 		;;	
+	sc)	
+		_sc "${@:2}";
+		;;	
+	sd)	
+		_sd "${@:2}";
+		;;			
 	*)
 			echo "Basic usage: $0 up|build|run|runb|start|stop|rm|ps|psa|rmi|rebuild|rerun|pid|ip|exec|exe|save|load|logs|cloneUdfAndRun|help...";
 			echo "cmdAliases:"

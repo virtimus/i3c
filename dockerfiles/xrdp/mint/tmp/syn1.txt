@@ -1,0 +1,28 @@
+synaptic
+  Depends: libapt-inst2.0
+  Depends: libapt-pkg5.0
+  Depends: libc6
+  Depends: libept1.5.0
+  Depends: libgcc1
+  Depends: libgdk-pixbuf2.0-0
+  Depends: libglib2.0-0
+  Depends: libgtk-3-0
+  Depends: libpango-1.0-0
+  Depends: libstdc++6
+  Depends: libvte-2.91-0
+  Depends: libxapian30
+  Depends: libxapp1
+  Depends: hicolor-icon-theme
+  Depends: policykit-1
+    policykit-1:i386
+  Conflicts: menu
+  Recommends: libgtk2-perl
+  Recommends: rarian-compat
+  Recommends: xdg-utils
+  Suggests: dwww
+  Suggests: menu
+    menu:i386
+  Suggests: deborphan
+  Suggests: apt-xapian-index
+  Suggests: tasksel
+  Suggests: software-properties-gtk

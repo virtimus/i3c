@@ -53,7 +53,7 @@ if [ ! -e /i3c ]; then
 	echo "";
 	echo "Installing /i3c/env.sh script ..."	
 	#. /i3c/env.sh
-	echo ". /i3c/env.sh" >> ~/.bashrc
+	#echo ". /i3c/env.sh" >> ~/.bashrc now called by /i3c/i3c/env.sh 
 	echo "###################################################################################";
 	echo "";
 	echo "Runing main i3c/bootstrap.sh script ..."	

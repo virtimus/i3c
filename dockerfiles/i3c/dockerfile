@@ -14,7 +14,10 @@ VOLUME /i3c
 WORKDIR /
 
 COPY waitReady.sh /
-COPY run.sh /
-RUN chmod a+x /*.sh
-CMD ["/run.sh"]
+COPY run.sh /run-i3c.sh
+RUN chmod a+x /*.sh \
+	&& ln -s /run-i3c.sh /r
+
+ENTRYPOINT ["/r"]
+CMD ["startup"]
 
