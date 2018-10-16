@@ -24,8 +24,7 @@ case "$1" in
 			ln -s $2 /r
 		else
 			echo "ERROR: file not found: $2";
-		fi	 
-		&& 	
+		fi	 	
 		;;			
 	startup)
 		while true; do

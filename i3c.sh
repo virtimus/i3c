@@ -373,19 +373,21 @@ fi
 #@desc load an image stored in imagedef dir into local docker repo 
 #@arg $1 - image to load (appName)
 load(){
+	cName=$1
+	scName=$(_sanitCName $cName)
 	    doRm=''
-		if [ ! -e $i3cUdiHome/$i3cUdiFolder/$1.i3ci ]; then 
-			if [ -e $i3cUdiHome/$i3cUdiFolder/$1.i3czi ]; then
-				unzip $i3cUdiHome/$i3cUdiFolder/$1.i3czi -d $i3cUdiHome/$i3cUdiFolder
-				doRm=$i3cUdiHome/$i3cUdiFolder/$1.i3ci
+		if [ ! -e $i3cUdiHome/$i3cUdiFolder/$scName.i3ci ]; then 
+			if [ -e $i3cUdiHome/$i3cUdiFolder/$scName.i3czi ]; then
+				unzip $i3cUdiHome/$i3cUdiFolder/$scName.i3czi -d $i3cUdiHome/$i3cUdiFolder
+				doRm=$i3cUdiHome/$i3cUdiFolder/$scName.i3ci
 			else
-				echo "Saved image $1 not found."
+				echo "Saved image $cName not found."
 			fi	
 		fi	
 	
-		$dockerBin load -i $i3cUdiHome/$i3cUdiFolder/$1.i3ci
-		$dockerBin tag 	i3c-tmp-save i3c/$1
-		$dockerBin tag 	i3c-tmp-save i3c/$1:v0
+		$dockerBin load -i $i3cUdiHome/$i3cUdiFolder/$scName.i3ci
+		$dockerBin tag 	i3c-tmp-save i3c/$cName
+		$dockerBin tag 	i3c-tmp-save i3c/$cName:v0
 		if [ "x$doRm" != "x" ]; then 
 			rm $doRm
 		fi			
@@ -394,18 +396,22 @@ load(){
 #@desc save an image from local repo into imagedef dir (.i3ci)
 #@arg $1 - appdef to save
 save(){
-		$dockerBin commit $1 i3c-tmp-save		
-		$dockerBin save -o $i3cUdiHome/$i3cUdiFolder/$1.i3ci i3c-tmp-save 
+	cName=$1
+	scName=$(_sanitCName $cName)
+	$dockerBin commit $scName i3c-tmp-save		
+	$dockerBin save -o $i3cUdiHome/$i3cUdiFolder/$scName.i3ci i3c-tmp-save 
 }
 
 #@desc save an image from local repo into imagedef dir as zipped (.i3czi)
 #@arg $1 - appdef to save
 savez(){
+	cName=$1
+	scName=$(_sanitCName $cName)
 	save "$@"
 	cd $i3cUdiHome/$i3cUdiFolder
-	zip $1.i3czi $1.i3ci
+	zip $scName.i3czi $scName.i3ci
 	if [ $? -eq 1 ];then
-		rm $i3cUdiHome/$i3cUdiFolder/$1.i3ci 
+		rm $i3cUdiHome/$i3cUdiFolder/$scName.i3ci 
 	fi 	
 }
 
@@ -1051,6 +1057,9 @@ _sc(){
 		_echoe "Secret exists. Delete it first with /i sd name"
 		return 2
 	fi	
+	if [ ! -e $i3cSecretsDir/.secrets ]; then
+		_mkdir $i3cSecretsDir/.secrets	
+	fi
 	echo $value > $i3cSecretsDir/.secrets/$name;
 	return 0;
 }

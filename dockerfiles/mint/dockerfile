@@ -1,0 +1,91 @@
+FROM i3c/base/ubuntu18 as builder
+
+# Install packages
+
+ENV DEBIAN_FRONTEND noninteractive
+RUN sed -i "s/# deb-src/deb-src/g" /etc/apt/sources.list
+RUN apt-get -y update
+RUN apt-get -yy upgrade
+ENV BUILD_DEPS="git autoconf pkg-config libssl-dev libpam0g-dev \
+    libx11-dev libxfixes-dev libxrandr-dev nasm xsltproc flex \
+    bison libxml2-dev dpkg-dev libcap-dev"
+RUN apt-get -yy install  sudo apt-utils software-properties-common $BUILD_DEPS
+
+
+# Build xrdp
+
+WORKDIR /tmp
+RUN apt-get source pulseaudio
+RUN apt-get build-dep -yy pulseaudio
+WORKDIR /tmp/pulseaudio-11.1
+RUN dpkg-buildpackage -rfakeroot -uc -b
+WORKDIR /tmp
+RUN git clone --branch v0.9.7 --recursive https://github.com/neutrinolabs/xrdp.git
+WORKDIR /tmp/xrdp
+RUN ./bootstrap
+RUN ./configure
+RUN make
+RUN make install
+WORKDIR /tmp/xrdp/sesman/chansrv/pulse
+RUN sed -i "s/\/tmp\/pulseaudio\-10\.0/\/tmp\/pulseaudio\-11\.1/g" Makefile
+RUN make
+RUN mkdir -p /tmp/so
+RUN cp *.so /tmp/so
+
+########################################################################
+########################################################################
+FROM i3c/base/mint19 
+
+ENV DEBIAN_FRONTEND noninteractive
+
+# Install common soft, generate locales
+RUN apt-get -q update && apt-get install -y apt-utils locales language-pack-en gnupg2 \
+	&& echo "LANG=en_US.UTF-8" > /etc/default/locale \
+	&& update-locale LANG=en_US.UTF-8
+	
+ENV LANG=en_US.UTF-8	
+
+# Set up the timezone
+RUN apt-get install -y tzdata \
+	&& ln -fs /usr/share/zoneinfo/Poland /etc/localtime \
+	&& dpkg-reconfigure tzdata 
+	
+# Add source repos	
+#RUN REPO_LIST=/etc/apt/sources.list.d/official-package-sources.list \	
+#	&& echo "deb-src http://archive.ubuntu.com/ubuntu/ bionic universe multiverse" > ${REPO_LIST} \
+#	&& echo "deb-src http://archive.ubuntu.com/ubuntu/ bionic-updates universe multiverse" >> ${REPO_LIST} \
+#	&& echo "deb-src http://security.ubuntu.com/ubuntu/ bionic-security universe multiverse" >> ${REPO_LIST}
+
+
+RUN apt install -yy vim wget ca-certificates xorgxrdp pulseaudio xrdp\
+	xauth supervisor uuid-runtime locales \
+	firefox pepperflashplugin-nonfree openssh-server sudo
+
+RUN mkdir -p /var/lib/xrdp-pulseaudio-installer
+
+COPY --from=builder /tmp/so/module-xrdp-source.so /var/lib/xrdp-pulseaudio-installer
+COPY --from=builder /tmp/so/module-xrdp-sink.so /var/lib/xrdp-pulseaudio-installer
+
+#RUN	apt-get install -y cinnamon-desktop-environment mint-meta-core mint-meta-cinnamon lightdm
+
+ADD bin /usr/bin
+ADD etc /etc
+
+# Configure
+RUN mkdir /var/run/dbus \
+	&& cp /etc/X11/xrdp/xorg.conf /etc/X11 \
+	&& sed -i "s/console/anybody/g" /etc/X11/Xwrapper.config \
+	&& sed -i "s/xrdp\/xorg/xorg/g" /etc/xrdp/sesman.ini \
+	&& cp -r /etc/ssh /ssh_orig \
+	&& rm -rf /etc/ssh/* \
+	&& rm -rf /etc/xrdp/rsakeys.ini /etc/xrdp/*.pem
+
+
+# Docker config
+VOLUME ["/etc/ssh","/home"]
+EXPOSE 3389 22 9001
+COPY run-mint-rdp.sh /
+COPY run-defaults.sh /
+RUN chmod a+x /run-defaults.sh && chmod a+x /run-mint-rdp.sh && ln -sf /run-mint-rdp.sh /r
+ENTRYPOINT ["/r"]
+CMD [ "startup"]
