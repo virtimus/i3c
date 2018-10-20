@@ -15,4 +15,6 @@ dParams="-d --hostname mintDCserver --shm-size 1g -p 3389:3389 -p 2222:22 \
 	-v $uData/i3c.local:/i3c/i3c.local \
 	-v $uData/root:/root \
 	-v $uData/home:/home \
+	-v $uData/etc/sudoers:/etc/sudoers \
+	-v $uData/etc/passwd:/etc/passwd \
 	-v $uData/etc/ssh:/etc/ssh"

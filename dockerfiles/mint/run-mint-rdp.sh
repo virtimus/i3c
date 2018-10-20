@@ -1,6 +1,9 @@
 #!/bin/bash
 
 case "$1" in
+	addsuser)
+		sudo adduser $2
+		sudo echo "$2    ALL=(ALL) ALL" >> /etc/sudoers
 	update-locale)
 		sudo update-locale LANG=$2
 		;;
