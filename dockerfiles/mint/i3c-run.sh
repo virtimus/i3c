@@ -3,11 +3,14 @@
 #	--device /dev/video0 \
 #	-e DISPLAY=unix$DISPLAY \
 #		-v /dev:/dev \
+
+
 dParams="-d --hostname mintDCserver --shm-size 1g -p 3389:3389 -p 2222:22 \
 	--secret masterKey \
 	-e ROOT_PASS=masterKey \
 	-v /opt:/opt \
 	-v /src:/src \
+	-e OPT_LANG=pl_PL.UTF-8 \
 	-v /ins:/ins \
 	-v $uData/i3c.local:/i3c/i3c.local \
 	-v $uData/root:/root \

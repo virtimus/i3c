@@ -1,6 +1,9 @@
 #!/bin/bash
 
 case "$1" in
+	update-locale)
+		sudo update-locale LANG=$2
+		;;
 	dpkg-get-sel)
 		dpkg --get-selections
 		;;

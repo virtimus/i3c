@@ -49,8 +49,16 @@ echo "adding root password ..."
 #useradd -m -s /bin/bash -g ubuntu mb
 echo "root:${ROOT_PASS:-root}" | /usr/sbin/chpasswd
 echo "adding default .bashrc ..."
-cp /defaults/.bashrc /root/.bashrc	
+cp /defaults/.bashrc /root/.bashrc
+#cp /defaults/.xsessionrc /root/.xsessionrc	
 	#echo "mb    ALL=(ALL) ALL" >> /etc/sudoers
+echo "Installing optional lang pack ..."
+if [ "x$OPT_LANG" != "x" ]; then
+	localeSymb=${OPT_LANG:-en_US.UTF-8}
+	localeLT=$(echo $localeSymb | cut -d'_' -f 1)
+	apt-get install	-y language-pack-$localeLT
+	locale-gen $localeSymb
+fi
 
 #fi
 

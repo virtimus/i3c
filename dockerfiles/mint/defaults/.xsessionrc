@@ -1,0 +1,5 @@
+#!/bin/bash
+
+export LANG=${OPT_LANG:-en_US.UTF-8}
+
+echo "LANG:$LANG"
