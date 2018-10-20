@@ -398,8 +398,17 @@ load(){
 save(){
 	cName=$1
 	scName=$(_sanitCName $cName)
-	$dockerBin commit $scName i3c-tmp-save		
+	echo "Commiting $scName ..."
+	$dockerBin commit $scName i3c-tmp-save	
+	echo "Saving $i3cUdiHome/$i3cUdiFolder/$scName.i3ci ..."	
 	$dockerBin save -o $i3cUdiHome/$i3cUdiFolder/$scName.i3ci i3c-tmp-save 
+}
+
+savei(){
+	iName=$1
+	siName=$(_sanitCName $iName)
+	echo "Saving $i3cUdiHome/$i3cUdiFolder/$siName.i3ci ..."
+	$dockerBin save -o $i3cUdiHome/$i3cUdiFolder/$siName.i3ci $iName 
 }
 
 #@desc save an image from local repo into imagedef dir as zipped (.i3czi)
@@ -409,9 +418,22 @@ savez(){
 	scName=$(_sanitCName $cName)
 	save "$@"
 	cd $i3cUdiHome/$i3cUdiFolder
+	echo "Creating zip file $i3cUdiHome/$i3cUdiFolder/$scName.i3czi ..."
 	zip $scName.i3czi $scName.i3ci
 	if [ $? -eq 1 ];then
 		rm $i3cUdiHome/$i3cUdiFolder/$scName.i3ci 
+	fi 	
+}
+
+saveiz(){
+	iName=$1
+	siName=$(_sanitCName $iName)
+	savei "$@"
+	cd $i3cUdiHome/$i3cUdiFolder
+	echo "Creating zip file $i3cUdiHome/$i3cUdiFolder/$siName.i3czi ..."
+	zip $siName.i3czi $siName.i3ci
+	if [ $? -eq 1 ];then
+		rm $i3cUdiHome/$i3cUdiFolder/$siName.i3ci 
 	fi 	
 }
 
@@ -450,7 +472,7 @@ sFile=$1;
 #@arg $@ -some args for taget script
 _procVars(){
 local sCommand=$1;
-local cName=$2;	
+#local cName=$2;	
 local doFirsFound=0;
 local doLastFound=0;
 i3cScriptDir=''	
@@ -613,7 +635,10 @@ $dret="$(docker ps -a | grep bracs_output)";
 return "$?";	
 }
 
+#@desc given a git repo and folder name clone (or pull) sources 
 
+#@arg $1 repo url (ie https://github.com/swagger-api)
+#@arg $2 target folder name (in $uData dir)
 _cloneOrPull(){
 
 appName=$cName;
@@ -750,9 +775,9 @@ ret=0;
 	
 	_procConfig;				
 	sCommand='config'
-	_procVars $sCommand $cName;		
+	_procVars $sCommand $cName "${@:2}";		
 	sCommand=up
-	_procVars $sCommand $cName;
+	_procVars $sCommand $cName "${@:2}";
 	#cName readonly here ?
 	cName=$1
 
@@ -770,7 +795,7 @@ ret=0;
 			fi
 				
 			sCommand=build
-			_procVars $sCommand $cName;
+			_procVars $sCommand $cName "${@:2}";
 			#cName readonly here ?
 			cName=$1			
 			
@@ -782,7 +807,7 @@ ret=0;
 			if [ $ret -eq 0 ]; then
 				
 				sCommand=run
-				_procVars $sCommand $cName;				
+				_procVars $sCommand $cName "${@:2}";				
 				
 				if [ "x$i3cParams" = "x" ]; then
 					_procI3cParams;
@@ -804,10 +829,11 @@ ret=0;
 		fi
 	else
 		#try to rebuild/rerun?
-		rebuild "$@";
+		echo "[ up]/rebuild $@"
+		/i rb "$@";
 		ret=$?;
 			if [ $ret -eq 0 ]; then
-	    		rerun "$@";		
+	    		/i rr "$@";		
 			fi
 	fi
 	return $ret;		
@@ -878,6 +904,8 @@ build(){
 #	if [ -e $i3cDfHome/$i3cDfFolder/$1/i3c-build.sh ]; then
 #		. $i3cDfHome/$i3cDfFolder/$1/i3c-build.sh
 #	else
+	ret=0;
+	_echov "[build()] starting with args: $@ ..."
 		doCommand=true
 		dCommand=$dockerBin' build'
 		
@@ -915,9 +943,9 @@ build(){
 	
 	_procConfig;
 	sCommand='config';
-	_procVars $sCommand $cName;	
+	_procVars $sCommand $cName "${@:2}";	
 	sCommand=build
-	_procVars $sCommand $cName;
+	_procVars $sCommand $cName "${@:2}";
 	#cho "==========================="
 	if [ "x$dfHome" == "x" ]; then
 		_procHomes $cName i3c-build.sh;
@@ -940,9 +968,11 @@ build(){
 			dfHome=$i3cDfHome 
 		fi	
 	fi	
-		
-	_build $1
-	ret=$?;
+	#cho "[build ] $1 ${@:2}"	
+	if [ $doCommand == true ]; then
+		_build $iName "${@:2}"
+		ret=$?;
+	fi
 	return $ret;
 #	fi		
 }
@@ -1012,7 +1042,7 @@ _build(){
 				_procI3cAfter "$@"
 				ret=$?;				
 			else
-				_echoe "appDef "$iPath" not found.";
+				_echoe "[_build] appDef/dockerfile "$iPath" not found.";
 				return 1;					
 			fi
 		fi
@@ -1141,20 +1171,21 @@ fi
 		
 		_procConfig;
 		sCommand='config';
-		_procVars $sCommand $cName;		
+		_procVars $sCommand $cName "${@:2}";		
 		
 		#configure run
 		sCommand=run-config
-		_procVars $sCommand $cName;
+		_procVars $sCommand $cName "${@:2}";
 		
 		sCommand=run
-		_procVars $sCommand $cName;
+		_procVars $sCommand $cName "${@:2}";
 		
+		echo "[ i3c.h ]cName:$cName"
 		#check if need to proces base files
 		if [ "$1" == "$iName" ]; then
 			#cName here is readonly
 			cName=$1;
-			echo ""
+			
 		fi
 		
 		if [ "x$i3cParams" = "x" ]; then
@@ -1179,7 +1210,7 @@ fi
 		fi	
 		
 		if [ "x$i3cImage" = "x" ]; then		
-			i3cImage=i3c/$iName
+			i3cImage=i3c/$iName:$i3cVersion
 		fi	
 		if [ "x$rCommand" = "x" ]; then
 			rCommand="${@:2}";
@@ -1194,22 +1225,22 @@ fi
 			
 			
 			if [ ${i3cOpt[v]} -le 1 ]; then
-				echo $dCommand --name $(_sanitCName $1) \
+				echo $dCommand --name $(_sanitCName $cName) \
 					 $oParams \
 					 $i3cParams \
 					 $i3iParams \
 					 $dParams \
-					 $i3cImage:$i3cVersion \
+					 $i3cImage \
 					 $rCommand \
 					 $rParams
 			fi	
 					#cho "dParams:$dParams"	
-					 $dCommand --name $(_sanitCName $1) \
+					 $dCommand --name $(_sanitCName $cName) \
 					 $oParams \
 					 $i3cParams \
 					 $i3iParams \
 					 $dParams \
-					 $i3cImage:$i3cVersion \
+					 $i3cImage \
 					 $rCommand \
 					 $rParams 			
 		fi
@@ -1234,10 +1265,10 @@ _rm(){
 	sCommand='rm';
 	doCommand=true;
 	cName=$1
-	_procVars $sCommand $cName;
+	_procVars $sCommand $cName "${@:2}";
 	if [ "$doCommand" == true ]; then
 		ret=1;		
-		$dockerBin rm $(_sanitCName $1);
+		$dockerBin rm $(_sanitCName $cName);
 		ret=$?;
 		return $ret;
 	fi
@@ -1285,11 +1316,19 @@ start(){
 #@desc stop runing container
 #@arg $1 - appDef
 stop(){
-	ret=1;	
-	$dockerBin stop $(_sanitCName $1);
-	ret=$?;
-	return $ret;
+	sCommand='stop';
+	doCommand=true;
+	cName=$1
+	_procVars $sCommand $cName "${@:2}";
+	if [ "$doCommand" == true ]; then
+		ret=1;			
+		$dockerBin stop $(_sanitCName $cName);
+		ret=$?;
+		return $ret;
+	fi
+	return 0;			
 }
+
 
 #@desc pid
 #@arg $1 - appDef
@@ -1397,7 +1436,7 @@ execd(){
 #@arg ${@:2} - rest of args
 tag(){
 	ret=1;	
-	$dockerBin tag $(_sanitCName $1) "${@:2}";
+	$dockerBin tag $1 "${@:2}";
 	ret=$?;	
 	return $ret;	
 }
@@ -1424,11 +1463,11 @@ echo ""
 rebuild(){
 ret=0;	
 	_echov "--------------------"
-	_echov "rebuild starting ..."
+	_echov "rebuild starting with args: $@ ..."
 	    #>/dev/null
-		e1=$(stop $1 2>&1);
+		e1=$(stop "$@" 2>&1); #
 		r1=$?;
-    	e2=$(_rm $1 2>&1);
+    	e2=$(_rm "$@" 2>&1); #
     	r2=$?;
     	if [ $r1 -ge 0 ]; then
     		r1=$r1"("$e1")"
@@ -1437,7 +1476,7 @@ ret=0;
     		r2=$r2"("$e2")"
     	fi    		
     	_echov "stoping returned: $r1, remove returned: $r2 ..."
-    	build $1; 
+    	build "$@"; 
     	ret=$?;
     _echov "rebuild returned:$ret"	
     	return $ret;
@@ -1446,9 +1485,9 @@ ret=0;
 #@desc stop, remove and run container by name
 #@arg $1 - appDef
 rerun(){
-		e1=$(stop $1 2>&1);
+		e1=$(stop "$@" 2>&1);
 		r1=$?;
-    	e2=$(_rm $1 2>&1);
+    	e2=$(_rm "$@" 2>&1);
     	r2=$?;
 		if [ $r1 -ge 0 ]; then
     		r1=$r1"("$e1")"
@@ -1457,6 +1496,7 @@ rerun(){
     		r2=$r2"("$e2")"
     	fi    	
     	_echov "stop=$r1, rm=$r2 ..."
+    	echo "rerun/run $@"
     	run "$@";
     	return $?;
 }
@@ -1550,7 +1590,7 @@ case "$1" in
 		#fi	
 		;;			
 	build)
- 		build "$2";
+ 		build "${@:2}";
         ;;	
 	run)
  		run "${@:2}";
@@ -1565,7 +1605,7 @@ case "$1" in
  		stop "$2";
         ;;		
 	rm)
- 		_rm "$2";
+ 		_rm "${@:2}";
         ;;
 	ps)
  		_ps "$2";
@@ -1618,6 +1658,12 @@ case "$1" in
 		;;
 	savez)
 		savez "$2";
+		;;	
+	savei)
+		savei "$2";
+		;;
+	saveiz)
+		saveiz "$2";
 		;;		
 	load)
 		load "$2";

@@ -80,10 +80,13 @@ RUN mkdir /var/run/dbus \
 	&& rm -rf /etc/ssh/* \
 	&& rm -rf /etc/xrdp/rsakeys.ini /etc/xrdp/*.pem
 
+#default path
+ENV PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin
 
 # Docker config
 VOLUME ["/etc/ssh","/home"]
 EXPOSE 3389 22 9001
+COPY defaults /
 COPY run-mint-rdp.sh /
 COPY run-defaults.sh /
 RUN chmod a+x /run-defaults.sh && chmod a+x /run-mint-rdp.sh && ln -sf /run-mint-rdp.sh /r

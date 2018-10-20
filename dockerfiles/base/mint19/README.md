@@ -11,11 +11,34 @@ Ended with success - image is running, acces to rdp ok, package manager is worki
 
 ## Steps:
 
-###mount iso 
-sudo mount -o loop /i3c/data/mint/iso/linuxmint-19-cinnamon-64bit-v2.iso /mnt/tmpiso
+###download mint iso (ie):
+cd /tmp
+curl -fSL http://ftp.icm.edu.pl/pub/Linux/dist/linuxmint/isos/stable/19/linuxmint-19-cinnamon-64bit-v2.iso -o linuxmint-19-cinnamon-64bit-v2.iso
 
+###verify iso content (according https://linuxmint.com/verify.php)
+
+curl -fSL https://ftp.heanet.ie/mirrors/linuxmint.com/stable/19/sha256sum.txt -o sha256sum.txt
+curl -fSL https://ftp.heanet.ie/mirrors/linuxmint.com/stable/19/sha256sum.txt.gpg -o sha256sum.txt.gpg
+sha256sum -b *.iso
+cat sha256sum.txt
+#### authenticity
+gpg --keyserver keyserver.ubuntu.com --recv-key "27DE B156 44C6 B3CF 3BD7  D291 300F 846B A25B AE09"
+or
+gpg --keyserver keyserver.ubuntu.com --recv-key A25BAE09
+gpg --list-key --with-fingerprint A25BAE09
+
+then:
+gpg --verify sha256sum.txt.gpg sha256sum.txt
+
+
+
+
+###mount the iso 
+mkdir /mnt/tmpmintiso
+sudo mount -o loop /tmp/linuxmint-19-cinnamon-64bit-v2.iso /mnt/tmpmintiso
+(warning about ro ok)
 ### Copy sfs out
-cp /mnt/tmpiso/casper/filesystem.squashfs /tmp
+cp /mnt/tmpmintiso/casper/filesystem.squashfs /tmp
 
 ### unsquash
 cd /tmp && sudo unsquashfs filesystem.squashfs

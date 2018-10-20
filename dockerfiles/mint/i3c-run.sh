@@ -1,6 +1,9 @@
 
-
-dParams="-d --hostname terminalserver --shm-size 1g -p 3389:3389 -p 2222:22 \
+#	-v /tmp/.X11-unix:/tmp/.X11-unix \
+#	--device /dev/video0 \
+#	-e DISPLAY=unix$DISPLAY \
+#		-v /dev:/dev \
+dParams="-d --hostname mintDCserver --shm-size 1g -p 3389:3389 -p 2222:22 \
 	--secret masterKey \
 	-e ROOT_PASS=masterKey \
 	-v /opt:/opt \
