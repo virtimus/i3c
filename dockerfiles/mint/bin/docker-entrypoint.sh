@@ -46,8 +46,10 @@ echo "export QT_XKB_CONFIG_ROOT=/usr/share/X11/locale" >> /etc/profile
 
 #if [ ! -e /home/mb ]; then
 echo "adding root password ..."
-	#useradd -m -s /bin/bash -g ubuntu mb
-	echo "root:${ROOT_PASS:-root}" | /usr/sbin/chpasswd
+#useradd -m -s /bin/bash -g ubuntu mb
+echo "root:${ROOT_PASS:-root}" | /usr/sbin/chpasswd
+echo "adding default .bashrc ..."
+cp /defaults/.bashrc /root/.bashrc	
 	#echo "mb    ALL=(ALL) ALL" >> /etc/sudoers
 
 #fi
