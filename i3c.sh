@@ -1187,7 +1187,10 @@ fi
 		
 		if [ -e $i3cOverridesDir/$cName/i3c-run-config.sh ]; then
 			. $i3cOverridesDir/$cName/i3c-run-config.sh $sCommand $cName "${@:2}"
-		fi		
+		fi
+		if [ "$doCommand" == false ]; then
+			return $?;
+		fi
 		
 		sCommand=run
 		_procVars $sCommand $cName "${@:2}";
@@ -1195,6 +1198,9 @@ fi
 		if [ -e $i3cOverridesDir/$cName/i3c-run.sh ]; then
 			. $i3cOverridesDir/$cName/i3c-run.sh $sCommand $cName "${@:2}"
 		fi
+		if [ "$doCommand" == false ]; then
+			return $?;
+		fi		
 		
 		echo "[ i3c.h ]cName:$cName"
 		#check if need to proces base files
@@ -1269,7 +1275,7 @@ fi
 	_procI3cAfter "$@"
 	ret=$?;
 		
-	return $?;
+	return $ret;
 #docker exec  $1 sh -c "echo \$(/sbin/ip route|awk '/default/ { print \$3 }')' $i3cHost' >> /etc/hosts"
 }
 
@@ -1529,10 +1535,15 @@ rerun(){
     	return $?;
 }
 
-#@desc get new certificate for given subdomain(ie container name)
-# currently using certbot/letsgetencrypt
+#@desc get new letsencrypt certificate for given subdomain(ie container name)
+# currently using certbot/letsgetencrypt 
+# beware of using it in production - small break of availability (restart of main proxy is performed)
 #@arg $1 - appDef
+#@arg $2 - (optional) domainname (if other than i3cExHost) 
+# - domain and appDef.domain should resolve to our host !
 cert(){
+
+echo "running cert $@ ..."
 	
 if [ ! -e $i3cDataDir/.certs ]; then
 	_mkdir $i3cDataDir/.certs
@@ -1543,7 +1554,11 @@ fi
 	
 #configure run
 cnName=$1;
-fullDomain=$cnName.$i3cExHost
+if [ "x$2" =="x" ]; then
+	fullDomain=$cnName.$i3cExHost
+else
+	fullDomain=$cnName.$2
+fi
 stop i3cp
 
 $dockerBin run -it --rm --name certbot -p 80:80 -p 443:443 -v $i3cDataDir/.certs:/etc/letsencrypt -v  $i3cDataDir/.certslib:/var/lib/letsencrypt certbot/certbot certonly --register-unsafely-without-email --standalone -d $fullDomain
