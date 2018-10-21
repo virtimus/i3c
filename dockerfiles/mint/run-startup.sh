@@ -6,6 +6,6 @@ service dbus start
 
 #mintlocale
 
-if [ -e /i3c/data/run-defaults.sh ]; then
-	. /i3c/data/run-defaults.sh
+if [ -e /i3c/.overrides/run-startup.sh ]; then
+	. /i3c/.overrides/run-startup.sh
 fi

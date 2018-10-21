@@ -3,6 +3,8 @@ if [ "x$i3cSshPass" == "x"]; then
 	i3cSshPass='';
 fi	
 
+echo "i3cSshPass:$i3cSshPass"
+
 #-p 8022:8022
 #-e VIRTUAL_PORT=8022 \
 dParams="-d -p 2222:22  \

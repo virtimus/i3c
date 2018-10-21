@@ -198,6 +198,9 @@ i3cDataDir=$i3cRoot'/data'
 #i3c platform secrets dir (should be unmounted after start)
 i3cSecretsDir=$i3cRoot'/.secrets'
 
+#i3c overrides dir - for local scripts overriding defaults
+i3cOverridesDir=$i3cRoot'/.overrides'
+
 #i3c platform home dir
 i3cHome="${I3C_HOME}";
 if [ "x${I3C_HOME}" == "x" ]; then 
@@ -573,6 +576,7 @@ i3cParams=" $lOpts \
 	-v $i3cLogDir/$cName:/i3c/log \
 	-v $i3cSharedHome/$i3cSharedFolder:/i3c/.shared \
 	-v $i3cSecretsDir/$cName:/i3c/.secrets \
+	-v $i3cOverridesDir/$cName:/i3c/.overrides \
 	-e VIRTUAL_HOST=$cName.$i3cInHost,$cName.$i3cExHost$addVHost \
 	-e I3C_ROOT=/i3c \
 	-e I3C_LOCAL_ENDPOINT=$I3C_LOCAL_ENDPOINT \
@@ -1177,8 +1181,16 @@ fi
 		sCommand=run-config
 		_procVars $sCommand $cName "${@:2}";
 		
+		if [ -e $i3cOverridesDir/$cName/i3c-run-config.sh ]; then
+			. $i3cOverridesDir/$cName/i3c-run-config.sh $sCommand $cName "${@:2}"
+		fi		
+		
 		sCommand=run
 		_procVars $sCommand $cName "${@:2}";
+		
+		if [ -e $i3cOverridesDir/$cName/i3c-run.sh ]; then
+			. $i3cOverridesDir/$cName/i3c-run.sh $sCommand $cName "${@:2}"
+		fi
 		
 		echo "[ i3c.h ]cName:$cName"
 		#check if need to proces base files
@@ -1341,11 +1353,16 @@ pid(){
 
 #@desc ip
 #@arg $1 - appDef
-ip(){
+_ip(){
 	ret=1;	
 	$dockerBin inspect --format '{{ .NetworkSettings.IPAddress }}' "$@"
 	ret=$?;	
 	return $ret;		
+}
+
+#@deprecated
+ip(){ 
+	return _ip "$@"
 }
 
 #@desc logs
@@ -1364,18 +1381,23 @@ _mc(){
 	subPath=$2
 	cFsPath=/proc/$(docker inspect --format {{.State.Pid}} $cNameSanit)/root$subPath
 	if [ "x${DOCKER_HOST}" == "x" ]; then
-		#local one	
-		mc $PWD $cFsPath
+		dHost='sh://'$cNameSanit'@localhost'
 	else
+		dHost=$(echo $DOCKER_HOST | sed 's/tcp:\/\/\(.*\)[:]\(.*\)/sh:\/\/'$cNameSanit'@\1/')
+	fi		
+	#if [ "x${DOCKER_HOST}" == "x" ]; then
+	#	#local one	
+	#	sudo mc $PWD $cFsPath
+	#else
 		#remote
 		exists=$(docker inspect -f {{.State.Running}} ssh)
 		if  [ ! $exists ]; then
 			/i rbrr ssh
 		fi	
-		dHost=$(echo $DOCKER_HOST | sed 's/tcp:\/\/\(.*\)[:]\(.*\)/sh:\/\/'$cNameSanit'@\1/')
+
 		echo "dHost:$dHost"
 		mc $PWD "$dHost:2222$subPath"
-	fi		
+	#fi		
 	
 	#$dockerBin logs -f "$(_sanitCName $1)"
 	ret=$?;	

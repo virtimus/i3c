@@ -4,7 +4,7 @@
 cName=i3c
 
 dParams="-d \
---dns=$(ip i3cp) \
+--dns=$(_ip i3cp) \
 -v $i3cDataDir/$cName/periodic:/etc/periodic"
 		
 addIParams=true	

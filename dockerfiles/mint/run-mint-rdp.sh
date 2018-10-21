@@ -1,9 +1,13 @@
 #!/bin/bash
 
 case "$1" in
+	adduser)
+		sudo useradd -m -s /bin/bash -g user $2
+		;;
 	addsuser)
-		sudo adduser $2
+		sudo useradd -m -s /bin/bash -g root $2
 		sudo echo "$2    ALL=(ALL) ALL" >> /etc/sudoers
+		;;
 	update-locale)
 		sudo update-locale LANG=$2
 		;;
@@ -15,7 +19,7 @@ case "$1" in
 		;;	
 	startup)
 		. ${I3C_HOME}/init.sh	
-		. /run-defaults.sh	
+		. /run-startup.sh	
 		/usr/bin/docker-entrypoint.sh supervisord &
 		. ${I3C_HOME}/clean.sh		
 		while true; do
@@ -31,7 +35,11 @@ case "$1" in
 		echo "dpkg-get-sel - list of selected software packages"
 		;;
 	*)
-		. ${I3C_HOME}/run.sh
+		if [ -e /i3c/data/run.sh ]; then
+		   . /i3c/data/run.sh "$@"	
+		else
+			. ${I3C_HOME}/run.sh "$@"
+		fi		
 		;;		
 esac
 

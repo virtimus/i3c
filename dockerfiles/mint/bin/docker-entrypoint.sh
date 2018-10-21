@@ -44,21 +44,28 @@ uuidgen > /etc/machine-id
 # set keyboard for all sh users
 echo "export QT_XKB_CONFIG_ROOT=/usr/share/X11/locale" >> /etc/profile
 
+echo "adding user group ..."
+groupadd user
+
 #if [ ! -e /home/mb ]; then
 echo "adding root password ..."
 #useradd -m -s /bin/bash -g ubuntu mb
+echo "ROOT_PASS:$ROOT_PASS";
 echo "root:${ROOT_PASS:-root}" | /usr/sbin/chpasswd
-echo "adding default .bashrc ..."
-cp /defaults/.bashrc /root/.bashrc
+
+if [ ! -e /root/.bashrc ]; then
+	echo "adding default .bashrc ..."
+	cp /defaults/.bashrc /root/.bashrc
+fi
 #cp /defaults/.xsessionrc /root/.xsessionrc	
 	#echo "mb    ALL=(ALL) ALL" >> /etc/sudoers
-echo "Installing optional lang pack ..."
-if [ "x$OPT_LANG" != "x" ]; then
-	localeSymb=${OPT_LANG:-en_US.UTF-8}
-	localeLT=$(echo $localeSymb | cut -d'_' -f 1)
-	apt-get install	-y language-pack-$localeLT
-	locale-gen $localeSymb
-fi
+#echo "Installing optional lang pack ..."
+#if [ "x$OPT_LANG" != "x" ]; then
+#	localeSymb=${OPT_LANG:-en_US.UTF-8}
+#	localeLT=$(echo $localeSymb | cut -d'_' -f 1)
+#	apt-get install	-y language-pack-$localeLT
+#	locale-gen $localeSymb
+#fi
 
 #fi
 
