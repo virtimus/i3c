@@ -561,6 +561,11 @@ _procI3cAfter(){
 		ret=$?;
 		unset -f i3cAfter;
 	fi	
+	if [ $ret -eq 0 ]; then
+		if [ -e $i3cOverridesDir/$cName/i3c-$sCommand-after.sh ]; then
+			. $i3cOverridesDir/$cName/i3c-$sCommand-after.sh "$@"
+		fi
+	fi
 	return $ret;
 }
 
@@ -895,7 +900,7 @@ down(){
 	if [ $ret -ne 0 ]; then
 		return $ret;	 
 	fi
-	
+	sCommand=down
 	_procI3cAfter "$@"
 	ret=$?;
 	
@@ -1047,6 +1052,7 @@ _build(){
 				if [ $ret -ne 0 ]; then
 					return $ret;	 
 				fi	
+				sCommand=build
 				_procI3cAfter "$@"
 				ret=$?;				
 			else
@@ -1271,7 +1277,8 @@ fi
 	if [ $ret -ne 0 ]; then
 		return $ret;	 
 	fi			
-		
+	
+	sCommand=run	
 	_procI3cAfter "$@"
 	ret=$?;
 		
