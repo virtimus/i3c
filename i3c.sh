@@ -570,8 +570,8 @@ if [ "x${i3cOptO[timeSync]}" != "x" ]; then
 	lOpts="$lOpts -v /etc/localtime:/etc/localtime:ro";
 fi	
 _vHostList="$cName.$i3cInHost,$cName.$i3cExHost";	
-if [ "x$addVHost" != "x"]; then
-	_vHostList=$_vHostList,$addVHost
+if [ "x$addVHost" != "x" ]; then
+	_vHostList="$_vHostList,$addVHost";
 fi	
 			
 i3cParams=" $lOpts \
