@@ -568,7 +568,11 @@ _procI3cParams(){
 lOpts='';
 if [ "x${i3cOptO[timeSync]}" != "x" ]; then
 	lOpts="$lOpts -v /etc/localtime:/etc/localtime:ro";
-fi			
+fi	
+_vHostList="$cName.$i3cInHost,$cName.$i3cExHost";	
+if [ "x$addVHost" != "x"]; then
+	_vHostList=$_vHostList,$addVHost
+fi	
 			
 i3cParams=" $lOpts \
 	-v $i3cDataDir/$cName:/i3c/data \
@@ -577,7 +581,7 @@ i3cParams=" $lOpts \
 	-v $i3cSharedHome/$i3cSharedFolder:/i3c/.shared \
 	-v $i3cSecretsDir/$cName:/i3c/.secrets \
 	-v $i3cOverridesDir/$cName:/i3c/.overrides \
-	-e VIRTUAL_HOST=$cName.$i3cInHost,$cName.$i3cExHost$addVHost \
+	-e VIRTUAL_HOST=$_vHostList \
 	-e I3C_ROOT=/i3c \
 	-e I3C_LOCAL_ENDPOINT=$I3C_LOCAL_ENDPOINT \
 	-e I3C_HOST=$i3cHost \
