@@ -1362,7 +1362,9 @@ _ip(){
 
 #@deprecated
 ip(){ 
-	return _ip "$@"
+	_ip "$@"
+	ret=$?;	
+	return $ret;	
 }
 
 #@desc logs
