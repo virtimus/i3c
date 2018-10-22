@@ -11,7 +11,7 @@ fi
 if [ ! -e /i3c/.shared/mint/toTxtOut ]; then
 	mkdir /i3c/.shared/mint/toTxtOut
 fi
-chown -R a+w /i3c/.shared/mint
+chmod -R a+w /i3c/.shared/mint
 
 apt-get install -y incron xpdf
 echo root > /etc/incron.allow
