@@ -1752,7 +1752,10 @@ case "$1" in
 		;;	
 	sd)	
 		_sd "${@:2}";
-		;;			
+		;;	
+	nop)#just be silent	
+		:
+		;;					
 	*)
 			echo "Basic usage: $0 up|build|run|runb|start|stop|rm|ps|psa|rmi|rebuild|rerun|pid|ip|exec|exe|save|load|logs|cloneUdfAndRun|help...";
 			echo "cmdAliases:"

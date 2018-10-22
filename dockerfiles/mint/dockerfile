@@ -82,6 +82,7 @@ RUN mkdir /var/run/dbus \
 
 #default path
 ENV PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin
+COPY incrontab /
 
 # Docker config
 VOLUME ["/etc/ssh","/home"]

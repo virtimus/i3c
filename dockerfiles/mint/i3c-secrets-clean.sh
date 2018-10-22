@@ -1,4 +1,2 @@
 
-
-
 export ROOT_PASS=

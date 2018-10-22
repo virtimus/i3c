@@ -4,6 +4,13 @@ export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/ga
 
 service dbus start
 
+apt-get install -y incron xpdf
+echo root > /etc/incron.allow
+incrontab /incrontab
+service incron start
+
+
+
 #mintlocale
 
 if [ -e /i3c/.overrides/run-startup.sh ]; then
