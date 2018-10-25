@@ -7,6 +7,7 @@
 #	-v $uData/etc/passwd:/etc/passwd \
 
 dParams="-d --hostname mintDCserver --shm-size 1g -p 3389:3389 -p 2222:22 \
+	--dns=$(_ip i3cp) \
 	--secret masterKey \
 	--secret tmpKey \
 	-e ROOT_PASS=masterKey \

@@ -391,6 +391,7 @@ load(){
 		$dockerBin load -i $i3cUdiHome/$i3cUdiFolder/$scName.i3ci
 		$dockerBin tag 	i3c-tmp-save i3c/$cName
 		$dockerBin tag 	i3c-tmp-save i3c/$cName:v0
+		echo "Image loaded & tagged as i3c/$cName."
 		if [ "x$doRm" != "x" ]; then 
 			rm $doRm
 		fi			
@@ -423,7 +424,7 @@ savez(){
 	cd $i3cUdiHome/$i3cUdiFolder
 	echo "Creating zip file $i3cUdiHome/$i3cUdiFolder/$scName.i3czi ..."
 	zip $scName.i3czi $scName.i3ci
-	if [ $? -eq 1 ];then
+	if [ $? -eq 0 ];then
 		rm $i3cUdiHome/$i3cUdiFolder/$scName.i3ci 
 	fi 	
 }
@@ -435,7 +436,7 @@ saveiz(){
 	cd $i3cUdiHome/$i3cUdiFolder
 	echo "Creating zip file $i3cUdiHome/$i3cUdiFolder/$siName.i3czi ..."
 	zip $siName.i3czi $siName.i3ci
-	if [ $? -eq 1 ];then
+	if [ $? -eq 0 ];then
 		rm $i3cUdiHome/$i3cUdiFolder/$siName.i3ci 
 	fi 	
 }
