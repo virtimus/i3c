@@ -579,6 +579,9 @@ _vHostList="$cName.$i3cInHost,$cName.$i3cExHost";
 if [ "x$addVHost" != "x" ]; then
 	_vHostList="$_vHostList,$addVHost";
 fi	
+if [ "x$onlyVHost" != "x" ]; then
+	_vHostList=$onlyVHost;
+fi
 			
 i3cParams=" $lOpts \
 	-v $i3cDataDir/$cName:/i3c/data \
