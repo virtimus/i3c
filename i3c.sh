@@ -1565,7 +1565,7 @@ fi
 	
 #configure run
 cnName=$1;
-if [ "x$2" =="x" ]; then
+if [ "x$2" == "x" ]; then
 	fullDomain=$cnName.$i3cExHost
 else
 	fullDomain=$cnName.$2
