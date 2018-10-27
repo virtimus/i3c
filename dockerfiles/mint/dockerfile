@@ -87,6 +87,7 @@ COPY incrontab /
 # Docker config
 VOLUME ["/etc/ssh","/home"]
 EXPOSE 3389 22 9001
+EXPOSE 137/udp 138/udp 139 445
 COPY defaults /defaults
 COPY run-mint-rdp.sh /
 COPY run-startup.sh /
