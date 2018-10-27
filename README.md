@@ -68,6 +68,13 @@ or shorter one:
 ```bash
 /i rbrr portainer
 ```
+
+... well ... or yet even shorter one :)
+```bash
+/i up portainer
+```
+
+
 Portainer will be available on port 9000 (domain resolution is not working on PWD)
 
 Or node-red:
@@ -179,6 +186,11 @@ DOCKER_OPTS="--experimental=true"
 Restart Docker daemon:
 
 sudo service docker restart
+
+lxd containers:
+sudo apt-get install lxc
+
+https://linuxcontainers.org/lxc/getting-started/
 
 ## Installation as local i3c.Cloud endpoint
 ... to be done
