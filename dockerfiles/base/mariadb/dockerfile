@@ -1,1 +1,8 @@
 FROM mariadb
+
+COPY ./run-mdb.sh /
+RUN chmod a+x /run-mdb.sh \
+	&& ln -s /run-mdb.sh /r
+
+ENTRYPOINT ["/r"]
+CMD ["startup"]

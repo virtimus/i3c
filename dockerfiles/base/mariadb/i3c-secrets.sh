@@ -1,0 +1,2 @@
+
+export MYSQL_ROOT_PASSWORD=$(/r secret ${MYSQL_ROOT_PASSWORD})

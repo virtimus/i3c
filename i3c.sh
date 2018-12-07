@@ -62,6 +62,8 @@ declare -A i3cOptO
 declare -A i3cOptStrs
 #process options
 doOpt=true;
+#this has to be rewritten like those:
+#https://github.com/gliderlabs/docker-alpine/blob/master/builder/scripts/mkimage-alpine.bash
 #repeat until we have options with optional o required assiciated arguments
 while $doOpt; do
 	doOpt=false;
@@ -107,8 +109,14 @@ while $doOpt; do
 	        doOpt=true;
 	        echo 'argsgromo:'"$@"
 	        IFS=':' read -ra ADDR <<< "$1"
-	        oname=${ADDR[0]}
-	        oval=${ADDR[1]}
+	        if [ ${ADDR[1]+x} ]; then
+	        	oname=${ADDR[0]}
+	        	oval=${ADDR[1]}
+	        else
+	        	IFS='=' read -ra ADDR <<< "$1"
+	        	oname=${ADDR[0]}
+	        	oval=${ADDR[1]}
+	        fi	
 			shift 
 			((ind++))        
 	    	i3cOptO[${oname}]=$oval;
@@ -647,9 +655,18 @@ i3cDfFolder=$cName
 }
 
 #not tested
-_exist(){
-$dret="$(docker ps -a | grep bracs_output)";
-return "$?";	
+_status(){
+dret=$($dockerBin ps --filter "name=^/$1$" --format '{{.Names}}');
+#echo "dretRunning:$dret"
+[[ ! $dret ]] || { echo "running" && return; }
+dret="$($dockerBin ps -a --filter "name=^/$1$" --format '{{.Names}}')";
+#echo "dretExists:$dret"
+[[ ! $dret ]] || { echo "exists" && return; }
+echo "notFound"	
+}
+
+_running(){
+[ ! "$(_status $1)" == "running" ] || echo "is running"
 }
 
 #@desc given a git repo and folder name clone (or pull) sources 
@@ -768,10 +785,19 @@ _procDCPath(){
 }
 
 
+_iup(){ 
+cName=$1
+if [[ "$(_running $cName)" ]]; then
+	echo "$cName is running ..."
+else
+	_up "$@"
+fi
+}
+
 #@desc up with composer (if docker-compose.yml file present)
 #or try to rebuild & rerun
 #@arg $1 appDef
-up(){
+_up(){
 ret=0;	
 		doCommand=true
 		
@@ -795,6 +821,10 @@ ret=0;
 	_procVars $sCommand $cName "${@:2}";		
 	sCommand=up
 	_procVars $sCommand $cName "${@:2}";
+	#cho "doCommand:$doCommand"
+	[ $doCommand == true ] || return;
+	#echo "up run"
+	#return;	
 	#cName readonly here ?
 	cName=$1
 
@@ -857,7 +887,7 @@ ret=0;
 }
 
 #well, for a complete clear one currently has to use his own i3c-down script
-down(){
+_down(){
 	ret=0;	
 	doCommand=true
 	cName=$1
@@ -1027,6 +1057,10 @@ _build(){
 				tFolder=${i3cOptO[fromDir]}/.
 				doCommand=true;
 			fi	
+			if [ "x$fromDir" != "x" ]; then
+				tFolder=$fromDir/.
+				doCommand=true;
+			fi
 			
 			if [[ $dParams == *"-f "* ]]; then
 			#ok - custom docker file
@@ -1060,7 +1094,7 @@ _build(){
 				_procI3cAfter "$@"
 				ret=$?;				
 			else
-				_echoe "[_build] appDef/dockerfile "$iPath" not found.";
+				_echoe "[_build] appDef/dockerfile "$iPath" not found. If custom folder is used check if it was initialized with /i winit and has .i3c file";
 				return 1;					
 			fi
 		fi
@@ -1630,17 +1664,20 @@ case "$1" in
 	images)
 		images "${@:2}";
 		;;
+	iup)
+		_iup "${@:2}";
+		;;
 	up)
-		up "${@:2}";
+		_up "${@:2}";
 		;;
 	down)
-		down "${@:2}";
+		_down "${@:2}";
 		;;
 	dup)
-		down "${@:2}";
+		_down "${@:2}";
 		#ret=$?;
 		#if [ $ret -eq 0 ]; then		
-		up "${@:2}";
+		_up "${@:2}";
 		#fi	
 		;;			
 	build)
@@ -1759,7 +1796,8 @@ case "$1" in
 		;;	
 	nop)#just be silent	
 		:
-		;;					
+		;;
+							
 	*)
 			echo "Basic usage: $0 up|build|run|runb|start|stop|rm|ps|psa|rmi|rebuild|rerun|pid|ip|exec|exe|save|load|logs|cloneUdfAndRun|help...";
 			echo "cmdAliases:"
