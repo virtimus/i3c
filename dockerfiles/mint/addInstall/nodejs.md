@@ -1,0 +1,1 @@
+sudo apt-get update && sudo apt-get install -y build-essential nodejs libssl1.0-dev nodejs-dev node-gyp npm

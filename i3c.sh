@@ -1056,11 +1056,16 @@ _build(){
 				#dParams=$dParams' -f '${i3cOptO[fromDir]} 
 				tFolder=${i3cOptO[fromDir]}/.
 				doCommand=true;
-			fi	
+			fi				
 			if [ "x$fromDir" != "x" ]; then
 				tFolder=$fromDir/.
 				doCommand=true;
 			fi
+			if [ "x${i3cOptO[fromFile]}" != "x" ]; then
+				#dParams=$dParams' -f '${i3cOptO[fromDir]} 
+				tFolder='-f '${i3cOptO[fromFile]}' '$tFolder
+				doCommand=true;
+			fi			
 			
 			if [[ $dParams == *"-f "* ]]; then
 			#ok - custom docker file
@@ -1300,7 +1305,7 @@ fi
 					 $rCommand \
 					 $rParams
 			fi	
-					#cho "dParams:$dParams"	
+					echo "dParams:$dParams"	
 					 $dCommand --name $(_sanitCName $cName) \
 					 $oParams \
 					 $i3cParams \

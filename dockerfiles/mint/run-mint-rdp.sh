@@ -1,6 +1,12 @@
 #!/bin/bash
 
 case "$1" in
+	vlc-cast-desk) #cast desktop to stream (:8888), may need apt-get install vlc-plugin-access-extra
+		cvlc screen:// :screen-fps=5 :screen-caching=100 --sout '#transcode{vcodec=MJPG,vb=0,acodec=none}:http{mux=ogg,dst=:8888/mirror}'
+		;;
+	git-disable-cert) #disable cert checking by git
+		git config --global http.sslVerify "false"
+		;;
 	toTxt)#convert to txt using libre
 		cp "/i3c/.shared/mint/toTxt/$2" "/i3c/.shared/mint/toTxtOut/$2" 
         cd /i3c/.shared/mint/toTxtOut

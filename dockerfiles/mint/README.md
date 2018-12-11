@@ -32,4 +32,11 @@ system-config-samba
 https://community.linuxmint.com/tutorial/view/1861
 mount -t cifs //hostname-or-ipaddress/sharename -o username='username',domain='domainname-or-workgroup' /mnt/mysamba
 
+#vlc cast
+apt-get install vlc-plugin-access-extra
+
+remmina upgrade
+sudo apt-add-repository ppa:remmina-ppa-team/remmina-next \
+&& sudo apt-get update \
+&& sudo apt-get install remmina remmina-plugin-rdp libfreerdp-plugins-standard
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Starting /run_ubuntu18 script ...";
+echo "Starting /run_ubuntu script ...";
 
 case "$1" in
 	startup)
@@ -22,8 +22,12 @@ case "$1" in
 		echo "      COPY ./run-mydecent.sh /run-mydecent.sh && ln -sfn /run-mydecent.sh /r"
 		echo "      RUN chmod a+x /run-mydecent.sh"
 		echo " to Your dockerfile."
+		;;
+	*)
+		. ${I3C_HOME}/run.sh
+		;;		
 esac
 
-. ${I3C_HOME}/run.sh
+
 	
 		
