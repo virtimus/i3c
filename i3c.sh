@@ -613,13 +613,13 @@ if [ -e $i3cScriptDir/i3c-secrets.sh ] && [ ! -e $i3cSecretsDir/$cName/i3c-secre
 	if [ ! -e $i3cSecretsDir/$cName ]; then
 		_mkdir $i3cSecretsDir/$cName
 	fi	
-	cp $i3cScriptDir/i3c-secrets.sh $i3cSecretsDir/$cName/i3c-secrets.sh
+	sudo cp $i3cScriptDir/i3c-secrets.sh $i3cSecretsDir/$cName/i3c-secrets.sh
 fi
 if [ -e $i3cScriptDir/i3c-secrets-clean.sh ] && [ ! -e $i3cSecretsDir/$cName/i3c-secrets-clean.sh ]; then
 	if [ ! -e $i3cSecretsDir/$cName ]; then
 		_mkdir $i3cSecretsDir/$cName
 	fi	
-	cp $i3cScriptDir/i3c-secrets-clean.sh $i3cSecretsDir/$cName/i3c-secrets-clean.sh	
+	sudo cp $i3cScriptDir/i3c-secrets-clean.sh $i3cSecretsDir/$cName/i3c-secrets-clean.sh	
 fi	
 	
 
@@ -818,7 +818,17 @@ ret=0;
 	
 	_procConfig;				
 	sCommand='config'
-	_procVars $sCommand $cName "${@:2}";		
+	_procVars $sCommand $cName "${@:2}";
+	
+	
+		if [ -e $i3cOverridesDir/$cName/i3c-up-config.sh ]; then
+			. $i3cOverridesDir/$cName/i3c-up-config.sh $sCommand $cName "${@:2}"
+		fi
+		if [ "$doCommand" == false ]; then
+			return $?;
+		fi	
+	
+			
 	sCommand=up
 	_procVars $sCommand $cName "${@:2}";
 	#cho "doCommand:$doCommand"
@@ -1191,6 +1201,9 @@ itParams='';
 					irSecret=true; 
 					irParams=false;
 				fi
+				if [ "x$os2" != "x" ] && [ "$os2" == "--link" ];then
+					_echoe "WARNING: usage of --link option is deprecated. Use rather /i nc [cname] [netName] in i3cAfter()."; 
+				fi				
 				if [ "$irParams" == true ]; then
 					itParams=$itParams' '$os	
 				fi	
@@ -1349,7 +1362,8 @@ _rm(){
 
 psFormat="table {{.Names}}\t{{.Status}}\t{{.Image}}\t{{.Size}}\t{{.Ports}}"
 
-#@desc list runing containers
+
+#@desc list all containers
 #@na
 psa(){
 	ret=1;	
@@ -1358,7 +1372,7 @@ psa(){
 	return $ret;	
 }
 
-#@desc list all containers
+#@desc list runing containers
 #@na
 _ps(){
 	ret=1;	
@@ -1664,6 +1678,11 @@ function images(){
 	$dockerBin images "$@";
 }	
 
+_nconnect(){ 
+	docker network inspect $2 &>/dev/null || docker network create --driver bridge $2
+	docker network connect $2 $1 &>/dev/null
+}
+
 _fromCase=1
 case "$1" in
 	images)
@@ -1798,7 +1817,10 @@ case "$1" in
 		;;	
 	sd)	
 		_sd "${@:2}";
-		;;	
+		;;
+	nc|nconnect)
+		_nconnect "${@:2}";
+		;;		
 	nop)#just be silent	
 		:
 		;;
