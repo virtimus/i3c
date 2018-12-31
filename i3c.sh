@@ -391,6 +391,7 @@ load(){
 			if [ -e $i3cUdiHome/$i3cUdiFolder/$scName.i3czi ]; then
 				unzip $i3cUdiHome/$i3cUdiFolder/$scName.i3czi -d $i3cUdiHome/$i3cUdiFolder
 				doRm=$i3cUdiHome/$i3cUdiFolder/$scName.i3ci
+				rm $i3cUdiHome/$i3cUdiFolder/sha256.txt
 			else
 				echo "Saved image $cName not found."
 			fi	
@@ -430,10 +431,13 @@ savez(){
 	scName=$(_sanitCName $cName)
 	save "$@"
 	cd $i3cUdiHome/$i3cUdiFolder
+	sha256=$(docker inspect $scName | grep '\"Image\": \"sha256:' | cut -d '"' -f4);
+	echo $sha256 > sha256.txt
 	echo "Creating zip file $i3cUdiHome/$i3cUdiFolder/$scName.i3czi ..."
-	zip $scName.i3czi $scName.i3ci
+	zip $scName.i3czi $scName.i3ci sha256.txt
 	if [ $? -eq 0 ];then
-		rm $i3cUdiHome/$i3cUdiFolder/$scName.i3ci 
+		rm $i3cUdiHome/$i3cUdiFolder/$scName.i3ci
+		rm $i3cUdiHome/$i3cUdiFolder/sha256.txt 
 	fi 	
 }
 
@@ -854,7 +858,11 @@ ret=0;
 			sCommand=build
 			_procVars $sCommand $cName "${@:2}";
 			#cName readonly here ?
-			cName=$1			
+			cName=$1
+			rd1=$?;
+			if [ $rd1 -ne 0 ]; then
+				return $rd1;
+			fi				
 			
 			if [ ${i3cOpt[v]} -le 1 ]; then
 				echo "$dCommandBuild $i3cParams $dParams $cName"
@@ -1599,6 +1607,11 @@ rerun(){
     	return $?;
 }
 
+lrerun(){ 
+	load "$1"
+	rerun "$@"
+}
+
 #@desc get new letsencrypt certificate for given subdomain(ie container name)
 # currently using certbot/letsgetencrypt 
 # beware of using it in production - small break of availability (restart of main proxy is performed)
@@ -1736,6 +1749,9 @@ case "$1" in
         ;;
     rr|rerun)
 		rerun "${@:2}";    
+	    ;;
+    lrr|lrerun)
+		_lrerun "${@:2}";    
 	    ;;
 	rbrr)
 	    /i rb "${@:2}";

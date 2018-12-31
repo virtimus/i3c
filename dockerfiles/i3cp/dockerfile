@@ -5,6 +5,10 @@ FROM jwilder/nginx-proxy:alpine
 RUN apk --no-cache add dnsmasq
 EXPOSE 53 53/udp
 
-COPY run.sh /
-RUN chmod a+x /run.sh
-CMD ["/run.sh"]
+#RUN cp -rp /app /app.backup
+
+COPY run-i3cp.sh /
+RUN chmod a+x /run-i3cp.sh \
+	&& ln -sf /run-i3cp.sh /r
+ENTRYPOINT ["/r"]
+CMD ["startup"]
