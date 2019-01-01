@@ -7,9 +7,9 @@ _init(){
 	if [ ! -e /var/log/nginx ]; then
 		mkdir /var/log/nginx
 	fi	
-	if [ ! -e /app/nginx.tmpl ]; then
-		cp -rp /app.backup/* /app
-	fi
+	#if [ ! -e /app/nginx.tmpl ]; then
+	#	cp -rp /app.backup/* /app
+	#fi
 	
 }
 
