@@ -251,6 +251,9 @@ _autoconf(){
 case "$1" in
 	create)
 		if [ -e $2 ]; then
+			if [ ! -e $2/.gitignore ]; then
+				echo "/.i3c" > $2/.gitignore
+			fi
 			if [ ! -e $2/.i3c ]; then 
 				echo "i3cVersionAD=$i3cVersion" > $2/.i3c
 				echo "i3cRootAD=$i3cRoot" >> $2/.i3c
