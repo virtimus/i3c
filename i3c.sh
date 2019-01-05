@@ -1702,11 +1702,11 @@ function images(){
 }	
 
 _nconnect(){ 
-	
+	nn=$2
 	if [ "x$2" = "x" ]; then
-		$2=$1;
+		nn=$1;
 	fi
-	docker network inspect $2 &>/dev/null || docker network create --driver bridge $2
+	docker network inspect $nn &>/dev/null || docker network create --driver bridge $nn
 	if [ "x$2" != "x" ]; then
 		cNameSanit="$(_sanitCName $1)"
 		docker network connect "${@:3}" $2 $cNameSanit
