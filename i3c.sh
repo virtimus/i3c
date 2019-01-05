@@ -333,6 +333,8 @@ currDir=$(pwd)
 _autoconf readUHome $currDir 
 _autoconf read $i3cHome 
 
+#echo "currDir:"$currDir" udfHOme:"$i3cUdfHome;
+
 
 #user folder to for saving/loading images (can grow big)	
 #i3cUdfDir=$i3cDataDir'/i3cd/i3c-crypto/dockerfiles'
@@ -590,7 +592,8 @@ lOpts='';
 if [ "x${i3cOptO[timeSync]}" != "x" ]; then
 	lOpts="$lOpts -v /etc/localtime:/etc/localtime:ro";
 fi	
-_vHostList="$cName.$i3cInHost,$cName.$i3cExHost";	
+cNameSanit="$(_sanitCName $cName)"
+_vHostList="$cNameSanit.$i3cInHost,$cNameSanit.$i3cExHost";	
 if [ "x$addVHost" != "x" ]; then
 	_vHostList="$_vHostList,$addVHost";
 fi	
@@ -684,7 +687,7 @@ _cloneOrPull(){
 
 appName=$cName;
 folder=$i3cDataDir/$appName/$2
-    
+cdr=$(pwd)    
     if [ ! -e $i3cDataDir/$appName/$2 ]; then
     	if [ ! -e $i3cDataDir/$appName ]; then
     		_mkdir $i3cDataDir/$appName
@@ -695,7 +698,11 @@ folder=$i3cDataDir/$appName/$2
 		cd 	$i3cDataDir/$appName/$2
 		git pull	
 	fi
-	
+cd $cdr	
+}
+
+_db(){ 
+	docker build "$@"
 }
 
 #@desc clone given 3d party repo
@@ -1695,12 +1702,17 @@ function images(){
 }	
 
 _nconnect(){ 
+	cNameSanit="$(_sanitCName $1)"
 	docker network inspect $2 &>/dev/null || docker network create --driver bridge $2
-	docker network connect $2 $1 &>/dev/null
+	docker network connect "${@:3}" $2 $cNameSanit 
+	#&>/dev/null
 }
 
 _fromCase=1
 case "$1" in
+	db)
+		_db "${@:2}";
+		;;
 	images)
 		images "${@:2}";
 		;;
