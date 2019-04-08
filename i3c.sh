@@ -227,6 +227,9 @@ i3cVersion=v0
 #folder name for imagedef collections
 i3cDfFolder=dockerfiles
 
+#folder name for service collections
+i3cSvcFolder=services
+
 #default home uset for priority in path search
 i3cDfHome=$i3cHome
 #i3cDfDir=$i3cHome$i3cDfFolder
@@ -486,6 +489,22 @@ sFile=$1;
 			fi	 					
 		fi
 	
+}
+
+_service(){
+		cName=$1
+		 
+		if [ -e $i3cDfHome.local/$i3cSvcFolder/$cName/i3c-run.sh ]; then
+			i3cDfcHome=$i3cDfHome'.local'
+			i3cScriptDir=$i3cDfHome.local/$i3cSvcFolder/$cName
+			. $i3cScriptDir/i3c-run.sh $@;
+		else
+			echo "No file:$i3cDfHome.local/$i3cSvcFolder/$cName/i3c-run.sh";
+			exit 1;	
+		fi
+		ret=$?;
+		return $ret;	 
+		
 }
 
 #@desc processing different i3c platform config files 
@@ -1308,6 +1327,7 @@ fi
 		i3iParams='';
 		if [ "$addIParams" == true ]; then
 			i3iParams="	-v $i3cUdiHome/$i3cUdiFolder:$i3cUdiHome/$i3cUdiFolder \
+						-v $i3cHome.local:$i3cHome.local \
 						-v /var/run/docker.sock:/var/run/docker.sock"
 		fi	
 		
@@ -1659,6 +1679,20 @@ rerun i3cp
 
 }
 
+cert-cp(){
+
+$fullDomain=$cName
+
+cp $i3cDataDir/.certs/live/$fullDomain/cert.pem $i3cDataDir/i3cp/certs/$fullDomain.crt
+cp $i3cDataDir/.certs/live/$fullDomain/privkey.pem $i3cDataDir/i3cp/certs/$fullDomain.key
+}
+
+cert-renew(){
+stop i3cp
+$dockerBin run -it --rm --name certbot -p 80:80 -p 443:443 -v $i3cDataDir/.certs:/etc/letsencrypt -v  $i3cDataDir/.certslib:/var/lib/letsencrypt certbot/certbot renew --register-unsafely-without-email --standalone
+rerun i3cp
+}
+
 #@desc initialize new user workspace in current folder, no args needed
 #@na
 winit(){
@@ -1835,6 +1869,12 @@ case "$1" in
 	cert)
 		cert "${@:2}";
 		;;
+	cert-cp)
+		cert-cp "${@:2}";
+		;;
+	cert-renew)
+		cert-renew "${@:2}";
+		;;				
 	cp) _cp "${@:2}";
 		;;	
 	wi|winit)
@@ -1857,7 +1897,10 @@ case "$1" in
 		;;
 	nc|nconnect)
 		_nconnect "${@:2}";
-		;;		
+		;;
+	service)
+		_service "${@:2}";
+		;;			
 	nop)#just be silent	
 		:
 		;;
