@@ -1680,8 +1680,8 @@ rerun i3cp
 }
 
 cert-cp(){
-
-$fullDomain=$cName
+cName=$1
+fullDomain=$cName
 
 cp $i3cDataDir/.certs/live/$fullDomain/cert.pem $i3cDataDir/i3cp/certs/$fullDomain.crt
 cp $i3cDataDir/.certs/live/$fullDomain/privkey.pem $i3cDataDir/i3cp/certs/$fullDomain.key
