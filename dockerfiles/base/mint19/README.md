@@ -37,10 +37,17 @@ gpg --verify sha256sum.txt.gpg sha256sum.txt
 mkdir /mnt/tmpmintiso
 sudo mount -o loop /tmp/linuxmint-19-cinnamon-64bit-v2.iso /mnt/tmpmintiso
 (warning about ro ok)
+
+alternative (alpine container(
+apk add p7zip
+p7z x linuxmint-19-cinnamon-64bit-v2.iso
+
 ### Copy sfs out
 cp /mnt/tmpmintiso/casper/filesystem.squashfs /tmp
 
 ### unsquash
+
+(apk add squashfs-tools)
 cd /tmp && sudo unsquashfs filesystem.squashfs
 
 ### prepare docker image
@@ -52,3 +59,6 @@ cd /tmp/squashfs-root && sudo tar -c . | docker import - mint19
 https://askubuntu.com/questions/222376/how-can-i-extract-the-deb-files-from-the-ubuntu-iso
 
 http://sharadchhetri.com/2018/10/09/how-to-create-ubuntu-docker-base-image/
+
+
+https://www.youtube.com/watch?v=q6pz49rpTZM

@@ -11,9 +11,26 @@ fi
 alias i-apk='/r install';
 
 case "$1" in
+	# read secret
 	secret)
 		cat /run/secrets/$2;
 		;;
+	# mount secret
+	secretMount)
+		#echo "ln -sf $3 /run/secrets/$2"
+		if [ ! -e /run/secrets ]; then
+			sudo ln -sf /i3c/.secrets/.secrets /run/secrets
+		else
+			echo "WARN: folder /run/secrets already exists... check if it's pointing to /i3c/.secrets/.secrets"
+		fi
+		sudo ln -sf $3 /run/secrets/$2
+		;;
+	# umount secret
+	secretUmount)
+		if [ -L $2 ]; then
+			sudo rm /run/secrets/$2
+		fi
+		;;	
 	#install entrypoint in container	
 	entrypoint)
 		if [ -e $2 ]; then
@@ -44,7 +61,7 @@ case "$1" in
 		./$0 help "$@"
 		;;		
 	help)
-		echo "Usage:"	
+		echo "[i3cHome]i3c/r Usage:"	
 		echo "======================================"
 		echo "- add run.sh script to Your project."
 		echo "- include or '. /run-xxx.sh' in the script"
@@ -55,6 +72,11 @@ case "$1" in
 		echo "      RUN chmod a+x /run-mydecent.sh"
 		echo " to Your dockerfile."
 		echo "";
+		echo "======================================"
+		echo "Commands:"
+		echo " secret [name] - read secret contents"
+		echo " secretMount [name] [path] - mount secret file/dir as link"
+		echo " secretUmount [name]  - remove link to secret file/dir"
 		case "$2" in
 			apt)
 				echo "apt OP [PACKAGE] [ARGS ...]"
@@ -65,5 +87,8 @@ case "$1" in
 			;;
 			*)
 				echo "[i3c/run.sh ] No help on $2 available..."	
-		esac		
+		esac
+	;;
+	*)
+		echo "run '/r help' for help."		
 esac

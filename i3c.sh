@@ -1748,6 +1748,11 @@ _nconnect(){
 	#&>/dev/null
 }
 
+_top(){
+$dockerBin stats --format "table {{.Container}}\t{{.Name}}\t{{.CPUPerc}}\t{{.MemPerc}}\t{{.NetIO}}\t{{.BlockIO}}"
+
+}
+
 _fromCase=1
 case "$1" in
 	db)
@@ -1900,7 +1905,10 @@ case "$1" in
 		;;
 	service)
 		_service "${@:2}";
-		;;			
+		;;	
+	top)
+		_top "${@:2}";	
+		;;		
 	nop)#just be silent	
 		:
 		;;
