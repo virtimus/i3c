@@ -1,6 +1,8 @@
 #!/bin/bash
 
-mkdir /mnt/stateful_partition/i3c
+if [ ! -e /mnt/stateful_partition/i3c ]; then
+	mkdir /mnt/stateful_partition/i3c
+fi
 
 export J=$HOME/$1
 
