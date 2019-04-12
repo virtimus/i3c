@@ -92,7 +92,11 @@ RUN apt-get -y update && apt-get install -y docker-compose curl
 #sys config
 ENV PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
 
-RUN echo "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin" >> /etc/profile
+RUN echo "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin" >> /etc/profile \
+	&& cd /tmp \
+	&& wget https://go.microsoft.com/fwlink/?LinkID=760868 -O vsc.deb \
+	&& sudo apt-get -y install ./vsc.deb
+	
 #ENV DBUS_SYSTEM_BUS_ADDRESS=unix:path=/host/run/dbus/system_bus_socket 
 # 
 # chown messagebus:messagebus /run/dbus
