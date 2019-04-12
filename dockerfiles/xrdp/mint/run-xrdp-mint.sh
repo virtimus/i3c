@@ -10,7 +10,8 @@ case "$1" in
 		journalctl -xb
 		;;	
 	startup)
-		dbus-daemon --system --fork
+		#dbus-daemon --system --fork
+		. /run-startup.sh
 		/usr/bin/docker-entrypoint.sh supervisord &	
 		while true; do
 			sleep 1000

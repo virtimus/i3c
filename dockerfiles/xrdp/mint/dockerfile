@@ -98,7 +98,8 @@ RUN addgroup ubuntu \
 VOLUME ["/etc/ssh","/home"]
 EXPOSE 3389 22 9001
 COPY run-xrdp-mint.sh / 
-RUN chmod a+x /run-xrdp-mint.sh && ln -sf /run-xrdp-mint.sh /r
+COPY run-startup.sh /
+RUN chmod a+x /run-startup.sh && chmod a+x /run-xrdp-mint.sh && ln -sf /run-xrdp-mint.sh /r
 
 #ENTRYPOINT ["/usr/bin/docker-entrypoint.sh"]
 #CMD ["supervisord"]
