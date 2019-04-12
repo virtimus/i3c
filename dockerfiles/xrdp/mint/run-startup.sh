@@ -2,7 +2,7 @@
 sleep 10
 
 
-chmod -R a+w /i3c/.shared/mint
+#chmod -R a+w /i3c/.shared/mint
 
 
 #sudo usermod -a -G dockerh mb
