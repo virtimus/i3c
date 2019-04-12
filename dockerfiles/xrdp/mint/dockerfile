@@ -87,7 +87,7 @@ RUN addgroup ubuntu \
 	&& chown messagebus:messagebus /run/dbus \
 	&& dbus-uuidgen --ensure 
 	
-RUN apt-get -y update && apt-get install docker-compose	
+RUN apt-get -y update && apt-get install -y docker-compose	
 
 #sys config
 #ENV DBUS_SYSTEM_BUS_ADDRESS=unix:path=/host/run/dbus/system_bus_socket 
