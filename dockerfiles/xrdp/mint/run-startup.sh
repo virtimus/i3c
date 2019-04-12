@@ -1,5 +1,5 @@
 #!/bin/bash
-
+sleep 10
 service dbus start
 
 chmod -R a+w /i3c/.shared/mint
