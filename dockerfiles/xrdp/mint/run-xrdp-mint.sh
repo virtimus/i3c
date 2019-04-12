@@ -11,7 +11,7 @@ case "$1" in
 		;;	
 	startup)
 		#dbus-daemon --system --fork		
-		/usr/bin/docker-entrypoint.sh supervisord &	
+		nohup /usr/bin/docker-entrypoint.sh supervisord &	
 		echo "==== /run-startup.sh ..."
 		. /run-startup.sh
 		while true; do
