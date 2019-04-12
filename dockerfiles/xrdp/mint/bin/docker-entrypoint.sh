@@ -45,8 +45,8 @@ uuidgen > /etc/machine-id
 echo "export QT_XKB_CONFIG_ROOT=/usr/share/X11/locale" >> /etc/profile
 
 #if [ ! -e /home/mb ]; then
-
-	useradd -m -s /bin/bash -g ubuntu mb
+	groupadd -g 999 dockerh
+	useradd -m -s /bin/bash -g dockerh mb
 	echo "mb:${MB_PASS:-marek}" | /usr/sbin/chpasswd
 	echo "mb    ALL=(ALL) ALL" >> /etc/sudoers
 
