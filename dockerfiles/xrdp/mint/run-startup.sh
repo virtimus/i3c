@@ -6,7 +6,7 @@ service dbus start
 
 chmod -R a+w /i3c/.shared/mint
 
-ln -sf /i3c/i3c/i3c.h /i
+ln -sf /i3c/i3c/i3c.sh /i
 
 if [ -e /i3c/.overrides/run-startup.sh ]; then
 	. /i3c/.overrides/run-startup.sh
