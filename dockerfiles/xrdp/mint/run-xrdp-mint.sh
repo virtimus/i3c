@@ -10,7 +10,8 @@ case "$1" in
 		journalctl -xb
 		;;	
 	startup)
-		#dbus-daemon --system --fork		
+		#dbus-daemon --system --fork
+		service dbus start		
 		nohup /usr/bin/docker-entrypoint.sh supervisord &	
 		echo "==== /run-startup.sh ..."
 		. /run-startup.sh
