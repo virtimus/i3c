@@ -619,14 +619,17 @@ fi
 if [ "x$onlyVHost" != "x" ]; then
 	_vHostList=$onlyVHost;
 fi
+secOverridesPath=" -v $i3cSecretsDir/$cName:/i3c/.secrets -v $i3cOverridesDir/$cName:/i3c/.overrides ";
+if [ "$addIParams" == true ]; then
+	secOverridesPath=" -v $i3cSecretsDir:$i3cSecretsDir -v $i3cOverridesDir:$i3cOverridesDir ";
+fi
 			
 i3cParams=" $lOpts \
 	-v $i3cDataDir/$cName:/i3c/data \
 	-v $i3cHome:/i3c/i3c \
 	-v $i3cLogDir/$cName:/i3c/log \
 	-v $i3cSharedHome/$i3cSharedFolder:/i3c/.shared \
-	-v $i3cSecretsDir/$cName:/i3c/.secrets \
-	-v $i3cOverridesDir/$cName:/i3c/.overrides \
+	$secOverridesPath \
 	-e VIRTUAL_HOST=$_vHostList \
 	-e I3C_ROOT=/i3c \
 	-e I3C_LOCAL_ENDPOINT=$I3C_LOCAL_ENDPOINT \
@@ -1329,8 +1332,6 @@ fi
 			i3iParams="	-v $i3cUdiHome/$i3cUdiFolder:$i3cUdiHome/$i3cUdiFolder \
 						-v $i3cDataDir:/i3c/i3c.data \
 						-v $i3cLogDir:/i3c/i3c.log \
-						-v $i3cSecretsDir:$i3cSecretsDir \
-						-v $i3cOverridesDir:$i3cOverridesDir \
 						-v $i3cRoot/$i3cUdiFolder:$i3cRoot/$i3cUdiFolder \
 						-v $i3cHome.local:$i3cHome.local \
 						-v /var/run/docker.sock:/var/run/docker.sock"
