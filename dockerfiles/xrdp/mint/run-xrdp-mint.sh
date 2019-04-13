@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Starting /run-xrdp-mint.sh script ...";
+#echo "Starting /run-xrdp-mint.sh script ...";
 
 case "$1" in
 	dpkg-get-sel)

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Starting /run_ubuntu script ...";
+#echo "Starting /run_ubuntu script ...";
 
 case "$1" in
 	startup)
