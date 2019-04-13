@@ -93,6 +93,7 @@ RUN apt-get -y update && apt-get install -y docker-compose curl
 ENV PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
 
 RUN echo "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin" >> /etc/profile \
+	&& echo "export CINNAMON_2D=true" >> /etc/profile \
 	&& cd /tmp \
 	&& wget https://go.microsoft.com/fwlink/?LinkID=760868 -O vsc.deb \
 	&& sudo apt-get -y install ./vsc.deb
