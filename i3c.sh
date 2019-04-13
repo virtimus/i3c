@@ -1327,6 +1327,11 @@ fi
 		i3iParams='';
 		if [ "$addIParams" == true ]; then
 			i3iParams="	-v $i3cUdiHome/$i3cUdiFolder:$i3cUdiHome/$i3cUdiFolder \
+						-v $i3cDataDir:/i3c/i3c.data \
+						-v $i3cLogDir:/i3c/i3c.log \
+						-v $i3cSecretsDir:$i3cSecretsDir \
+						-v $i3cOverridesDir:$i3cOverridesDir \
+						-v $i3cRoot/$i3cUdiFolder:$i3cRoot/$i3cUdiFolder \
 						-v $i3cHome.local:$i3cHome.local \
 						-v /var/run/docker.sock:/var/run/docker.sock"
 		fi	
