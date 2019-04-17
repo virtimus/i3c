@@ -99,7 +99,7 @@ RUN echo "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr
 	&& sudo apt-get -y install ./vsc.deb
 
 RUN apt-get -y install npm && npm install -g gulp hjson	\
-	&& "echo export NPM_CONFIG_PREFIX=~/.npm-global" >> /etc/profile 
+	&& echo "export NPM_CONFIG_PREFIX=~/.npm-global" >> /etc/profile 
  
 #ENV DBUS_SYSTEM_BUS_ADDRESS=unix:path=/host/run/dbus/system_bus_socket 
 # 
