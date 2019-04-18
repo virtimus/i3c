@@ -45,6 +45,12 @@ When "Setup - Docker Toolbox" window apears - You can just accept defaults.
 curl -sSL https://raw.githubusercontent.com/virtimus/i3c/master/bootstrap.sh | bash
 ```
 
+-or run bootstrap for fresh Ubuntu with Docker install:
+
+```bash
+curl -sSL https://raw.githubusercontent.com/virtimus/i3c/master/scripts/ubuntu/bootstrapWithDocker.sh | bash
+```
+
 ## Demo
 
 You can quickly deploy current develop version inside a "play-with-docker" (PWD) playground:
