@@ -21,13 +21,6 @@ if [ "$RUNNING" = "true" ]; then
     exit 0
 fi
 
-i3cHome='/i3c/i3c';	
-
-sudo sh -c 'echo "export I3C_HOME=/i3c/i3c" > /etc/profile.d/i3c.sh'
-
-if [ ! -e /i ]; then
-   ln -s $i3cHome/i3c.sh /i
-fi   
 
 echo "-------------------------"
 echo "/i rebuild base/alpine ..."

@@ -503,8 +503,7 @@ _service(){
 			exit 1;	
 		fi
 		ret=$?;
-		return $ret;	 
-		
+		return $ret;	 		
 }
 
 #@desc processing different i3c platform config files 
@@ -1168,6 +1167,17 @@ else
   return 1;
 fi
 }
+
+#@desc scheck if running and do up if needed
+#@arg $1 - appDef
+_checkRunningWithUp(){
+	_checkRunning $1
+	ret=$?;
+	if [ $ret -ne 0 ]; then
+		/i up $1
+	fi	
+}
+
 
 #@desc check if runing and run
 #@arg $1 - appDef
@@ -1909,9 +1919,9 @@ case "$1" in
 	nc|nconnect)
 		_nconnect "${@:2}";
 		;;
-	service)
+	s|service)
 		_service "${@:2}";
-		;;	
+		;;			
 	top)
 		_top "${@:2}";	
 		;;		

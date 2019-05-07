@@ -5,6 +5,14 @@ echo "------------------------------------------------------------------------"
 CONTAINER=i3c
 RUNNING=$(docker inspect --format="{{.State.Running}}" $CONTAINER 2> /dev/null)
 
+i3cHome='/i3c/i3c';	
+
+sudo sh -c 'echo "export I3C_HOME=/i3c/i3c" > /etc/profile.d/i3c.sh'
+
+if [ ! -e /i ]; then
+   ln -s $i3cHome/i3c.sh /i
+fi   
+
 if [ "$RUNNING" == "true" ]; then
     echo "I3C_FINAL - $CONTAINER is running."
     exit 0
