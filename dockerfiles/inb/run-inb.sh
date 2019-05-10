@@ -20,6 +20,8 @@ case "$1" in
 		if [ -e $inbPath/.docker ]; then
 			rm -R /i3c/notebook.backup
 		fi
+		ln -sf /i3c/i3c/i3c.sh /i
+		/i sc _init
 		cd $inbPath
 		#alias python='python3'
 		if [ "$withWatch" = true ]; then
