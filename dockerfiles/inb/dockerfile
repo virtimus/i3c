@@ -1,0 +1,29 @@
+#FROM datascienceworkshops/data-science-at-the-command-line
+FROM i3c/base/ubuntu18
+
+#Install nodejs
+RUN apt-get update && apt-get install -y git nodejs && apt-get install -y npm && nodejs -v \
+	`#install pip/python/build esencials ` 
+RUN apt-get install -y python3 python3-pip python3-dev build-essential \
+	&& pip3 install --upgrade setuptools pip \
+	&& ln -sf /usr/bin/python3 /usr/local/sbin/python
+
+#Install jupyter notebook
+RUN echo "change this to clear docker cache" && mkdir /i3c && mkdir /i3c/data && cd /i3c/data && git clone https://github.com/i3c-cloud/notebook 
+#	&& cd notebook && pip install -e . \
+#	&& npm run build
+
+RUN	cd /i3c/data/notebook \
+	&& pip install -e . \
+	&& npm run build \
+	&& pip install bash_kernel \
+	&& python -m bash_kernel.install
+	
+RUN cp -ax /i3c/data/notebook /i3c/notebook.backup	
+
+COPY ./run-inb.sh /
+#RUN adduser --disabled-password --gecos "" --ingroup root  inb && 
+RUN chmod a+x /run-inb.sh \
+	&& ln -sf /run-inb.sh /r
+	
+#USER inb	
