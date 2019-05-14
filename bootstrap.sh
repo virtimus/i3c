@@ -5,7 +5,8 @@ echo "------------------------------------------------------------------------"
 CONTAINER=i3c
 RUNNING=$(docker inspect --format="{{.State.Running}}" $CONTAINER 2> /dev/null)
 
-i3cHome='/i3c/i3c';	
+i3cRoot="/i3c";
+i3cHome=$i3cRoot'/i3c';	
 
 sudo apt-get install -y curl git zip unzip
 
@@ -13,7 +14,15 @@ sudo sh -c 'echo "export I3C_HOME=/i3c/i3c" > /etc/profile.d/i3c.sh'
 
 if [ ! -e /i ]; then
    ln -s $i3cHome/i3c.sh /i
-fi   
+fi
+if [ ! -e $i3cRoot/i3c.data ]; then
+	if [ -e $i3cRoot/data ]; then
+		ln -s $i3cRoot/data $i3cRoot/i3c.data
+	fi
+	if [ -e $i3cRoot/log ]; then
+		ln -s $i3cRoot/log $i3cRoot/i3c.log
+	fi
+fi	    
 
 if [ "$RUNNING" == "true" ]; then
     echo "I3C_FINAL - $CONTAINER is running."

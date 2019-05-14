@@ -201,7 +201,7 @@ if [ "x${I3C_ROOT}" == "x" ]; then
 fi
 
 #i3c platform data dir (containers have access here)
-i3cDataDir=$i3cRoot'/data'
+i3cDataDir=$i3cRoot'/i3c.data'
 
 #i3c platform secrets dir (should be unmounted after start)
 i3cSecretsDir=$i3cRoot'/.secrets'
@@ -219,7 +219,7 @@ fi
 
 
 #log dir (normally containers should log here into subfolders)
-i3cLogDir=$i3cRoot'/log'
+i3cLogDir=$i3cRoot'/i3c.log'
 
 #platform version
 i3cVersion=v0
@@ -237,6 +237,7 @@ i3cDfHome=$i3cHome
 #user imagedef home (second priority in search)
 if [ "x$I3C_UDF_HOME" = "x" ]; then
    I3C_UDF_HOME=$i3cDataDir'/i3c.user'
+   #I3C_UDF_HOME=$i3cHome'.local'
 fi
 i3cUdfHome=$I3C_UDF_HOME
 
@@ -256,14 +257,34 @@ case "$1" in
 		if [ -e $2 ]; then
 			if [ ! -e $2/.gitignore ]; then
 				echo "/.i3c" > $2/.gitignore
+				ret=$?;
+				if [ ! $ret -eq 0 ]; then
+					return $ret;
+				fi	
 			fi
 			if [ ! -e $2/.i3c ]; then 
 				echo "i3cVersionAD=$i3cVersion" > $2/.i3c
+				ret=$?;
+				if [ ! $ret -eq 0 ]; then
+					return $ret;
+				fi
 				echo "i3cRootAD=$i3cRoot" >> $2/.i3c
+				ret=$?;
+				if [ ! $ret -eq 0 ]; then
+					return $ret;
+				fi
 				#cho "i3cUdfHome=$2" > $2/.i3c
 				_mkdir $2/$i3cDfFolder
+				ret=$?;
+				if [ ! $ret -eq 0 ]; then
+					return $ret;
+				fi
 				if [ "x$3" != "x" ]; then
-					_mkdir $2/$i3cDfFolder/$3 
+					_mkdir $2/$i3cDfFolder/$3
+					ret=$?;
+					if [ ! $ret -eq 0 ]; then
+						return $ret;
+					fi 
 				fi	
 				return 0;
 			else
@@ -1504,6 +1525,13 @@ logs(){
 	return $ret;	
 }
 
+logsd(){
+	ret=1;	
+	$dockerBin logs "$(_sanitCName $1)"
+	ret=$?;	
+	return $ret;	
+}
+
 #@desc use midnight commander on container
 _mc(){
 	ret=1;	
@@ -1712,28 +1740,88 @@ rerun i3cp
 #@desc initialize new user workspace in current folder, no args needed
 #@na
 winit(){
+#echo "params $1: $@"
+if [ "x$1" != "x" ]; then #clone repo from git url
+ 	stage="git init"
+ 	git init
+ 	ret=$?;
+ 	if [ $ret -eq 0 ]; then 
+ 		stage="git remote add origin"
+ 		git remote add origin $1
+ 		ret=$?;
+ 	fi
+ 	if [ $ret -eq 0 ]; then 
+ 		stage="git pull origin master"
+ 		git pull origin master
+ 		ret=$?;
+	fi
+ 	if [ $ret -eq 0 ]; then 
+ 		stage="git branch --set-upstream-to=origin/master master"
+ 		git branch --set-upstream-to=origin/master master
+ 		ret=$?;
+	fi	
+	if [ $ret -eq 0 ]; then
+		_echo "i3c.Cloud workspace initialized properly from $1 ..." 
+	else
+		_echo "Init problem("$stage"):"$ret;
+		return $ret;
+	fi
+fi	
+#local init repo
 p=$(pwd)
 _autoconf create $p	
 ret=$?;
 if [ $ret -eq 0 ]; then 
 	_echo "i3c.Cloud workspace initialized properly ..."
 elif [ $ret -eq 99 ]; then
-	_echo "i3c.Cloud workspace already initialized."	
+	_echo "i3c.Cloud workspace already initialized."		
 else
 	_echo "Init problem:"$ret;
-fi		
+fi			
 }
 
 #@ add appdef in current workspace
 #@arg $1 - appDef
 wadd(){	
 	if [ "x$1" == "x" ]; then
-		echo "Must provide name of appdef to create"	
+		echo "Must provide name of appdef to create"
+		return 1;	
 	fi
-	
+	fPath="$i3cHome.local/$i3cDfFolder/$1";
+	#echo "Checking if $fPath exists ..."
+	if [ -e $fPath ]; then
+		echo "appDef $1 already exists in $i3cHome.local/$i3cDfFolder/$1."
+		return 2;
+	fi	
 	if [ ! -e $i3cUdfHome/$i3cDfFolder/$1 ]; then 
 		_mkdir $i3cUdfHome/$i3cDfFolder/$1
 	fi
+	ln -s $i3cUdfHome/$i3cDfFolder/$1 $fPath
+	ret=$?;
+	if [ $ret -eq 0 ]; then 
+		_echo "appDef $1 referenced in i3c.local."
+	fi
+}
+
+wrem(){	
+	if [ "x$1" == "x" ]; then
+		echo "Must provide name of appdef to remove"
+		return 1;	
+	fi
+	fPath="$i3cHome.local/$i3cDfFolder/$1";
+	#echo "Checking if $fPath exists ..."
+	if [ -e $fPath ]; then
+		rm $fPath 
+		ret=$?;
+		if [ $ret -eq 0 ]; then
+			_echo "appDef $1 i3c.local reference removed." 
+		else 
+			_echoe "appDef $1 i3c.local reference removal error:"$ret 
+		fi
+		return $ret;
+	else
+		_echoe "appDef $1 i3c.local reference not found."
+	fi	
 }
 
 #@desc cp into or from container
@@ -1878,6 +1966,9 @@ case "$1" in
 	logs)
 		logs "$2";
 		;;
+	logsd)
+		logsd "$2";
+		;;		
 	tag)
 		tag "${@:2}";
 		;;	
@@ -1903,7 +1994,10 @@ case "$1" in
 		;;
 	wa|wadd)
 		wadd "${@:2}";
-		;;	
+		;;
+	wr|wrem)
+		wrem "${@:2}";
+		;;				
 	stats)
 		stats "${@:2}";
 		;;	

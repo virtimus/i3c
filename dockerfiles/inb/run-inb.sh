@@ -22,7 +22,11 @@ case "$1" in
 		fi
 		ln -sf /i3c/i3c/i3c.sh /i
 		/i sc _init
-		cd $inbPath
+		if [ ! -e $inbPath/notebooks ]; then 
+			mkdir $inbPath/notebooks
+		fi
+		cd $inbPath/notebooks
+		
 		#alias python='python3'
 		if [ "$withWatch" = true ]; then
 			echo ""

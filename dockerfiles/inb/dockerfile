@@ -1,5 +1,5 @@
 #FROM datascienceworkshops/data-science-at-the-command-line
-FROM i3c/base/ubuntu18
+FROM i3c/base/ubuntu18/dind
 
 #Install nodejs
 RUN apt-get update && apt-get install -y git nodejs && apt-get install -y npm && nodejs -v \

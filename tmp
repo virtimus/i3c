@@ -1,0 +1,3 @@
+
+
+curl -sSL https://raw.githubusercontent.com/virtimus/i3c/master/scripts/ubuntu/bootstrapWithDocker.sh | bash 
