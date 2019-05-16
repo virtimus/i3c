@@ -18,6 +18,9 @@ RUN	cd /i3c/data/notebook \
 	&& npm run build \
 	&& pip install bash_kernel \
 	&& python -m bash_kernel.install
+#	&& python -m scroll_down.install 
+
+RUN cd /i3c/data/notebook && pip install jupyter_contrib_nbextensions && jupyter contrib nbextension install 
 	
 RUN cp -ax /i3c/data/notebook /i3c/notebook.backup	
 
