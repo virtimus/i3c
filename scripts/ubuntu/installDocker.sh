@@ -1,15 +1,25 @@
 #!/bin/bash
 
+SYSID=$(. /etc/os-release; echo "$ID")
+if [ $SYSID == 'linuxmint' ]; then
+	SYSID='ubuntu';
+fi
+
+SYSREL=$(lsb_release -cs)
+if [ $SYSREL == 'tara' ]; then
+	SYSREL='bionic';
+fi
+	
 apt-get update && \
 		apt-get -y install apt-transport-https \
      	ca-certificates \
      	curl \
      	gnupg2 \
      	software-properties-common && \
-		curl -fsSL https://download.docker.com/linux/$(. /etc/os-release; echo "$ID")/gpg > /tmp/dkey; apt-key add /tmp/dkey && \
+		curl -fsSL https://download.docker.com/linux/$SYSID/gpg > /tmp/dkey; apt-key add /tmp/dkey && \
 		add-apt-repository \
-   		"deb [arch=amd64] https://download.docker.com/linux/$(. /etc/os-release; echo "$ID") \
-  	 	$(lsb_release -cs) \
+   		"deb [arch=amd64] https://download.docker.com/linux/$SYSID \
+  	 	$SYSREL \
    		stable" && \
 		apt-get update && \
 		apt-get -y install docker-ce
