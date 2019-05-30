@@ -1,8 +1,11 @@
 
 
 addIParams=true;
+i3cDataRoot='';
 
 dParams="-d --privileged -p 8899:8888 \
+		-v $uData/config:/root/.jupyter \
+		-v $i3cRoot:$i3cRoot \
 		$addParams \
 		";
 		

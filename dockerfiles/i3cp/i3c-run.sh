@@ -13,7 +13,9 @@
 #		-v $uData/conf.d:/etc/nginx/conf.d \
 dParams="-d -p 80:80 \
 		-p 443:443 \
+		$addParams \
 		--cap-add=NET_ADMIN \
+		-v $uData/vhost.d:/etc/nginx/vhost.d \
 		-v $uData/conf.p:/etc/nginx/conf.p \
 		-v $uData/certs:/etc/nginx/certs \
 		-v $uLog:/var/log \
@@ -22,6 +24,10 @@ dParams="-d -p 80:80 \
 i3cAfter(){
 	
 	/i cp $i3cScriptDir/i3cpsettings.conf i3cp:/etc/nginx/conf.d/i3cpsettings.conf
+	#if [ ! -e $uData/conf.d ]; then
+	#	mkdir $uData/conf.d 
+	#fi
+	#/i cp $uData/conf.d/* i3cp:/etc/nginx/conf.d/
 	/i execd i3cp nginx -s reload
 	
 	#i3cpIp=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' i3cp);

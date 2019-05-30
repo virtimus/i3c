@@ -1,6 +1,6 @@
 #!/bin/bash
 
-inbPath=/i3c/data/notebook 
+inbPath=/data/notebook 
 withWatch=true;
 
 case "$1" in
@@ -14,11 +14,11 @@ case "$1" in
 			if [ ! -e $inbPath ]; then
 				mkdir $inbPath
 			fi
-			cp -rpT /i3c/notebook.backup $inbPath
+			cp -rpT /data.notebook.backup $inbPath
 			touch $inbPath/.docker			
 		fi
 		if [ -e $inbPath/.docker ]; then
-			rm -R /i3c/notebook.backup
+			rm -R /data.notebook.backup
 		fi
 		ln -sf /i3c/i3c/i3c.sh /i
 		/i sc _init
@@ -26,6 +26,12 @@ case "$1" in
 			mkdir $inbPath/notebooks
 		fi
 		cd $inbPath/notebooks
+		
+		#some custom defaults
+		jupyter nbextension enable scroll_down/main
+		
+		#put /root/.jupyter in volume to control the config
+		echo "n\n" | jupyter notebook --generate-config
 		
 		#alias python='python3'
 		if [ "$withWatch" = true ]; then

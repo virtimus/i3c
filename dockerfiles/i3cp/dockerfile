@@ -7,6 +7,8 @@ EXPOSE 53 53/udp
 
 #RUN cp -rp /app /app.backup
 
+RUN echo "fastcgi_index index.php;" >> /etc/nginx/fastcgi.conf
+
 COPY run-i3cp.sh /
 RUN chmod a+x /run-i3cp.sh \
 	&& ln -sf /run-i3cp.sh /r

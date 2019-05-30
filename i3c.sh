@@ -13,6 +13,8 @@
 #curl -s http://cbsg.sourceforge.net/cgi-bin/live | grep -Eo '^<li>.*</li>' | sed s,\</\\?li\>,,g | shuf -n 1
 RED='\033[0;31m'
 LRED='\033[1;31m'
+LYELLOW='\033[1;93m'
+LGREEN='\033[1;92m'
 NC='\033[0m' # No Color
 
 # @description echo encapsulation
@@ -38,6 +40,14 @@ fi
 
 _echoe(){
 (>&2 echo -e "${LRED}$@${NC}")
+}
+
+_echow(){
+(>&2 echo -e "${LYELLOW}$@${NC}")
+}
+
+_echoi(){
+(>&2 echo -e "${LGREEN}$@${NC}")
 }
 
 _mkdir(){
@@ -202,6 +212,9 @@ fi
 
 #i3c platform data dir (containers have access here)
 i3cDataDir=$i3cRoot'/i3c.data'
+
+#container internal data root
+i3cDataRoot='/i3c'
 
 #i3c platform secrets dir (should be unmounted after start)
 i3cSecretsDir=$i3cRoot'/.secrets'
@@ -645,9 +658,11 @@ if [ "$addIParams" == true ]; then
 fi
 			
 i3cParams=" $lOpts \
-	-v $i3cDataDir/$cName:/i3c/data \
+	-v $i3cDataDir/$cName:$i3cDataRoot/data \
+	-v $i3cDataDir/$cName:/data \
 	-v $i3cHome:/i3c/i3c \
-	-v $i3cLogDir/$cName:/i3c/log \
+	-v $i3cLogDir/$cName:$i3cDataRoot/log \
+	-v $i3cLogDir/$cName:/log \
 	-v $i3cSharedHome/$i3cSharedFolder:/i3c/.shared \
 	$secOverridesPath \
 	-e VIRTUAL_HOST=$_vHostList \
@@ -656,9 +671,9 @@ i3cParams=" $lOpts \
 	-e I3C_HOST=$i3cHost \
 	-e I3C_CNAME=$cName \
 	-e I3C_HOME=/i3c/i3c \
-	-e I3C_DATA_DIR=/i3c/data \
+	-e I3C_DATA_DIR=/data \
 	-e PWD_ENV=$PWD_ENV \
-	-e I3C_LOG_DIR=/i3c/log"
+	-e I3C_LOG_DIR=/log"
 	
 #setup default secrets 
 if [ -e $i3cScriptDir/i3c-secrets.sh ] && [ ! -e $i3cSecretsDir/$cName/i3c-secrets.sh ]; then	
@@ -1259,19 +1274,34 @@ itParams='';
 				#cho "os0:$os"
 				os2=$(echo $os | awk '{$1=$1};1')
 				#cho "os2:$os2"
+				irError=false;
 				if [ "x$os" != "x" ] && [ "$irSecret" == true ];then
 					if [ ! -e $i3cSecretsDir/.secrets/$os ]; then
+						if [ "$irSecretConditional" != true ]; then
+							irError=true;
+						else
+							irParams=false;
+						fi
+					fi
+					if [ "$irError" == true ]; then	
 						_echoe "Secret $os not exists. Create with /i sc name value"
 						return 1;
-					fi	
-					os='-v '$i3cSecretsDir/.secrets/$os:/run/secrets/$os:ro
+					else
+						os='-v '$i3cSecretsDir/.secrets/$os:/run/secrets/$os:ro
+					fi
 					#irParams=false;
 					irSecret=false;
+					irSecretConditional=false;
 				fi	
 				if [ "x$os2" != "x" ] && [ "$os2" == "--secret" ];then
 					irSecret=true; 
 					irParams=false;
 				fi
+				if [ "x$os2" != "x" ] && [ "$os2" == "--isecret" ];then
+					irSecret=true; 
+					irParams=false;
+					irSecretConditional=true;
+				fi				
 				if [ "x$os2" != "x" ] && [ "$os2" == "--link" ];then
 					_echoe "WARNING: usage of --link option is deprecated. Use rather /i nc [cname] [netName] in i3cAfter()."; 
 				fi				
@@ -1787,10 +1817,14 @@ wadd(){
 		echo "Must provide name of appdef to create"
 		return 1;	
 	fi
-	fPath="$i3cHome.local/$i3cDfFolder/$1";
+	cName=$1
+	if [ "x$2" != "x" ]; then
+		cName=$2
+	fi
+	fPath="$i3cHome.local/$i3cDfFolder/$cName";
 	#echo "Checking if $fPath exists ..."
 	if [ -e $fPath ]; then
-		echo "appDef $1 already exists in $i3cHome.local/$i3cDfFolder/$1."
+		echo "appDef $cName already exists in $i3cHome.local/$i3cDfFolder/$cName."
 		return 2;
 	fi	
 	if [ ! -e $i3cUdfHome/$i3cDfFolder/$1 ]; then 
@@ -1799,11 +1833,12 @@ wadd(){
 	ln -s $i3cUdfHome/$i3cDfFolder/$1 $fPath
 	ret=$?;
 	if [ $ret -eq 0 ]; then 
-		_echo "appDef $1 referenced in i3c.local."
+		_echo "appDef $1 referenced in i3c.local as $cName."
 	fi
 }
 
 wrem(){	
+	#cho "removing"
 	if [ "x$1" == "x" ]; then
 		echo "Must provide name of appdef to remove"
 		return 1;	
@@ -1811,6 +1846,11 @@ wrem(){
 	fPath="$i3cHome.local/$i3cDfFolder/$1";
 	#echo "Checking if $fPath exists ..."
 	if [ -e $fPath ]; then
+		if [ ! -L $fPath ]; then
+			_echoe "Cannot remove $fPath. It is not a reference (symlink)"
+			return 2;
+		fi
+		echo "removing $fPath"
 		rm $fPath 
 		ret=$?;
 		if [ $ret -eq 0 ]; then
@@ -2022,7 +2062,15 @@ case "$1" in
 	nop)#just be silent	
 		:
 		;;
-							
+	echow)
+		_echow "${@:2}";
+		;;
+	echoe)
+		_echoe "${@:2}";
+		;;	
+	echoi)
+		_echoi "${@:2}";
+		;;				
 	*)
 			echo "Basic usage: $0 up|build|run|runb|start|stop|rm|ps|psa|rmi|rebuild|rerun|pid|ip|exec|exe|save|load|logs|cloneUdfAndRun|help...";
 			echo "cmdAliases:"
