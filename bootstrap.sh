@@ -10,7 +10,9 @@ i3cHome=$i3cRoot'/i3c';
 
 sudo apt-get install -y curl git zip unzip
 
-sudo sh -c 'echo "export I3C_HOME=/i3c/i3c" > /etc/profile.d/i3c.sh'
+sudo sh -c 'echo "export I3C_ROOT=/i3c" > /etc/profile.d/i3c.sh'
+sudo sh -c 'echo "export I3C_HOME=/i3c/i3c" >> /etc/profile.d/i3c.sh'
+
 
 if [ ! -e /i ]; then
    ln -s $i3cHome/i3c.sh /i

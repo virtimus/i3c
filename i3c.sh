@@ -264,7 +264,7 @@ declare -A i3cDFFroms
 #@arg $2 - folder
 #@arg $3 - [optional] subfolder
 _autoconf(){
-#cho "_autoconf:$1:"	
+#cho "_autoconf:$1:$2"	
 case "$1" in
 	create)
 		if [ -e $2 ]; then
@@ -854,6 +854,18 @@ _procDCPath(){
 		dfHome=$i3cUdfHome'.local' 
 	fi	
 }
+#@desc run bootstrap script for current folder or from i3c.local
+_bs(){
+	if [ -e $PWD/bootstrap/i3c-run.sh ]; then
+		_echoi "Running i3c/bootstrap script from $PWD/bootstrap/i3c-run.sh ..."
+		. $PWD/bootstrap/i3c-run.sh	
+	else 
+		if [ -e $I3C_ROOT/i3c.local/bootstrap/i3c-run.sh ]; then
+			_echoi "Running i3c/bootstrap script from $I3C_ROOT/i3c.local/bootstrap/i3c-run.sh ..."
+			. $I3C_ROOT/i3c.local/bootstrap/i3c-run.sh
+		fi
+	fi	
+}
 
 
 _iup(){ 
@@ -1161,14 +1173,16 @@ _build(){
 					while read -r line; do
 						if [ -n "$line" ]; then
 							line="${line/FROM i3c\//}"	
-							i3cDFFroms[$cName]=$line;
-							_autoconf store;
-	    					echo "==================================================="
-	    					echo " REBUILDING Base image: $line ..."
-	    					echo "==================================================="
-	    					/i $i3cOptStr rebuild $line
-							echo " ENDED REBUILDING Base image: $line ..."
-	    					echo "==================================================="	    					
+							if [ "${line:0:5}" != "FROM " ]; then
+								i3cDFFroms[$cName]=$line;
+								_autoconf store;
+		    					echo "==================================================="
+		    					echo " REBUILDING Base image: $line ..."
+		    					echo "==================================================="
+		    					/i $i3cOptStr rebuild $line
+								echo " ENDED REBUILDING Base image: $line ..."
+		    					echo "==================================================="
+	    					fi	    					
 	    				fi
 					done <<< "$fromClause"
 				fi
@@ -1814,7 +1828,7 @@ fi
 #@arg $1 - appDef
 wadd(){	
 	if [ "x$1" == "x" ]; then
-		echo "Must provide name of appdef to create"
+		echo "Must provide name of appDef to create"
 		return 1;	
 	fi
 	cName=$1
@@ -1899,6 +1913,9 @@ $dockerBin stats --format "table {{.Container}}\t{{.Name}}\t{{.CPUPerc}}\t{{.Mem
 
 _fromCase=1
 case "$1" in
+	bs|bootstrap)
+		_bs "${@:2}";
+		;;
 	db)
 		_db "${@:2}";
 		;;

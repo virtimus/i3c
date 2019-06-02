@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "/i3c/i3c.local"
+		},
+		{
+			"path": "/i3c/i3c.data"
+		},
+		{
+			"path": "/i3c/i3c.log"
+		}
+	],
+	"settings": {}
+}
