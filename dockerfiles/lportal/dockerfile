@@ -1,0 +1,9 @@
+FROM liferay/portal:6.2.5-ga6 
+
+COPY ./lportal/tomcat-conf/libs/*.jar /opt/liferay/tomcat/lib/
+#COPY ./wars/epsosportal.war $LPORTAL/deploy
+COPY ./lportal/tomcat-conf/conf-files/server.xml /opt/liferay/tomcat/conf/
+COPY ./lportal/tomcat-conf/conf-files/context.xml /opt/liferay/tomcat/conf/  
+# #cp /opt/apache-tomcat-server/conf/context.xml /opt/liferay/tomcat/conf/  
+COPY ./lportal/tomcat-conf/conf-files/*.properties /opt/liferay/  
+COPY ./lportal/tomcat-conf/conf-files/setenv.sh  /opt/liferay/tomcat/bin/setenv.sh
