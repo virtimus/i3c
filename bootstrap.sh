@@ -14,9 +14,9 @@ sudo sh -c 'echo "export I3C_ROOT=/i3c" > /etc/profile.d/i3c.sh'
 sudo sh -c 'echo "export I3C_HOME=/i3c/i3c" >> /etc/profile.d/i3c.sh'
 
 
-if [ ! -e /i ]; then
-   ln -s $i3cHome/i3c.sh /i
-fi
+#if [ ! -e /i ]; then
+   ln -sf $i3cHome/i3c.sh /i
+#fi
 if [ ! -e $i3cRoot/i3c.data ]; then
 	if [ -e $i3cRoot/data ]; then
 		ln -s $i3cRoot/data $i3cRoot/i3c.data

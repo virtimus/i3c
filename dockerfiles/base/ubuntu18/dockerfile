@@ -1,6 +1,6 @@
 FROM ubuntu:18.04
 
-RUN apt-get update && apt-get install -y wget bash
+RUN apt-get update && apt-get install -y wget bash git
 
 COPY ./run-ubuntu18.sh /
 RUN chmod a+x /run-ubuntu18.sh \

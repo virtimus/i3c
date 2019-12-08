@@ -22,7 +22,7 @@ else
 	#original one(from makefile): script=$(sed -n '/docker run/,/^#$/p' "$name/Dockerfile" | head -n -1 | sed "s/#//" | sed "s#\\\\##" | tr '\n' ' ' | sed "s/\$@//" | sed 's/""//')
 	script=$(sed -n '/docker run/,/^#$/p' "$name/Dockerfile" | head -n -1 | sed "s/#//" | sed "s#\\\\##" | sed -e 's/#.*$//' -e '/^$/d' | tr '\n' ' ' | sed "s/\$@//" | sed 's/""//')
 	#echo "name:$name"
-	#echo "script:$script"
+	echo "script:$script"
 	eval "$script"
 	doCommand=false;
 fi

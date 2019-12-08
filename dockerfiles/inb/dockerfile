@@ -25,8 +25,13 @@ RUN cd /data/notebook \
 	&& ijsinstall
 
 RUN cd /data/notebook && pip install jupyter_contrib_nbextensions && jupyter contrib nbextension install 
-	
-RUN cp -ax /data/notebook /data.notebook.backup	
+
+RUN ln -fs /usr/share/zoneinfo/Europe/Warsaw /etc/localtime \
+	&& apt-get update && apt-get install -y tzdata \
+	&& dpkg-reconfigure -f noninteractive tzdata
+		
+RUN cp -ax /data/notebook /data.notebook.backup	 \
+	&& apt-get update && apt-get install -y zip unzip pandoc texlive texlive-xetex
 
 COPY ./run-inb.sh /
 #RUN adduser --disabled-password --gecos "" --ingroup root  inb && 

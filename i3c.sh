@@ -210,6 +210,10 @@ if [ "x${I3C_ROOT}" == "x" ]; then
 	i3cRoot='/i3c'
 fi
 
+if [ -e $i3cRoot/.env ]; then
+	. $i3cRoot/.env 
+fi
+
 #i3c platform data dir (containers have access here)
 i3cDataDir=$i3cRoot'/i3c.data'
 
@@ -1781,8 +1785,8 @@ $dockerBin run -it --rm --name certbot -p 80:80 -p 443:443 -v $i3cDataDir/.certs
 rerun i3cp
 }
 
-#@desc initialize new user workspace in current folder, no args needed
-#@na
+#@desc Initialize new user workspace in current folder, no args needed
+#@arg $1 - optional dfRegistry url 
 winit(){
 #echo "params $1: $@"
 if [ "x$1" != "x" ]; then #clone repo from git url
@@ -1798,6 +1802,12 @@ if [ "x$1" != "x" ]; then #clone repo from git url
  		stage="git pull origin master"
  		git pull origin master
  		ret=$?;
+ 	else 
+ 		stage="git push -u origin master"
+ 		git add *
+		git commit -m "first commit"
+ 		git push -u origin master
+ 		ret=$?;	
 	fi
  	if [ $ret -eq 0 ]; then 
  		stage="git branch --set-upstream-to=origin/master master"
@@ -2098,7 +2108,8 @@ case "$1" in
 			echo "Help with command: $0 help [commmand]";
 			echo "====================="
 			echo "Some usefull shortcuts:"
-			echo "gstorec - git config credential.helper store"			
+			echo "gstorec - git config credential.helper store"		
+			set	
 esac
  	
 

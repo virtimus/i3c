@@ -170,3 +170,7 @@ See the included sample compose file ```docker-compose-swarm.yml```
 ## Tutorial
 
 [http://wurstmeister.github.io/kafka-docker/](http://wurstmeister.github.io/kafka-docker/)
+
+
+## REFS:
+http://cloudurable.com/blog/kafka-tutorial-kafka-from-command-line/index.html

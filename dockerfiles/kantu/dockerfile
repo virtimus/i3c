@@ -1,0 +1,45 @@
+FROM i3c/base/ubuntu18/nodejs
+
+RUN apt-get update && apt-get install -y zip unzip
+
+#_cloneOrPull https://github.com/A9T9/Kantu src-kantu
+RUN mkdir /src && cd /src && git clone https://github.com/i3c-cloud/Kantu.git kantu
+
+#prepare macros
+#npm rebuild node-sass --force
+COPY imagesearch-testextension.zip /src/kantu/imagesearch-testextension.zip
+RUN cd /src/kantu && unzip imagesearch-testextension.zip
+
+RUN cd /src/kantu \	
+	&& npm i \
+	&& npm install cross-env \
+	&& npm install react-click-outside \
+	&& npm run build \
+	&& npm run build-ff
+	
+RUN npm install --global web-ext && apt-get update && apt-get install -y firefox
+
+#https://developer.mozilla.org/en-US/docs/Mozilla/Developer_guide/Build_Instructions/Simple_Firefox_build/Linux_and_MacOS_build_preparation
+# apt-get update
+# cd /src
+# wget https://hg.mozilla.org/mozilla-central/raw-file/default/python/mozboot/bin/bootstrap.py
+# python bootstrap.py
+# echo "2" | python bootstrap.py --no-interactive --vcs=git
+
+# hg clone https://hg.mozilla.org/mozilla-central
+
+#cd mozilla-central
+#.mozconfig 
+# Automatically download and use compiled C++ components:
+# This option will disable C/C++ compilation
+#ac_add_options --enable-artifact-builds
+
+# Write build artifacts to (not mandatory):
+#mk_add_options MOZ_OBJDIR=./objdir-frontend
+
+RUN mv /src/kantu /src/kantu.backup
+
+COPY make.sh /src/make-kantu.sh 
+COPY ./run-kantu.sh /
+RUN chmod a+x /src/make-kantu.sh && chmod a+x /run-kantu.sh \
+	&& ln -sf /run-kantu.sh /r	

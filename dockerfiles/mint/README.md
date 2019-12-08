@@ -40,3 +40,6 @@ sudo apt-add-repository ppa:remmina-ppa-team/remmina-next \
 && sudo apt-get update \
 && sudo apt-get install remmina remmina-plugin-rdp libfreerdp-plugins-standard
 
+
+echo env -u SESSION_MANAGER -u DBUS_SESSION_BUS_ADDRESS cinnamon-session>~/.xsession
+

@@ -4,6 +4,9 @@ inbPath=/data/notebook
 withWatch=true;
 
 case "$1" in
+		secret)
+		cat /i3c/.secrets/.secrets/$2;
+		;;
 	stop)
 		cd $inbPath
 		echo "Stoping inb ..."

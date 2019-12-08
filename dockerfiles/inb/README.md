@@ -18,3 +18,6 @@ https://jupyter-notebook.readthedocs.io/en/latest/contributing.html
 https://vitux.com/install-python3-on-ubuntu-and-set-up-a-virtual-programming-environment/
 
 https://github.com/takluyver/bash_kernel
+
+magic commands
+https://blog.dominodatalab.com/lesser-known-ways-of-using-notebooks/
