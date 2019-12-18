@@ -1814,7 +1814,9 @@ rerun i3cp
 }
 
 #@desc Initialize new user workspace in current folder, no args needed
-#@arg $1 - optional dfRegistry url 
+#@arg $1 - optional dfRegistry url
+#@arg $2 - user email in case create repo
+#@arg $3 - user name in case create repo 
 winit(){
 #echo "params $1: $@"
 if [ "x$1" != "x" ]; then #clone repo from git url
@@ -1836,11 +1838,22 @@ if [ "x$1" != "x" ]; then #clone repo from git url
  		git pull origin master
  		ret=$?;
  	else 
+ 		ret=0;
  		stage="git push -u origin master"
- 		git add *
-		git commit -m "first commit"
- 		git push -u origin master
- 		ret=$?;	
+ 		if ["x$2" == "x" ]; then 
+ 			stage="$stage, user email not set"
+ 			ret=1;
+ 		fi
+  		if ["x$3" == "x" ]; then 
+ 			stage="$stage, user name not set"
+ 			ret=1;
+ 		fi	
+ 		if [ $ret -eq 0 ]; then	
+	 		git add *
+			git commit -m "first commit"
+	 		git push -u origin master
+	 		ret=$?;	
+ 		fi
 	fi
  	if [ $ret -eq 0 ]; then 
  		stage="git branch --set-upstream-to=origin/master master"
