@@ -1826,6 +1826,11 @@ if [ "x$1" != "x" ]; then #clone repo from git url
  		git remote add origin $1
  		ret=$?;
  	fi
+ 	if [ $ret -eq 0 ]; then
+ 		stage="git ls-remote $1"
+ 		git ls-remote $1
+ 		ret=$?;
+ 	fi
  	if [ $ret -eq 0 ]; then 
  		stage="git pull origin master"
  		git pull origin master
