@@ -52,6 +52,9 @@ _echoi(){
 
 _mkdir(){
 mkdir -p $1
+if [ -e $1 ]; then
+	chmod -R g+w $1
+fi
 return "$?"	
 }
 
@@ -208,10 +211,30 @@ if [ "x${I3C_ROOT}" == "x" ]; then
 	#_echoe "FATAL ERROR: I3C_ROOT is not set. i3c.Cloud needs this to point to i3c working files ()."	
 	#currently just /i3c as default & working
 	i3cRoot='/i3c'
+	
 fi
 
 if [ -e $i3cRoot/.env ]; then
 	. $i3cRoot/.env 
+fi
+
+# some defaults ...
+# platform amd64/arm64/armel/armhf/i386/mips/mips64el/mipsel/ppc64el/s390x
+# dpkg-architecture --query DEB_BUILD_GNU_TYPE buildpack-deps:buster
+i3cPlatform=amd64
+if [ "x$I3C_PLATFORM" != "x" ]; then
+	i3cPlatform=$I3C_PLATFORM
+else
+	hPlatform=$(uname --m)
+	case "$hPlatform" in
+		x86_64)
+			i3cPlatform=amd64
+		;;
+		aarch64)
+			i3cPlatform=arm64
+		;;		
+	esac
+	export I3C_PLATFORM=$i3cPlatform
 fi
 
 #i3c platform data dir (containers have access here)
@@ -766,11 +789,16 @@ _db(){
 	docker build "$@"
 }
 
-#@desc clone given 3d party repo
+_cloneAndBuild(){
+	cloneUDfAndBuild "$@"
+	return "$?";
+}
 
+#@desc clone given 3d party repo
+#@deprecated (_cloneAndBuild)
 #@arg $1 repo path
 #@arg $2 dockerfile folder inside this repo (the path will be available in container under /i3c/data)
-#@arg $3 image/container name to build
+#@arg $3 image/container name/appName to build
 #@arg $4 optional arg for image name if different than appName 
 
 
