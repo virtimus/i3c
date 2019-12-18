@@ -1854,6 +1854,8 @@ if [ "x$1" != "x" ]; then #clone repo from git url
  			ret=1;
  		fi	
  		if [ $ret -eq 0 ]; then	
+ 			git config user.email $2
+ 			git config user.name $3
 	 		git add *
 			git commit -m "first commit"
 	 		git push -u origin master
