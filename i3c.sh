@@ -1866,7 +1866,7 @@ if [ "x$1" != "x" ]; then #clone repo from git url
 	 		else 
 	 			dir=$(pwd)
 	 			repoName=$(basename $dir)
-	 			curl -u $3 https://api.github.com/user/repos -d "{'name':"'$repoName'}"
+	 			curl -u $3 https://api.github.com/user/repos -d "{'name':'$repoName'}"
 	 			git push -u origin master
 	 		fi
 	 		
