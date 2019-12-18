@@ -1845,12 +1845,12 @@ if [ "x$1" != "x" ]; then #clone repo from git url
  		stage="git push -u origin master"
  		if [ "x$2" == "x" ]; then 
  			stage="$stage, user email not set"
- 			rm -r .git
+ 			rm -rf .git
  			ret=1;
  		fi
   		if [ "x$3" == "x" ]; then 
  			stage="$stage, user name not set"
- 			rm -r .git
+ 			rm -rf .git
  			ret=1;
  		fi	
  		if [ $ret -eq 0 ]; then	
@@ -1860,6 +1860,9 @@ if [ "x$1" != "x" ]; then #clone repo from git url
 			git commit -m "first commit"
 	 		git push -u origin master
 	 		ret=$?;	
+	 		if [ $ret -ne 0 ]; then
+	 			rm -rf .git
+	 		fi
  		fi
 	fi
  	if [ $ret -eq 0 ]; then 
