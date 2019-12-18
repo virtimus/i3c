@@ -1854,15 +1854,23 @@ if [ "x$1" != "x" ]; then #clone repo from git url
  			ret=1;
  		fi	
  		if [ $ret -eq 0 ]; then	
+ 			
  			git config user.email $2
  			git config user.name $3
 	 		git add *
 			git commit -m "first commit"
-	 		git push -u origin master
+	 		
 	 		ret=$?;	
 	 		if [ $ret -ne 0 ]; then
 	 			rm -rf .git
+	 		else 
+	 			dir=$(pwd)
+	 			repoName=$(basename $dir)
+	 			curl -u $3 https://api.github.com/user/repos -d "{'name':"'$repoName'}"
+	 			git push -u origin master
 	 		fi
+	 		
+	 		
  		fi
 	fi
  	if [ $ret -eq 0 ]; then 
