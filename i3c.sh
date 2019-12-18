@@ -1840,12 +1840,14 @@ if [ "x$1" != "x" ]; then #clone repo from git url
  	else 
  		ret=0;
  		stage="git push -u origin master"
- 		if ["x$2" == "x" ]; then 
+ 		if [ "x$2" == "x" ]; then 
  			stage="$stage, user email not set"
+ 			rm -r .git
  			ret=1;
  		fi
-  		if ["x$3" == "x" ]; then 
+  		if [ "x$3" == "x" ]; then 
  			stage="$stage, user name not set"
+ 			rm -r .git
  			ret=1;
  		fi	
  		if [ $ret -eq 0 ]; then	
