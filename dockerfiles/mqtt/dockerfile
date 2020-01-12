@@ -1,4 +1,4 @@
-FROM i3c/mqtt-base
+FROM i3c/mqtt-base2
 
 RUN apk add bash
 

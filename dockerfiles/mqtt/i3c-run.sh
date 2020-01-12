@@ -7,6 +7,7 @@ dParams="-d -p 1883:1883 -p 8883:8883 -p 9001:9001 \
 #	
 	
 i3cAfter(){
-	sudo ln -sf $uLog $uData/log
-	
+	if [ ! -e $uData/log ]; then
+		sudo ln -sf $uLog $uData/log
+	fi	
 }
