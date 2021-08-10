@@ -42,13 +42,13 @@ When "Setup - Docker Toolbox" window apears - You can just accept defaults.
 - install Docker (instruction for Ubuntu18 in ubuntu18install.txt)
 - run main bootstrap script:
 ```bash
-curl -sSL https://raw.githubusercontent.com/virtimus/i3c/master/bootstrap.sh | bash
+curl -sSL https://raw.githubusercontent.com/virtimus/i3c/master/bootstrap.sh | sudo bash
 ```
 
--or run bootstrap for fresh Ubuntu with Docker install:
+-or run bootstrap for fresh Ubuntu including Docker install:
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/virtimus/i3c/master/scripts/ubuntu/bootstrapWithDocker.sh | bash
+curl -sSL https://raw.githubusercontent.com/virtimus/i3c/master/scripts/ubuntu/bootstrapWithDocker.sh | sudo bash
 ```
 
 ## Demo
